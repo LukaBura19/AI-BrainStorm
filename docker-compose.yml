@@ -1,0 +1,105 @@
+# ===========================================
+# BrainStorm Booking - Docker Compose
+# ===========================================
+# Pokreni sa: docker compose up --build
+# Zaustavi sa: docker compose down
+
+services:
+
+  # ---- PostgreSQL ----
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-brainstorm}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-brainstorm_local}
+      POSTGRES_DB: ${POSTGRES_DB:-brainstorm_booking}
+    # Ako 55432 zauzet, promeni levi broj (desni mora ostati 5432 u kontejneru)
+    ports:
+      - "55432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-brainstorm} -d ${POSTGRES_DB:-brainstorm_booking}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ---- Backend (FastAPI) ----
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # Host 8001 često zauzet (stari docker-proxy); API sa hosta: http://localhost:8002
+    ports:
+      - "8002:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-brainstorm}:${POSTGRES_PASSWORD:-brainstorm_local}@postgres:5432/${POSTGRES_DB:-brainstorm_booking}
+      SECRET_KEY: ${SECRET_KEY:-change-me-to-a-random-secret-key}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-480}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5174}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Belgrade}
+      MAIL_SERVER: ${MAIL_SERVER:-mailhog}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-noreply@brainstorm.com}
+      MAIL_ENABLED: ${MAIL_ENABLED:-true}
+      MAIL_TIMEOUT_SECONDS: ${MAIL_TIMEOUT_SECONDS:-10}
+      MAIL_TLS: ${MAIL_TLS:-false}
+      MAIL_SSL: ${MAIL_SSL:-false}
+      MAIL_DELIVERY_MODE: ${MAIL_DELIVERY_MODE:-smtp}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@brainstorm.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      ADMIN_FULL_NAME: ${ADMIN_FULL_NAME:-Admin BrainStorm}
+    volumes:
+      - ./backend:/app
+      - booking_uploads:/app/uploads/booking_attachments
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    # Migracije moraju biti primenjene pre starta API-ja (npr. nove kolone u modelu).
+    command: >
+      sh -c "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  # ---- Frontend (React + Vite) ----
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # Host 5173 često zauzet; aplikacija: http://localhost:5174
+    ports:
+      - "5174:5173"
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8002}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    # Osvežava persistentni node_modules volumen kada se package-lock promeni.
+    command: sh -c "npm install --no-audit --no-fund && npm run dev"
+
+  # ---- MailHog (lokalni email catcher) ----
+  # Host portovi 1025/8026 često zauzeti; sa hosta: SMTP localhost:1125, Web UI http://localhost:8036
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - "1125:1025"   # SMTP (host:container — backend i dalje koristi mailhog:1025 u mreži)
+      - "8036:8025"   # Web UI (container i dalje sluša na 8025)
+
+volumes:
+  postgres_data:
+  booking_uploads:

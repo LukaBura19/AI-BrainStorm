@@ -1,0 +1,7 @@
+.typewriter-text { position: relative; display: block; }
+.typewriter-reserve { display: block; visibility: hidden; pointer-events: none; user-select: none; }
+.typewriter-displayed { position: absolute; inset: 0; }
+.typewriter-caret { display: inline-block; width: 2px; height: .8em; margin-left: 3px; background: #f0a6d7; animation: title-caret .8s steps(1) infinite; }
+.typewriter-accessible { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@keyframes title-caret { 50% { opacity: 0; } }
+@media(prefers-reduced-motion:reduce) { .typewriter-caret { display: none; animation: none; } }

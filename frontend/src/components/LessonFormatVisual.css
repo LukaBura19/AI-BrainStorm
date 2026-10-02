@@ -1,0 +1,12 @@
+.booking-format-visual { position: relative; width: 100%; min-width: 0; display: grid; place-items: center; padding: 16px 8px 10px; perspective: 900px; }
+.booking-format-visual svg { display: block; width: min(100%,420px); height: auto; overflow: visible; }
+.format-scene { transform-box: fill-box; transform-origin: 50% 70%; animation: format-hover 7s ease-in-out infinite; }
+.format-satellite { animation: format-detail 5s ease-in-out infinite; }
+.format-connection { animation: format-signal 9s linear infinite; }
+.format-spark { animation: format-spark 5s ease-in-out infinite; }
+.booking-format-visual[data-motion="paused"] svg * { animation-play-state: paused !important; }
+@keyframes format-hover { 0%,100% { transform: translateY(3px) rotate(-1deg); } 50% { transform: translateY(-5px) rotate(1deg); } }
+@keyframes format-detail { 0%,100% { translate: 0 1px; } 50% { translate: 0 -5px; } }
+@keyframes format-signal { to { stroke-dashoffset: -110; } }
+@keyframes format-spark { 50% { opacity: .35; } }
+@media(prefers-reduced-motion:reduce) { .booking-format-visual svg * { animation: none !important; } }

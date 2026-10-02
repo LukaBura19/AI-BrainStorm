@@ -1,0 +1,237 @@
+.brain-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  isolation: isolate;
+  overflow: hidden;
+}
+.brain-halo {
+  position: absolute;
+  inset: 0 4% 25%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #a358cb13, transparent 67%);
+  pointer-events: none;
+}
+.brain-sculpture {
+  position: absolute;
+  inset: 0 0 180px;
+  width: 100%;
+  height: calc(100% - 180px);
+  border: 0;
+  border-radius: 18px;
+  background: none;
+  padding: 0;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.brain-sculpture:active,
+.is-dragging .brain-sculpture {
+  cursor: grabbing;
+}
+.brain-sculpture:disabled {
+  cursor: default;
+}
+.brain-sculpture:focus-visible {
+  outline: 1px dashed var(--color-lavender, #c4a9ff);
+  outline-offset: -7px;
+}
+.brain-sculpture canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.brain-scene[data-state="error"] canvas {
+  visibility: hidden;
+}
+.brain-fallback {
+  position: absolute;
+  inset: 8% 12%;
+  width: 76%;
+  height: 84%;
+  object-fit: contain;
+  pointer-events: none;
+  overflow: hidden;
+}
+.brain-controls {
+  position: absolute;
+  inset: auto 0 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  pointer-events: none;
+}
+.brain-caption {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: #ad9cbd;
+  font-size: 9px;
+}
+.brain-caption svg {
+  color: var(--color-lavender, #c4a9ff);
+}
+.brain-reset {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 6px 9px;
+  border: 1px solid #c4a9ff25;
+  border-radius: 20px;
+  background: #141b5060;
+  color: #d9c5f7;
+  font: inherit;
+  font-size: 9px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.brain-reset:hover {
+  background: #403060;
+}
+.brain-reset:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.brain-reset:focus-visible {
+  outline: 2px solid #efb3de;
+  outline-offset: 3px;
+}
+.brain-load-status,
+.brain-fallback-status {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 30%;
+  text-align: center;
+  color: #cab5df;
+  font-size: 11px;
+  pointer-events: none;
+}
+.brain-fallback-status {
+  top: 50%;
+  font-size: 9px;
+}
+.brain-science-notes {
+  position: absolute;
+  inset: auto 24px 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  pointer-events: none;
+}
+.brain-math-note {
+  color: #c8b1df;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.brain-math-note > span {
+  color: #9e8eae;
+  font-size: 7px;
+  letter-spacing: 0.12em;
+}
+.brain-math-note > strong {
+  font-family: var(--font-editorial);
+  font-size: 22px;
+  font-weight: 400;
+}
+.brain-math-note > small {
+  color: #9b8cae;
+  font-size: 8px;
+}
+.brain-code-panel {
+  padding: 10px 13px;
+  border: 1px solid #bd9bda1a;
+  border-radius: 10px;
+  background: #090f29a8;
+  color: #dfd5ed;
+}
+.brain-code-language {
+  display: block;
+  color: #8f81a2;
+  font: 8px/1.4 monospace;
+  letter-spacing: 0.04em;
+  margin-bottom: 5px;
+}
+.brain-code-panel pre {
+  margin: 0;
+  font:
+    clamp(9px, 0.73vw, 12px) / 1.48 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  text-align: left;
+  white-space: pre;
+}
+.brain-code-panel code {
+  font: inherit;
+}
+.brain-code-panel .code-keyword {
+  color: #e79ccd;
+}
+.brain-code-panel .code-string {
+  color: #accedb;
+}
+.brain-scene--compact {
+  min-height: 0;
+}
+.brain-scene--compact .brain-sculpture {
+  inset: 0;
+  height: 100%;
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  .brain-math-note {
+    display: none;
+  }
+  .brain-science-notes {
+    justify-content: center;
+  }
+}
+@media (max-width: 520px) {
+  .brain-sculpture {
+    bottom: 165px;
+    height: calc(100% - 165px);
+  }
+  .brain-scene--compact .brain-sculpture {
+    bottom: 0;
+    height: 100%;
+  }
+  .brain-math-note {
+    display: none;
+  }
+  .brain-science-notes {
+    justify-content: center;
+    inset-inline: 16px;
+  }
+  .brain-code-panel {
+    width: 100%;
+    max-width: 310px;
+    padding: 9px 12px;
+  }
+  .brain-code-panel pre {
+    font-size: 10px;
+  }
+  .brain-caption {
+    font-size: 8px;
+    gap: 4px;
+  }
+  .brain-controls {
+    gap: 7px;
+  }
+}
+@media (max-width: 340px) {
+  .brain-code-panel pre {
+    font-size: 9px;
+  }
+  .brain-caption {
+    font-size: 7px;
+  }
+}

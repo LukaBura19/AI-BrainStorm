@@ -1,0 +1,25 @@
+.home--video { width: 100%; color: white; font-family: var(--font-body); }
+.home--video .home-hero-layout { --hero-inset: clamp(28px,6.25vw,160px); position: relative; isolation: isolate; min-height: 100svh; width: 100%; display: flex; align-items: center; padding: 140px 32px 110px var(--hero-inset); touch-action: pan-y pinch-zoom; }
+.home--video .home-hero-copy { position: relative; z-index: 2; width: min(calc(50vw - var(--hero-inset)),1080px); }
+.home--video .home-typewriter { position: relative; display: grid; grid-template-columns: 1fr; margin: 0; color: #fff; font: 400 clamp(34px,3.3vw,68px)/1.18 var(--font-body); letter-spacing: -.04em; }
+.home-typewriter-reserve,.home-typewriter-displayed { grid-area: 1 / 1; min-width: 0; }
+.home-typewriter-reserve { visibility: hidden; pointer-events: none; user-select: none; }
+.home-typewriter-displayed { position: absolute; inset: 0; }
+.home-typewriter-caret { display: inline-block; width: 2px; height: .9em; margin-left: 4px; vertical-align: -.06em; background: #ef9dd0; animation: home-caret 1s steps(1) infinite; }
+.home-typewriter-caret.is-done { display: none; }
+.home--video .home-actions { display: flex; margin-top: clamp(30px,3vw,48px); opacity: 0; transform: translateY(8px); visibility: hidden; transition: opacity .4s ease,transform .4s ease; }
+.home--video .home-actions.is-visible { opacity: 1; transform: none; visibility: visible; }
+.home--video .home-booking-cta { position: relative; overflow: hidden; isolation: isolate; min-height: 92px; display: inline-flex; align-items: center; justify-content: space-between; gap: clamp(24px,3vw,52px); padding: 13px 14px 13px 38px; border: 1px solid #ffe5f5; border-radius: 100px; color: #252145; background: #fff; box-shadow: 0 14px 48px #dd62b738,0 0 0 7px #f3bfdf0a,inset 0 1px 0 #fff; font: 500 clamp(24px,1.85vw,32px)/1.2 var(--font-body); letter-spacing: -.03em; transition: transform .35s cubic-bezier(.2,.8,.2,1),background .3s,box-shadow .3s; }
+.home-booking-cta::before { content: ""; position: absolute; z-index: -1; inset: -30%; background: linear-gradient(105deg,transparent 25%,#f6b1df55 45%,#ffffffaa 53%,transparent 70%); transform: translateX(-100%); }
+.home-booking-arrow { width: 64px; height: 64px; flex: 0 0 64px; display: grid; place-items: center; border-radius: 50%; color: #8f216d; background: linear-gradient(145deg,#f6c8e6,#dabef7); transition: background .3s,transform .35s,color .3s; }
+.home--video .home-booking-cta:hover { color: #252145; background: #fff5fc; box-shadow: 0 18px 48px #ba5b9d33,0 0 0 6px #ffffff08; transform: translateY(-4px); }
+.home-booking-cta:is(:hover,:focus-visible)::before { animation: home-button-sheen .85s ease; }
+.home-booking-cta:is(:hover,:focus-visible) .home-booking-arrow { background: #ca358f; color: white; transform: rotate(-35deg); }
+.home--video .home-booking-cta:active { transform: translateY(-1px) scale(.985); }
+.home-sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@keyframes home-caret { 50% { opacity: 0; } }
+@keyframes home-button-sheen { to { transform: translateX(100%); } }
+@media(max-width:1000px) and (min-width:761px) { .home--video .home-hero-copy { width: 48vw; } .home--video .home-booking-cta { min-height: 80px; padding-left: 25px; gap: 20px; } .home-booking-arrow { width: 56px; height: 56px; flex-basis: 56px; } }
+@media(max-width:760px) { .home--video .home-hero-layout { align-items: flex-end; padding: 260px 24px 110px; } .home--video .home-hero-copy { width: 100%; max-width: 560px; } .home--video .home-typewriter { font-size: clamp(30px,7.3vw,42px); line-height: 1.2; letter-spacing: -.035em; } .home--video .home-actions { margin-top: 28px; } .home--video .home-booking-cta { min-height: 78px; padding: 11px 12px 11px 28px; gap: 32px; font-size: 24px; } .home-booking-arrow { width: 54px; height: 54px; flex-basis: 54px; } }
+@media(max-width:360px) { .home--video .home-hero-layout { padding-inline: 20px; padding-top: 230px; } .home--video .home-typewriter { font-size: 29px; } }
+@media(prefers-reduced-motion:reduce) { .home--video .home-actions,.home--video .home-booking-cta,.home-booking-arrow { transition: none; } .home-typewriter-caret { animation: none; } .home-booking-cta:is(:hover,:focus-visible)::before { animation: none; } .home--video .home-booking-cta:hover,.home-booking-cta:is(:hover,:focus-visible) .home-booking-arrow { transform: none; } }
