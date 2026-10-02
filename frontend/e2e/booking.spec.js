@@ -48,7 +48,7 @@ function decodedHeader(value = "") {
 test("mobilna navigacija nema horizontalno prelivanje", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Pravi profesor/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Zakaži svoj čas" })).toBeVisible();
   const viewportFits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
   expect(viewportFits).toBeTruthy();
   await page.getByRole("button", { name: "Otvori meni" }).click();

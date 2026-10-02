@@ -29,18 +29,19 @@ for (const width of [1440, 1920, 2560]) test(`radni prostor koristi celu širinu
   const summary = await page.locator(".booking-summary").boundingBox();
   expect(width - summary.x - summary.width).toBeLessThanOrEqual(40);
   const panel = await page.locator(".booking-panel").boundingBox();
-  const railWorkspace = await page.locator(".booking-workspace").boundingBox();
-  const steps = await page.locator(".stepper").boundingBox();
-  const content = await page.locator(".booking-step").boundingBox();
-  expect(steps.x).toBeGreaterThanOrEqual(railWorkspace.x);
-  expect(steps.width).toBeGreaterThanOrEqual(Math.min(360, Math.max(220, width * .15)) - 1);
+  const journey = await page.locator(".journey").boundingBox();
+  // The synapse progress spans the top of the workspace, above the step panel.
+  expect(journey.width).toBeGreaterThanOrEqual(width * .5);
+  expect(journey.y + journey.height).toBeLessThanOrEqual(panel.y + 2);
+  await expect(page.locator(".journey-node")).toHaveCount(8);
   await expect(page.locator(".booking-summary-logo .brand-logo-icon image")).toHaveAttribute("href", "/assets/logo2.png");
   await expect(page.locator(".booking-summary canvas")).toHaveCount(0);
   expect(summary.x).toBeGreaterThan(panel.x + panel.width);
-  expect(content.x).toBeGreaterThan(steps.x + steps.width - 2);
   await expect(page.getByRole("button", { name: "Nastavi" })).toBeInViewport({ ratio: 1 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   const card = page.getByRole("button", { name: /Matematika/ });
+  // Let the card's entrance animation settle before measuring the pointer tilt.
+  await card.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
   const cardBox = await card.boundingBox();
   await page.mouse.move(cardBox.x + 10, cardBox.y + 10);
   const firstTilt = await card.evaluate((el) => getComputedStyle(el).transform);

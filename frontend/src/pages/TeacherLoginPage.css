@@ -17,3 +17,25 @@
 .login-visual-card strong { font-weight: 500; }
 .login-visual-card small { color: var(--color-text-muted); }
 .login-kicker { font-weight: 450; font-size: .58rem; letter-spacing: .17em; }
+
+/* ---- Live glass refresh ---- */
+@property --login-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.login-page { animation: fx-rise .7s cubic-bezier(.2, .8, .2, 1) both; }
+.login-visual { background: radial-gradient(ellipse at 25% 20%, rgba(241, 91, 181, .22), transparent 70%), linear-gradient(160deg, rgba(36, 24, 84, .82), rgba(10, 12, 46, .86)); backdrop-filter: blur(16px); }
+.login-visual::before { animation: login-brain 14s ease-in-out infinite alternate; opacity: .28; }
+@keyframes login-brain { from { transform: rotate(-14deg) scale(1); } to { transform: rotate(-4deg) scale(1.08); } }
+.login-visual::after { animation: login-orbit 30s linear infinite; }
+@keyframes login-orbit { to { transform: rotate(335deg); } }
+.login-visual h1 { background: linear-gradient(100deg, #fff 20%, #f6b8e0 60%, #c7b5ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.login-visual-badge { animation: login-float 5s ease-in-out infinite; }
+@keyframes login-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+.login-card { position: relative; overflow: hidden; background: linear-gradient(160deg, rgba(40, 36, 96, .78), rgba(14, 18, 60, .84)); backdrop-filter: blur(18px); }
+.login-card > * { position: relative; z-index: 1; }
+.login-card::before { background: conic-gradient(from var(--login-angle), transparent 0 60%, #f15bb5 72%, #ffd1ee 80%, #b3a1fa 88%, transparent 100%) !important; padding: 1.5px !important; animation: login-spin 5s linear infinite; z-index: 2; }
+@keyframes login-spin { to { --login-angle: 360deg; } }
+.login-card .input { border-radius: 14px; background: rgba(6, 9, 34, .55); transition: border-color .25s, box-shadow .25s, background .25s; }
+.login-card .input:focus { border-color: #f693d2; background: rgba(20, 16, 56, .8); box-shadow: 0 0 0 4px rgba(241, 91, 181, .16), 0 0 30px rgba(241, 91, 181, .15); }
+.login-btn { border-radius: 16px; }
+@media (prefers-reduced-motion: reduce) {
+  .login-page, .login-visual::before, .login-visual::after, .login-visual-badge, .login-card::before { animation: none; }
+}

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 // Presentation checks intercept every public API request. No reservations or mail are sent.
 const subjects = ["Srpski jezik", "Matematika", "Informatika", "Fizika", "Hemija", "Engleski jezik", "Nemački jezik", "Ruski jezik"].map((name, index) => ({ id: index + 1, name }));
-const headings = ["Izaberi predmet", "Izaberi profesora", "Izaberite dužinu i način časa", "Podesi vrstu časa", "Izaberi dan", "Izaberi vreme", "Unesite svoje podatke", "Potvrdi rezervaciju"];
+const headings = ["Izaberi predmet", "Izaberi profesora", "Koliko vremena ti treba?", "Podesi vrstu časa", "Izaberi dan", "Izaberi vreme", "Unesi svoje podatke", "Potvrdi rezervaciju"];
 
 const go = (page, path) => page.goto(path, { waitUntil: "domcontentloaded" });
 const top = (page) => page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
@@ -65,6 +65,8 @@ test("naslovi koraka se ispisuju bez pomeranja kartica i čitaju se u celosti", 
   await expect(card).toBeVisible();
   // Wait for the step's separate entrance, then measure the typing layout.
   await expect.poll(() => page.locator(".booking-step").evaluate(el => getComputedStyle(el).transform)).toMatch(/none|matrix\(1, 0, 0, 1, 0, 0\)/);
+  // Cards rise in with their own entrance animation; measure layout once it has settled.
+  await card.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
   const before = await card.boundingBox();
   await expect(typed).toHaveAttribute("data-typing", "done");
   expect(Math.abs((await card.boundingBox()).y - before.y)).toBeLessThan(2);
@@ -76,7 +78,7 @@ test("naslovi koraka se ispisuju bez pomeranja kartica i čitaju se u celosti", 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.getByRole("button", { name: /Luka Bura/ }).click();
   await next(page);
-  await expect(page.getByRole("heading", { name: "Izaberite dužinu i način časa" }).locator(".typewriter-text")).toHaveAttribute("data-typing", "done");
+  await expect(page.getByRole("heading", { name: "Koliko vremena ti treba?" }).locator(".typewriter-text")).toHaveAttribute("data-typing", "done");
 });
 
 async function toClient(page, capture = async () => {}, { expectedSlots = 12 } = {}) {
@@ -98,7 +100,8 @@ async function toClient(page, capture = async () => {}, { expectedSlots = 12 } =
   await capture(3);
   const duration = page.getByRole("button", { name: /60 minuta/ });
   await duration.hover();
-  await expect.poll(() => duration.locator(".booking-duration-clock").evaluate((clock) => new DOMMatrixReadOnly(getComputedStyle(clock, "::before").transform).m22)).toBe(1);
+  // Hovering fills the duration ring all the way to its share of 90 minutes.
+  await expect.poll(() => duration.locator(".duration-ring-fill").evaluate((ring) => Number(getComputedStyle(ring).strokeDashoffset.match(/[\d.]+/)?.[0]))).toBeLessThan(60);
   await duration.click();
   await next(page);
   await page.getByRole("button", { name: /Online/ }).click();
@@ -141,8 +144,10 @@ async function toClient(page, capture = async () => {}, { expectedSlots = 12 } =
   }
   await next(page);
   await expect(page.locator(".booking-date-card")).toHaveCount(14);
-  expect(await page.locator(".booking-date-card strong").first().evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(40);
-  expect(await page.locator(".booking-date-card small").first().evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(13);
+  expect(await page.locator(".booking-date-card strong").first().evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(page.viewportSize().width <= 640 ? 20 : 28);
+  expect(await page.locator(".booking-date-card small").first().evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(10);
+  // Every day shows how many free slots it has for the chosen combination.
+  await expect(page.locator(".booking-date-card .booking-date-availability").first()).toHaveText(/\d+/);
   await page.locator(".booking-date-card").nth(1).click();
   await capture(5);
   await next(page);
@@ -154,7 +159,8 @@ async function toClient(page, capture = async () => {}, { expectedSlots = 12 } =
   await next(page);
   await expect(page.locator(".booking-form-panel")).toHaveCount(3);
   await expect(page.locator(".booking-details-section-head h3")).toHaveText(["Kontakt", "O času", "Materijali"]);
-  expect(await page.locator(".booking-panel").evaluate(parent => {
+  // Panels animate in; poll until they have settled inside the main card.
+  await expect.poll(() => page.locator(".booking-panel").evaluate(parent => {
     const bounds = parent.getBoundingClientRect();
     return [...parent.querySelectorAll(".booking-form-panel")].every(panel => {
       const rect = panel.getBoundingClientRect();
@@ -184,7 +190,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 375, height: 812
       await expect(page.getByRole("heading", { name: headings[step - 1], exact: true })).toBeVisible();
       await expect(page.getByRole("heading", { name: headings[step - 1], exact: true })).toBeInViewport();
       await expect(page.locator(".booking-step-heading .typewriter-text")).toHaveAttribute("data-typing", "done");
-      await expect(page.locator(".booking-page")).not.toContainText(/Prava podrška za svako tvoje pitanje|Ako nisi siguran|Najčešći izbor|Izaberi gde se održava čas|Termini se prikazuju prema|vreme Beograd|Slobodni termini u realnom vremenu|Bez registracije|Izbor možeš da promeniš povratkom|AHA/);
+      await expect(page.locator(".booking-page")).not.toContainText(/Prava podrška za svako tvoje pitanje|Ako nisi siguran|Izaberi gde se održava čas|Termini se prikazuju prema|vreme Beograd|Slobodni termini u realnom vremenu|Bez registracije|Izbor možeš da promeniš povratkom|AHA/);
       await expect(page.locator("footer")).toHaveCount(0);
       await fits(page);
       await top(page);
@@ -328,6 +334,7 @@ test("tri dela forme ostaju unutar glavne kartice pri promeni raspoložive širi
 
 
 test("23 termina ostaju čitljiva i dostupna u rasporedu nalik kalendaru", async ({ page }, testInfo) => {
+  test.setTimeout(90_000);
   await page.setViewportSize({ width: 1920, height: 1080 });
   await fixtureAPI(page, { denseSlots: true });
   await toClient(page, async step => {

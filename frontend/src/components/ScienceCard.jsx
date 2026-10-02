@@ -46,7 +46,8 @@ export default function ScienceCard({ children, className = "", formulas = [], b
   return <button {...props} ref={cardRef} type="button" className={`science-card ${className}`} style={style} data-formula-motion={hasFormulas ? formulasRunning ? "running" : "paused" : undefined}
     onPointerMove={(event) => {
       onPointerMove?.(event);
-      if (reducedMotion || event.pointerType !== "mouse") return;
+      // Read the media query live so a preference change applies without a remount.
+      if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const card = event.currentTarget;
       const box = card.getBoundingClientRect();
       const horizontal = Math.max(-1, Math.min(1, (event.clientX - box.left) / box.width * 2 - 1));

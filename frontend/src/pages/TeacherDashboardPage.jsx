@@ -4,6 +4,10 @@ import api from "../services/api";
 import Spinner from "../components/Spinner";
 import Alert from "../components/Alert";
 import Badge from "../components/Badge";
+import NeuralField from "../components/NeuralField";
+import DashboardHero from "../components/ui/DashboardHero";
+import AnimatedTabs from "../components/ui/AnimatedTabs";
+import { AlertTriangle, BookOpen, CalendarClock, CalendarPlus, ClipboardList, Clock3, Inbox, Paperclip, X } from "lucide-react";
 import {
   APP_TIME_ZONE,
   formatDateFullLatn,
@@ -31,6 +35,8 @@ function generateTimeSlots(startH = 8, startM = 0, endH = 21, endM = 30) {
   }
   return slots;
 }
+
+const CATEGORY_LABELS = { osnovna: "Osnovna škola", srednja: "Srednja škola", faks: "Fakultet", drugo: "Drugo" };
 
 const START_TIME_SLOTS = generateTimeSlots(8, 0, 21, 30);
 const END_TIME_SLOTS = generateTimeSlots(8, 30, 22, 30);
@@ -66,6 +72,9 @@ function TeacherDashboardPage() {
   const [bookingsFilter, setBookingsFilter] = useState("upcoming");
   const [cancellingId, setCancellingId] = useState(null);
   const [attachmentDownloadingKey, setAttachmentDownloadingKey] = useState(null);
+
+  // ---- Pregled predstojećih časova (za statistiku u zaglavlju) ----
+  const [upcoming, setUpcoming] = useState([]);
 
   // ---- Active tab ----
   const [activeTab, setActiveTab] = useState("availability");
@@ -204,6 +213,19 @@ function TeacherDashboardPage() {
     }
   };
 
+  const fetchUpcoming = useCallback(async () => {
+    try {
+      const data = await api.get("/teacher/bookings?status=confirmed&upcoming_only=true");
+      setUpcoming([...(data.items || [])].sort((a, b) => new Date(a.start_time) - new Date(b.start_time)));
+    } catch {
+      setUpcoming([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (teacher) fetchUpcoming();
+  }, [teacher, fetchUpcoming]);
+
   /* ======================================= */
   /*  Fetch bookings                          */
   /* ======================================= */
@@ -250,7 +272,7 @@ function TeacherDashboardPage() {
                 ? "Čas je otkazan i email obaveštenja su poslata."
                 : "Čas je otkazan. Slanje email obaveštenja nije potvrđeno.",
       });
-      await fetchBookings();
+      await Promise.all([fetchBookings(), fetchUpcoming()]);
     } catch (err) {
       setBookingsError(err.message || "Greška pri otkazivanju.");
     } finally {
@@ -283,73 +305,47 @@ function TeacherDashboardPage() {
   /* ======================================= */
   /*  Render                                   */
   /* ======================================= */
+  const nextLesson = upcoming[0];
+  const availableHours = Math.round(availabilities.reduce((sum, a) => sum + (new Date(a.end_time) - new Date(a.start_time)), 0) / 36e5);
+
   if (loading) return <Spinner size="lg" text="Učitavanje profila..." />;
   if (error) return <Alert type="error">{error}</Alert>;
 
   return (
-    <div className="teacher-dashboard">
-      {/* ---- Header ---- */}
-      <div className="dashboard-header">
-        <div>
-          <h1 className="page-title">Dobrodošli, {teacher?.full_name}</h1>
-        </div>
-        <button className="btn btn-secondary btn-sm" onClick={handleLogout}>
-          Odjavi se
-        </button>
-      </div>
-
-      {/* ---- Profil + Predmeti ---- */}
-      <div className="dashboard-grid">
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">Moj profil</h3>
+    <div className="teacher-dashboard dash-page">
+      <NeuralField hue={300} density={.7} />
+      <DashboardHero
+        name={teacher?.full_name}
+        role="Profesor"
+        onLogout={handleLogout}
+        aside={<>
+          <div className="dash-hero-meta">
+            <span>{teacher?.email}</span>
+            {teacher?.subjects?.length > 0
+              ? teacher.subjects.map((subject) => <span key={subject.id} className="dash-hero-chip"><BookOpen size={13} aria-hidden="true" /> {subject.name}</span>)
+              : <span className="empty-text">Nemate dodeljenih predmeta. Kontaktirajte administratora.</span>}
           </div>
-          <div className="profile-info">
-            <div className="profile-row">
-              <span className="profile-label">Ime i prezime</span>
-              <span className="profile-value">{teacher?.full_name}</span>
-            </div>
-            <div className="profile-row">
-              <span className="profile-label">Email</span>
-              <span className="profile-value">{teacher?.email}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">Moji predmeti</h3>
-          </div>
-          {teacher?.subjects?.length > 0 ? (
-            <div className="subjects-list">
-              {teacher.subjects.map((subject) => (
-                <div key={subject.id} className="subject-item">
-                  <span className="subject-dot" />
-                  {subject.name}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="empty-text">Nemate dodeljenih predmeta. Kontaktirajte administratora.</p>
-          )}
-        </div>
-      </div>
+          {nextLesson && <p className="dash-hero-next"><i aria-hidden="true" /> Sledeći čas: <b>{formatTimestampDateLatn(nextLesson.start_time, true)} u {formatTimeLatn(nextLesson.start_time)}</b> · {nextLesson.subject_name} · {nextLesson.client_full_name}</p>}
+        </>}
+        stats={[
+          { label: "Predstojeći časovi", value: upcoming.length, icon: CalendarClock, tone: "pink", hint: "potvrđene rezervacije" },
+          { label: "Slobodni termini", value: availabilities.length, icon: CalendarPlus, tone: "violet", hint: "u narednom periodu" },
+          { label: "Sati dostupnosti", value: availableHours, icon: Clock3, tone: "mint", hint: "ukupno otvoreno" },
+          { label: "Predmeti", value: teacher?.subjects?.length || 0, icon: BookOpen, tone: "amber" },
+        ]}
+      />
 
       {/* ---- Tabovi ---- */}
-      <div className="dashboard-tabs">
-        <button
-          className={`tab-btn ${activeTab === "availability" ? "active" : ""}`}
-          onClick={() => setActiveTab("availability")}
-        >
-          <span className="tab-icon">📅</span> Moja dostupnost
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "bookings" ? "active" : ""}`}
-          onClick={() => setActiveTab("bookings")}
-        >
-          <span className="tab-icon">📋</span> Moje rezervacije
-        </button>
-      </div>
+      <AnimatedTabs
+        id="teacher-tabs"
+        className="dashboard-tabs"
+        active={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { key: "availability", label: "Moja dostupnost", icon: CalendarPlus, count: availabilities.length },
+          { key: "bookings", label: "Moje rezervacije", icon: ClipboardList, count: upcoming.length },
+        ]}
+      />
 
       {/* ================================ */}
       {/*  TAB: Dostupnost                  */}
@@ -443,7 +439,7 @@ function TeacherDashboardPage() {
           {selectedDate && startTime && endTime && (
             <div className="avail-summary">
               <div className="avail-summary-text">
-                <span className="avail-summary-icon">✓</span>
+                <span className="avail-summary-icon"><CalendarPlus size={18} aria-hidden="true" /></span>
                 <span>
                   <strong>{formatDateFullLatn(selectedDate)}</strong>
                   <br />
@@ -474,15 +470,15 @@ function TeacherDashboardPage() {
               <Spinner text="Učitavanje..." />
             ) : availabilities.length === 0 ? (
               <div className="empty-state">
-                <div className="empty-state-icon">📭</div>
+                <div className="empty-state-icon"><Inbox size={30} strokeWidth={1.5} aria-hidden="true" /></div>
                 <p>Nemate definisanih slobodnih termina.</p>
                 <p className="text-muted">Koristite formu iznad da dodate dostupnost.</p>
               </div>
             ) : (
               <div className="avail-list">
-                {availabilities.map((a) => {
+                {availabilities.map((a, index) => {
                   return (
-                    <div key={a.id} className="avail-card">
+                    <div key={a.id} className="avail-card fx-rise" style={{ "--i": Math.min(index, 12) }}>
                       <div className="avail-card-date">
                         <span className="avail-card-dayname">{formatTimestampDateLatn(a.start_time)}</span>
                       </div>
@@ -493,8 +489,9 @@ function TeacherDashboardPage() {
                         className="avail-card-delete"
                         onClick={() => handleDeleteAvailability(a.id)}
                         title="Obriši"
+                        aria-label={`Obriši termin ${formatTimestampDateLatn(a.start_time)}`}
                       >
-                        ✕
+                        <X size={15} aria-hidden="true" />
                       </button>
                     </div>
                   );
@@ -539,7 +536,7 @@ function TeacherDashboardPage() {
             <Spinner text="Učitavanje rezervacija..." />
           ) : bookings.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-state-icon">📋</div>
+              <div className="empty-state-icon"><ClipboardList size={30} strokeWidth={1.5} aria-hidden="true" /></div>
               <p>
                 {bookingsFilter === "upcoming"
                   ? "Nemate predstojećih rezervacija."
@@ -552,7 +549,7 @@ function TeacherDashboardPage() {
             </div>
           ) : (
             <div className="bookings-list">
-              {bookings.map((b) => {
+              {bookings.map((b, index) => {
                 const isPast = new Date(b.start_time) < new Date();
                 const canCancel =
                   b.status === "confirmed" &&
@@ -560,7 +557,7 @@ function TeacherDashboardPage() {
                   new Date(b.start_time) - new Date() > 24 * 60 * 60 * 1000;
 
                 return (
-                  <div key={b.id} className={`booking-card ${b.status === "cancelled" ? "cancelled" : ""}`}>
+                  <div key={b.id} className={`booking-card fx-rise ${b.status === "cancelled" ? "cancelled" : ""}`} style={{ "--i": Math.min(index, 10) }} data-spotlight>
                     <div className="booking-card-top">
                       <div className="booking-subject">{b.subject_name}</div>
                       <Badge type={b.status === "confirmed" ? "success" : "error"}>
@@ -605,7 +602,7 @@ function TeacherDashboardPage() {
                       </div>
                       <div className="booking-detail">
                         <span className="booking-detail-label">Kategorija</span>
-                        <span className="booking-detail-value">{b.client_category}</span>
+                        <span className="booking-detail-value">{CATEGORY_LABELS[b.client_category] || b.client_category}</span>
                       </div>
                       {b.client_note && (
                         <div className="booking-detail full-width">
@@ -629,7 +626,7 @@ function TeacherDashboardPage() {
                               >
                                 {attachmentDownloadingKey === `${b.id}-${a.id}`
                                   ? "Preuzimam..."
-                                  : `📎 ${a.original_name}`}
+                                  : <><Paperclip size={13} aria-hidden="true" /> {a.original_name}</>}
                               </button>
                             ))}
                           </span>
@@ -657,7 +654,7 @@ function TeacherDashboardPage() {
 
                     {b.status === "confirmed" && !isPast && !canCancel && (
                       <div className="booking-notice">
-                        ⚠️ Otkazivanje nije moguće — manje od 24h do početka časa.
+                        <AlertTriangle size={14} aria-hidden="true" /> Otkazivanje nije moguće — manje od 24h do početka časa.
                       </div>
                     )}
                   </div>

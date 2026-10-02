@@ -36,7 +36,7 @@ function AdminLoginPage() {
         <h1>Centar pod kontrolom.</h1>
         <div className="login-visual-card"><span>✓</span><strong>Rezervacije i tim<br /><small>jasno i pregledno</small></strong></div>
       </section>
-      <div className="card login-card liquid-glass">
+      <div className="card login-card liquid-glass" data-spotlight>
         <div className="card-header">
           <span className="login-kicker">Za BrainStorm tim</span>
           <h2 className="card-title">Admin prijava</h2>

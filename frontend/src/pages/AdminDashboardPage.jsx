@@ -5,6 +5,10 @@ import Spinner from "../components/Spinner";
 import Alert from "../components/Alert";
 import Badge from "../components/Badge";
 import { APP_TIME_ZONE, formatTimeLatn, formatTimestampDateLatn } from "../utils/srLatnDates";
+import NeuralField from "../components/NeuralField";
+import DashboardHero from "../components/ui/DashboardHero";
+import AnimatedTabs from "../components/ui/AnimatedTabs";
+import { BookOpen, CalendarCheck, ClipboardList, GraduationCap, Paperclip, School, X } from "lucide-react";
 import "./AdminDashboardPage.css";
 
 /* ---- Helpers ---- */
@@ -105,6 +109,30 @@ function AdminDashboardPage() {
   }, [navigate]);
 
   /* ======================================= */
+  /*  PREGLED (statistika u zaglavlju)         */
+  /* ======================================= */
+  const [overview, setOverview] = useState(null);
+  const fetchOverview = useCallback(async () => {
+    const count = (promise) => promise.then((data) => data.items || []).catch(() => null);
+    const [upcoming, allTeachers, allSubjects, cancelled] = await Promise.all([
+      count(api.get("/admin/bookings?status=confirmed&upcoming_only=true")),
+      count(api.get("/admin/teachers")),
+      count(api.get("/admin/subjects")),
+      count(api.get("/admin/bookings?status=cancelled")),
+    ]);
+    setOverview({
+      upcoming: upcoming?.length ?? null,
+      teachers: allTeachers ? allTeachers.filter((teacher) => teacher.is_active !== false).length : null,
+      subjects: allSubjects ? allSubjects.filter((subject) => subject.is_active !== false).length : null,
+      cancelled: cancelled?.length ?? null,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (admin) fetchOverview();
+  }, [admin, fetchOverview]);
+
+  /* ======================================= */
   /*  BOOKINGS                                */
   /* ======================================= */
   const fetchBookings = useCallback(async () => {
@@ -151,7 +179,7 @@ function AdminDashboardPage() {
                 ? "Rezervacija je otkazana i email obaveštenja su poslata."
                 : "Rezervacija je otkazana. Slanje email obaveštenja nije potvrđeno.",
       });
-      await fetchBookings();
+      await Promise.all([fetchBookings(), fetchOverview()]);
     } catch (err) {
       setBookingsError(err.message || "Greška pri otkazivanju.");
     } finally {
@@ -357,32 +385,33 @@ function AdminDashboardPage() {
   /*  RENDER                                   */
   /* ======================================= */
   return (
-    <div className="admin-dashboard">
-      {/* Header */}
-      <div className="dashboard-header">
-        <div>
-          <h1 className="page-title">Dobrodošli, {admin?.full_name}</h1>
-        </div>
-        <button className="btn btn-secondary btn-sm" onClick={handleLogout}>Odjavi se</button>
-      </div>
+    <div className="admin-dashboard dash-page">
+      <NeuralField hue={275} density={.7} />
+      <DashboardHero
+        name={admin?.full_name}
+        role="Administrator"
+        onLogout={handleLogout}
+        stats={[
+          { label: "Predstojeći časovi", value: overview?.upcoming, icon: CalendarCheck, tone: "pink", hint: "potvrđene rezervacije" },
+          { label: "Aktivni profesori", value: overview?.teachers, icon: GraduationCap, tone: "violet" },
+          { label: "Aktivni predmeti", value: overview?.subjects, icon: BookOpen, tone: "mint" },
+          { label: "Otkazani časovi", value: overview?.cancelled, icon: X, tone: "amber", hint: "ukupno" },
+        ]}
+      />
 
       {/* Tabs */}
-      <div className="admin-tabs">
-        {[
-          { key: "bookings", icon: "📋", label: "Rezervacije" },
-          { key: "subjects", icon: "📚", label: "Predmeti" },
-          { key: "teachers", icon: "👨‍🏫", label: "Profesori" },
-          { key: "classrooms", icon: "🏫", label: "Učionice" },
-        ].map((t) => (
-          <button
-            key={t.key}
-            className={`admin-tab ${activeTab === t.key ? "active" : ""}`}
-            onClick={() => setActiveTab(t.key)}
-          >
-            <span className="tab-icon">{t.icon}</span> {t.label}
-          </button>
-        ))}
-      </div>
+      <AnimatedTabs
+        id="admin-tabs"
+        className="admin-tabs"
+        active={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { key: "bookings", icon: ClipboardList, label: "Rezervacije" },
+          { key: "subjects", icon: BookOpen, label: "Predmeti" },
+          { key: "teachers", icon: GraduationCap, label: "Profesori" },
+          { key: "classrooms", icon: School, label: "Učionice" },
+        ]}
+      />
 
       {/* ============ BOOKINGS TAB ============ */}
       {activeTab === "bookings" && (
@@ -414,7 +443,7 @@ function AdminDashboardPage() {
             <Spinner text="Učitavanje..." />
           ) : bookings.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-state-icon">📋</div>
+              <div className="empty-state-icon"><ClipboardList size={30} strokeWidth={1.5} aria-hidden="true" /></div>
               <p>Nema rezervacija.</p>
             </div>
           ) : (
@@ -479,7 +508,7 @@ function AdminDashboardPage() {
                               >
                                 {attachmentDownloadingKey === `${b.id}-${a.id}`
                                   ? "..."
-                                  : `📎 ${a.original_name.length > 18 ? `${a.original_name.slice(0, 16)}…` : a.original_name}`}
+                                  : <><Paperclip size={13} aria-hidden="true" /> {a.original_name.length > 18 ? `${a.original_name.slice(0, 16)}…` : a.original_name}</>}
                               </button>
                             ))}
                           </div>
@@ -494,8 +523,9 @@ function AdminDashboardPage() {
                             onClick={() => handleCancelBooking(b.id)}
                             disabled={cancellingId === b.id}
                             title="Otkaži"
+                            aria-label={`Otkaži rezervaciju #${b.id}`}
                           >
-                            {cancellingId === b.id ? "..." : "✕"}
+                            {cancellingId === b.id ? "..." : <X size={15} aria-hidden="true" />}
                           </button>
                         )}
                       </td>
@@ -745,7 +775,7 @@ function AdminDashboardPage() {
             <Spinner text="Učitavanje..." />
           ) : !classroomData ? (
             <div className="empty-state">
-              <div className="empty-state-icon">🏫</div>
+              <div className="empty-state-icon"><School size={30} strokeWidth={1.5} aria-hidden="true" /></div>
               <p>Izaberite datum da vidite raspored.</p>
             </div>
           ) : (

@@ -36,7 +36,7 @@ function TeacherLoginPage() {
         <h1>Raspored koji radi za tebe.</h1>
         <div className="login-visual-card"><span>✓</span><strong>Termini i rezervacije<br /><small>na jednom mestu</small></strong></div>
       </section>
-      <div className="card login-card liquid-glass">
+      <div className="card login-card liquid-glass" data-spotlight>
         <div className="card-header">
           <span className="login-kicker">Dobrodošli nazad</span>
           <h2 className="card-title">Prijava profesora</h2>

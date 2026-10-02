@@ -9,6 +9,10 @@ import {
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import BrandLogo from "./BrandLogo";
+import NeuralField from "./NeuralField";
+
+// Pages that paint their own background (home video, booking studio, panels).
+const SELF_BACKGROUND_ROUTES = new Set(["/", "/booking", "/teacher/dashboard", "/admin/dashboard"]);
 import "./Layout.css";
 
 function Layout() {
@@ -104,8 +108,9 @@ function Layout() {
 
   return (
     <div
-      className={`app-layout ${location.pathname === "/" ? "app-layout--home" : ""} ${location.pathname === "/booking" ? "app-layout--booking" : ""}`}
+      className={`app-layout ${location.pathname === "/" ? "app-layout--home" : ""} ${location.pathname === "/booking" ? "app-layout--booking" : ""} ${SELF_BACKGROUND_ROUTES.has(location.pathname) ? "" : "app-layout--ambient"}`}
     >
+      {!SELF_BACKGROUND_ROUTES.has(location.pathname) && <NeuralField hue={location.pathname.startsWith("/cancel") ? 345 : 300} density={.8} />}
       <a className="skip-link" href="#main-content">
         Preskoči na sadržaj
       </a>
