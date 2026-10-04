@@ -14,17 +14,17 @@
 }
 
 .badge-success {
-  background-color: rgba(34, 197, 94, 0.15);
+  background-color: var(--forest-soft);
   color: var(--color-success);
 }
 
 .badge-error {
-  background-color: rgba(239, 68, 68, 0.15);
+  background-color: #f9e6e1;
   color: var(--color-error);
 }
 
 .badge-warning {
-  background-color: rgba(245, 158, 11, 0.15);
+  background-color: #f6ecd6;
   color: var(--color-warning);
 }
 

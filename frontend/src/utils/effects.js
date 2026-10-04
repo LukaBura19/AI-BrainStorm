@@ -1,7 +1,7 @@
 const prefersReducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** Small radial spark burst at the pointer position inside `element`. Purely decorative. */
-export function sparkBurst(element, event, { count = 12, colors = ["#f693d2", "#d4c4fc", "#ffffff", "#ff8acd"] } = {}) {
+export function sparkBurst(element, event, { count = 12, colors = ["#1f4d3a", "#c8643b", "#e3ede6", "#f6e3d8"] } = {}) {
   if (!element || prefersReducedMotion()) return;
   const box = element.getBoundingClientRect();
   const fromKeyboard = !event || (event.clientX === 0 && event.clientY === 0);
@@ -42,7 +42,7 @@ export function confettiBurst({ particles = 170, duration = 3200 } = {}) {
   const width = window.innerWidth, height = window.innerHeight;
   canvas.width = width * dpr; canvas.height = height * dpr;
   ctx.scale(dpr, dpr);
-  const colors = ["#f15bb5", "#f693d2", "#d4c4fc", "#b3a1fa", "#8ee0c1", "#ffffff", "#edcc94"];
+  const colors = ["#1f4d3a", "#2e6b52", "#c8643b", "#e39a78", "#6f8f62", "#efe8dc", "#a8701c"];
   const glyphs = ["∑", "π", "√", "∞", "Δ", "λ", "{ }", "✦"];
   const pieces = Array.from({ length: particles }, (_, i) => {
     const fromLeft = i % 2 === 0;

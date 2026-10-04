@@ -5,7 +5,6 @@ import Spinner from "../components/Spinner";
 import Alert from "../components/Alert";
 import Badge from "../components/Badge";
 import { APP_TIME_ZONE, formatTimeLatn, formatTimestampDateLatn } from "../utils/srLatnDates";
-import NeuralField from "../components/NeuralField";
 import DashboardHero from "../components/ui/DashboardHero";
 import AnimatedTabs from "../components/ui/AnimatedTabs";
 import { BookOpen, CalendarCheck, ClipboardList, GraduationCap, Paperclip, School, X } from "lucide-react";
@@ -386,7 +385,6 @@ function AdminDashboardPage() {
   /* ======================================= */
   return (
     <div className="admin-dashboard dash-page">
-      <NeuralField hue={275} density={.7} />
       <DashboardHero
         name={admin?.full_name}
         role="Administrator"

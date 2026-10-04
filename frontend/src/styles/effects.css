@@ -9,7 +9,6 @@
   margin: -3px 0 0 -3px;
   border-radius: 50%;
   background: var(--spark-color);
-  box-shadow: 0 0 10px var(--spark-color);
   animation: fx-spark .7s cubic-bezier(.15, .7, .3, 1) forwards;
 }
 .fx-spark-layer b {
@@ -17,7 +16,7 @@
   width: 16px;
   height: 16px;
   margin: -8px 0 0 -8px;
-  border: 2px solid rgba(246, 147, 210, .8);
+  border: 2px solid rgba(31, 77, 58, .5);
   border-radius: 50%;
   animation: fx-ring .6s cubic-bezier(.2, .7, .3, 1) forwards;
 }
@@ -26,46 +25,13 @@
 
 .fx-confetti { position: fixed; inset: 0; z-index: 9999; width: 100vw; height: 100vh; pointer-events: none; }
 
-/* ---- Pointer spotlight: any element with [data-spotlight] gets a soft light under the cursor ---- */
+/* ---- Pointer spotlight hook: kept as a no-op so [data-spotlight] markup stays valid ---- */
 [data-spotlight] { --mx: 50%; --my: 50%; }
-[data-spotlight]::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  background: radial-gradient(420px circle at var(--mx) var(--my), rgba(241, 91, 181, .13), rgba(179, 161, 250, .06) 35%, transparent 65%);
-  opacity: 0;
-  transition: opacity .35s ease;
-  pointer-events: none;
-}
-[data-spotlight]:hover::after { opacity: 1; }
 
-/* ---- Primary buttons: liquid gradient + light sweep ---- */
-.btn-primary {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  background: linear-gradient(110deg, #c21d83, #e0459f 45%, #9a4fe0);
-  background-size: 200% 100%;
-  background-position: 0% 0;
-  transition: background-position .6s ease, transform .2s ease, box-shadow .3s ease;
-}
-.btn-primary::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .38) 48%, transparent 66%);
-  transform: translateX(-120%);
-}
-.btn-primary:hover:not(:disabled) { background-position: 100% 0; box-shadow: 0 10px 34px rgba(225, 69, 159, .38); }
-.btn-primary:hover:not(:disabled)::before { animation: fx-sweep .9s ease; }
-@keyframes fx-sweep { to { transform: translateX(120%); } }
 
 /* ---- Gradient text helper ---- */
 .fx-gradient-text {
-  background: linear-gradient(100deg, #fff 10%, #f6b8e0 45%, #c7b5ff 80%);
+  background: linear-gradient(100deg, var(--forest) 10%, #2e6b52 50%, var(--terra) 90%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -73,9 +39,8 @@
 
 /* ---- Staggered entrance helper (set --i on children) ---- */
 .fx-rise { animation: fx-rise .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 55ms); }
-@keyframes fx-rise { from { opacity: 0; translate: 0 18px; scale: .97; filter: blur(6px); } to { opacity: 1; translate: 0 0; scale: 1; filter: none; } }
+@keyframes fx-rise { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   .fx-rise { animation: none; }
-  .btn-primary:hover:not(:disabled)::before { animation: none; }
 }

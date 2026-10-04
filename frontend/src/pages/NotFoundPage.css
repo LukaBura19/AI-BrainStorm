@@ -1,13 +1,6 @@
-.not-found-page { position: relative; min-height: 660px; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 4rem 1.5rem; text-align: center; overflow: hidden; isolation: isolate; }
-.not-found-number { position: absolute; top: 50%; left: 50%; translate: -50% -55%; z-index: -1; font-family: var(--font-display); font-size: clamp(15rem, 33vw, 35rem); letter-spacing: -.07em; color: rgba(204,165,255,.04); }
-.not-found-page h1 { margin: 1.6rem 0 1.2rem; font-size: clamp(2.4rem, 5vw, 4.4rem); font-weight: 400; letter-spacing: -.04em; line-height: 1.05; }
-.not-found-page>p:not(.eyebrow) { max-width: 320px; color: var(--color-text-secondary); font-size: .85rem; }
+.not-found-page { position: relative; min-height: 640px; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 4rem 1.5rem; text-align: center; overflow: hidden; isolation: isolate; }
+.not-found-number { position: absolute; top: 50%; left: 50%; translate: -50% -55%; z-index: -1; color: var(--paper-deep); font: 500 clamp(14rem, 30vw, 30rem)/1 var(--font-display); letter-spacing: -.05em; user-select: none; }
+.not-found-page .eyebrow { justify-content: center; }
+.not-found-page h1 { margin: 1.2rem 0 1rem; font-size: clamp(2.4rem, 5vw, 4.2rem); font-weight: 500; letter-spacing: -.03em; line-height: 1.08; }
+.not-found-page>p:not(.eyebrow) { max-width: 340px; color: var(--color-text-secondary); font-size: .95rem; }
 .not-found-page .btn { margin-top: 2rem; }
-.not-found-page .eyebrow { font-size: .54rem; }
-
-/* ---- Live refresh ---- */
-.not-found-number { color: transparent; -webkit-text-stroke: 2px rgba(212, 196, 252, .12); animation: nf-glitch 6s ease-in-out infinite; }
-@keyframes nf-glitch { 0%, 100% { translate: -50% -55%; } 48% { translate: -50% -55%; } 50% { translate: calc(-50% - 6px) calc(-55% + 2px); -webkit-text-stroke-color: rgba(241, 91, 181, .3); } 52% { translate: calc(-50% + 5px) calc(-55% - 2px); } 54% { translate: -50% -55%; } }
-.not-found-page h1 em { background: linear-gradient(100deg, #f6b8e0, #c7b5ff, #f6b8e0); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: pricing-shimmer 6s ease-in-out infinite; }
-@keyframes pricing-shimmer { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
-@media (prefers-reduced-motion: reduce) { .not-found-number, .not-found-page h1 em { animation: none; } }

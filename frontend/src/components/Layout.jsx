@@ -7,9 +7,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowUpRight } from "lucide-react";
 import BrandLogo from "./BrandLogo";
-import NeuralField from "./NeuralField";
 
 // Pages that paint their own background (home video, booking studio, panels).
 const SELF_BACKGROUND_ROUTES = new Set(["/", "/booking", "/teacher/dashboard", "/admin/dashboard"]);
@@ -110,12 +108,11 @@ function Layout() {
     <div
       className={`app-layout ${location.pathname === "/" ? "app-layout--home" : ""} ${location.pathname === "/booking" ? "app-layout--booking" : ""} ${SELF_BACKGROUND_ROUTES.has(location.pathname) ? "" : "app-layout--ambient"}`}
     >
-      {!SELF_BACKGROUND_ROUTES.has(location.pathname) && <NeuralField hue={location.pathname.startsWith("/cancel") ? 345 : 300} density={.8} />}
       <a className="skip-link" href="#main-content">
         Preskoči na sadržaj
       </a>
       <header className="app-header">
-        <div className="app-header-inner liquid-glass">
+        <div className="app-header-inner">
           <Link
             to="/"
             className="app-header-brand"
@@ -159,7 +156,7 @@ function Layout() {
                   `app-nav-link app-nav-link--booking ${isActive ? "active" : ""}`
                 }
               >
-                Zakaži čas <ArrowUpRight size={15} aria-hidden="true" />
+                Zakaži čas
               </NavLink>
               <NavLink
                 to="/cenovnik"
@@ -213,7 +210,7 @@ function Layout() {
               <AnimatePresence>
                 {loginOpen && (
                   <motion.div
-                    className="app-login-panel liquid-glass"
+                    className="app-login-panel"
                     id="login-panel"
                     role="menu"
                     aria-labelledby="login-menu-button"
@@ -271,6 +268,7 @@ function Layout() {
                 )}
               </AnimatePresence>
             </div>
+            <Link to="/booking" className="btn btn-primary app-header-cta">Zakaži čas</Link>
           </div>
         </div>
       </header>

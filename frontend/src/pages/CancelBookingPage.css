@@ -1,22 +1,38 @@
-.cancel-page { width: min(900px,100%); min-height: 690px; margin-inline: auto; padding: clamp(3rem,7vw,6rem) 1rem; display: grid; place-items: center; }.cancel-card { width: min(700px,100%); padding: clamp(1.35rem,5vw,3.2rem); border: 1px solid var(--color-border); border-radius: 32px; background: var(--color-bg-card); box-shadow: var(--shadow-lg); }.cancel-card--center { min-height: 420px; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }.cancel-card--center>p { max-width: 500px; margin: .7rem auto 1.5rem; color: var(--color-text-secondary); }.cancel-heading { margin-bottom: 1.6rem; text-align: center; }.cancel-eyebrow { color: var(--color-accent-hover); font-size: .68rem; font-weight: 550; letter-spacing: .11em; text-transform: uppercase; }.cancel-heading h1,.cancel-card--center h1 { margin: .4rem 0 .6rem; font-size: clamp(2rem,5vw,3.2rem); line-height: 1.05; letter-spacing: -.05em; }.cancel-heading>p:last-child { color: var(--color-text-secondary); font-size: .9rem; }.cancel-status-icon { width: 70px; height: 70px; display: grid; place-items: center; margin-bottom: 1rem; border-radius: 23px; background: var(--color-mint); color: var(--color-success); box-shadow: 7px 8px 0 rgba(88,102,233,.13); font-size: 2rem; font-weight: 900; transform: rotate(-4deg); }.cancel-status-icon--error { background: rgba(209,62,80,.12); color: var(--color-error); }
-.cancel-ticket { display: grid; grid-template-columns: 165px minmax(0,1fr); overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--radius-xl); background: var(--color-surface-input); }.cancel-ticket-date { min-height: 155px; display: grid; place-items: center; align-content: center; padding: 1rem; background: var(--color-surface-strong); color: white; text-align: center; }.cancel-ticket-date span { color: rgba(255,255,255,.58); font-size: .61rem; }.cancel-ticket-date strong { margin-top: .35rem; font-size: 2.2rem; line-height: 1; }.cancel-ticket-date small { margin-top: .3rem; color: var(--color-hotpink); font-weight: 550; }.cancel-ticket dl { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .7rem; align-content: center; padding: 1.2rem; }.cancel-ticket dl>div { min-width: 0; display: grid; }.cancel-ticket dt { color: var(--color-text-muted); font-size: .6rem; text-transform: uppercase; }.cancel-ticket dd { overflow-wrap: anywhere; font-size: .78rem; font-weight: 600; }
-.cancel-info { display: flex; gap: .75rem; margin-top: 1rem; padding: 1rem; border-radius: var(--radius-lg); }.cancel-info>span { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 10px; font-weight: 900; }.cancel-info p { margin-top: .2rem; color: var(--color-text-secondary); font-size: .75rem; }.cancel-info--done { background: rgba(142,224,193,.06); }.cancel-info--done>span { background: var(--color-mint); color: var(--color-success); }.cancel-info--warning { background: rgba(237,204,148,.08); }.cancel-info--warning>span { background: var(--color-yellow); color: var(--color-warning); }
-.cancel-reason { margin-top: 1.3rem; }.cancel-reason label span { color: var(--color-text-muted); font-size: .65rem; font-weight: 500; }.cancel-reason>small { display: block; text-align: right; color: var(--color-text-muted); font-size: .65rem; }.cancel-primary { width: 100%; }.cancel-confirm { margin-top: 1rem; padding: 1rem; border: 1px solid rgba(209,62,80,.2); border-radius: var(--radius-lg); background: rgba(209,62,80,.06); }.cancel-confirm>p { display: grid; }.cancel-confirm>p span { color: var(--color-text-secondary); font-size: .75rem; }.cancel-confirm>div { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .55rem; margin-top: .8rem; }.cancel-back { display: block; width: fit-content; margin: 1.3rem auto 0; color: var(--color-text-secondary); font-size: .76rem; font-weight: 550; }
-@media (max-width:560px) { .cancel-ticket { grid-template-columns: 1fr; }.cancel-ticket-date { min-height: 125px; }.cancel-ticket dl { grid-template-columns: 1fr 1fr; }.cancel-confirm>div { display: grid; }.cancel-confirm .btn { width: 100%; } }
-
-.cancel-card { background: linear-gradient(140deg,rgba(190,153,228,.05),transparent 65%),var(--color-bg-card); border-color: var(--color-border-strong); }
-.cancel-heading h1, .cancel-card--center h1 { font-weight: 450; letter-spacing: -.035em; }
-.cancel-info--warning>span { background: rgba(237,204,148,.14); }
-.cancel-info--done>span { background: rgba(142,224,193,.12); }
-.cancel-status-icon { box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
-
-/* ---- Live glass refresh ---- */
-.cancel-card { position: relative; overflow: hidden; border-color: rgba(225, 205, 255, .16); background: radial-gradient(70% 50% at 100% 0, rgba(241, 91, 181, .14), transparent 60%), linear-gradient(160deg, rgba(40, 36, 96, .78), rgba(14, 18, 60, .84)); backdrop-filter: blur(18px); box-shadow: 0 40px 100px rgba(2, 4, 24, .5), inset 0 1px 0 rgba(255, 255, 255, .08); animation: fx-rise .7s cubic-bezier(.2, .8, .2, 1) both; }
-.cancel-card > * { position: relative; z-index: 1; }
-.cancel-status-icon { background: linear-gradient(140deg, #5bbf9a, #8b65d9); color: #fff; box-shadow: 0 16px 36px rgba(91, 191, 154, .35); animation: cancel-pop .7s cubic-bezier(.3, 1.6, .5, 1) both, cancel-float 5s ease-in-out .7s infinite; }
-.cancel-status-icon--error { background: linear-gradient(140deg, #ff7d9c, #c21d83); box-shadow: 0 16px 36px rgba(194, 29, 131, .4); }
-@keyframes cancel-pop { from { transform: scale(0) rotate(-120deg); } to { transform: scale(1) rotate(-4deg); } }
-@keyframes cancel-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
-.cancel-ticket { transition: transform .4s cubic-bezier(.2, .8, .2, 1), box-shadow .4s; }
-.cancel-ticket:hover { transform: translateY(-4px) rotate(-.4deg); box-shadow: 0 24px 50px rgba(3, 5, 26, .45); }
-@media (prefers-reduced-motion: reduce) { .cancel-card, .cancel-status-icon { animation: none; } }
+.cancel-page { width: min(900px,100%); min-height: 640px; margin-inline: auto; padding: clamp(3rem,7vw,5.5rem) 1rem; display: grid; place-items: center; }
+.cancel-card { width: min(700px,100%); padding: clamp(1.35rem,5vw,3rem); border: 1px solid var(--color-border); border-radius: 22px; background: var(--card); box-shadow: var(--shadow-md); animation: fx-rise .6s cubic-bezier(.2,.8,.2,1) both; }
+.cancel-card--center { min-height: 400px; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+.cancel-card--center>p { max-width: 500px; margin: .7rem auto 1.5rem; color: var(--color-text-secondary); }
+.cancel-heading { margin-bottom: 1.6rem; text-align: center; }
+.cancel-eyebrow { color: var(--terra); font-size: .7rem; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; }
+.cancel-heading h1,.cancel-card--center h1 { margin: .4rem 0 .6rem; font-size: clamp(2rem,5vw,3rem); font-weight: 500; line-height: 1.08; letter-spacing: -.02em; }
+.cancel-heading>p:last-child { color: var(--color-text-secondary); font-size: .95rem; }
+.cancel-status-icon { width: 66px; height: 66px; display: grid; place-items: center; margin-bottom: 1rem; border-radius: 18px; background: var(--forest); color: #fff; font-size: 1.8rem; font-weight: 700; }
+.cancel-status-icon--error { background: var(--color-error); }
+.cancel-ticket { display: grid; grid-template-columns: 165px minmax(0,1fr); overflow: hidden; border: 1px solid var(--color-border); border-radius: 16px; background: #fff; }
+.cancel-ticket-date { min-height: 150px; display: grid; place-items: center; align-content: center; padding: 1rem; background: var(--forest); color: #fff; text-align: center; }
+.cancel-ticket-date span { color: rgba(255,255,255,.7); font-size: .72rem; }
+.cancel-ticket-date strong { margin-top: .35rem; font: 500 2.2rem/1 var(--font-display); }
+.cancel-ticket-date small { margin-top: .3rem; color: var(--terra-soft); font-weight: 600; }
+.cancel-ticket dl { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .8rem; align-content: center; padding: 1.2rem; }
+.cancel-ticket dl>div { min-width: 0; display: grid; }
+.cancel-ticket dt { color: var(--color-text-muted); font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; }
+.cancel-ticket dd { overflow-wrap: anywhere; font-size: .88rem; font-weight: 600; }
+.cancel-info { display: flex; gap: .75rem; margin-top: 1rem; padding: 1rem; border-radius: 14px; }
+.cancel-info>span { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 9px; font-weight: 800; }
+.cancel-info p { margin-top: .2rem; color: var(--color-text-secondary); font-size: .82rem; }
+.cancel-info--done { background: var(--forest-soft); }
+.cancel-info--done>span { background: var(--forest); color: #fff; }
+.cancel-info--warning { background: var(--terra-soft); }
+.cancel-info--warning>span { background: var(--terra); color: #fff; }
+.cancel-reason { margin-top: 1.3rem; }
+.cancel-reason label span { color: var(--color-text-muted); font-size: .72rem; font-weight: 500; }
+.cancel-reason>small { display: block; text-align: right; color: var(--color-text-muted); font-size: .7rem; }
+.cancel-primary { width: 100%; }
+.cancel-confirm { margin-top: 1rem; padding: 1rem; border: 1px solid rgba(179,65,46,.22); border-radius: 14px; background: #f9e6e1; }
+.cancel-confirm>p { display: grid; }
+.cancel-confirm>p span { color: var(--color-text-secondary); font-size: .82rem; }
+.cancel-confirm>div { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .55rem; margin-top: .8rem; }
+.cancel-back { display: block; width: fit-content; margin: 1.3rem auto 0; color: var(--color-text-secondary); font-size: .85rem; font-weight: 600; }
+.cancel-back:hover { color: var(--forest); }
+@media (max-width:560px) { .cancel-ticket { grid-template-columns: 1fr; } .cancel-ticket-date { min-height: 120px; } .cancel-confirm>div { display: grid; } .cancel-confirm .btn { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .cancel-card { animation: none; } }

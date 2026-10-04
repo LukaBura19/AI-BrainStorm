@@ -4,7 +4,6 @@ import api from "../services/api";
 import Spinner from "../components/Spinner";
 import Alert from "../components/Alert";
 import Badge from "../components/Badge";
-import NeuralField from "../components/NeuralField";
 import DashboardHero from "../components/ui/DashboardHero";
 import AnimatedTabs from "../components/ui/AnimatedTabs";
 import { AlertTriangle, BookOpen, CalendarClock, CalendarPlus, ClipboardList, Clock3, Inbox, Paperclip, X } from "lucide-react";
@@ -313,7 +312,6 @@ function TeacherDashboardPage() {
 
   return (
     <div className="teacher-dashboard dash-page">
-      <NeuralField hue={300} density={.7} />
       <DashboardHero
         name={teacher?.full_name}
         role="Profesor"

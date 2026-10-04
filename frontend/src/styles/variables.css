@@ -1,40 +1,59 @@
+/*
+ * "Papir i šuma" — topla krem pozadina, duboka zelena, terakota akcenat.
+ * Legacy token names are kept so every page picks up the palette; the
+ * --paper/--forest/--terra tokens are the canonical names for new code.
+ */
 :root {
-  --color-bg-primary: #091245;
-  --color-bg-secondary: #151c4c;
-  --color-bg-card: #111a49;
-  --color-surface-strong: #080f36;
-  --color-surface-glass: rgba(25, 32, 78, 0.66);
-  --color-surface-hover: rgba(176, 153, 255, 0.09);
-  --color-surface-input: #0c143c;
+  --paper: #f7f3ec;
+  --paper-deep: #efe8dc;
+  --card: #fffdf9;
+  --forest: #1f4d3a;
+  --forest-hover: #173d2e;
+  --forest-soft: #e3ede6;
+  --forest-tint: #f0f5f1;
+  --terra: #c8643b;
+  --terra-hover: #b25530;
+  --terra-soft: #f6e3d8;
+  --ink: #1e2421;
 
-  --color-accent: #f15bb5;
-  --color-accent-hover: #ff8acd;
-  --color-accent-light: rgba(239, 65, 165, 0.12);
-  --color-accent-solid: #bd177c;
-  --color-hotpink: #f693d2;
-  --color-blue: #b3a1fa;
-  --color-blue-light: rgba(165, 137, 246, 0.13);
-  --color-purple: #8b65d9;
-  --color-lavender: #d4c4fc;
-  --color-yellow: #d8bdf9;
-  --color-mint: rgba(170, 149, 245, 0.17);
+  --color-bg-primary: var(--paper);
+  --color-bg-secondary: var(--paper-deep);
+  --color-bg-card: var(--card);
+  --color-surface-strong: var(--forest);
+  --color-surface-glass: var(--card);
+  --color-surface-hover: rgba(31, 77, 58, 0.05);
+  --color-surface-input: #fffefb;
 
-  --color-text-primary: #faf8ff;
-  --color-text-secondary: #bec1db;
-  --color-text-muted: #9b9fbe;
-  --color-text-on-dark: #faf8ff;
+  --color-primary: var(--forest);
+  --color-primary-hover: var(--forest-hover);
+  --color-accent: var(--terra);
+  --color-accent-hover: var(--terra-hover);
+  --color-accent-light: var(--terra-soft);
+  --color-accent-solid: var(--terra);
+  --color-hotpink: var(--terra);
+  --color-blue: var(--forest);
+  --color-blue-light: var(--forest-soft);
+  --color-purple: #2e6b52;
+  --color-lavender: var(--forest);
+  --color-yellow: var(--paper-deep);
+  --color-mint: var(--forest-soft);
 
-  --color-border: rgba(214, 207, 255, 0.12);
-  --color-border-strong: rgba(214, 207, 255, 0.25);
-  --color-border-focus: #c4afff;
+  --color-text-primary: var(--ink);
+  --color-text-secondary: #4f5751;
+  --color-text-muted: #7c817a;
+  --color-text-on-dark: #f7f3ec;
 
-  --color-success: #8ee0c1;
-  --color-error: #ff9bb2;
-  --color-warning: #edcc94;
+  --color-border: #e8dfd0;
+  --color-border-strong: #d8ccb9;
+  --color-border-focus: var(--forest);
+
+  --color-success: #2f7a55;
+  --color-error: #b3412e;
+  --color-warning: #a8701c;
 
   --font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --font-display: "Outfit", "Inter", system-ui, sans-serif;
-  --font-editorial: "Instrument Serif", Georgia, serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-editorial: "Fraunces", Georgia, serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -55,11 +74,11 @@
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-  --radius-2xl: 2rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 4px 16px rgba(2, 5, 24, 0.13);
-  --shadow-md: 0 16px 40px rgba(2, 5, 24, 0.2);
-  --shadow-lg: 0 30px 80px rgba(2, 5, 24, 0.3);
+  --shadow-sm: 0 1px 2px rgba(60, 45, 25, 0.04), 0 4px 14px rgba(60, 45, 25, 0.05);
+  --shadow-md: 0 2px 4px rgba(60, 45, 25, 0.04), 0 12px 32px rgba(60, 45, 25, 0.08);
+  --shadow-lg: 0 4px 10px rgba(60, 45, 25, 0.05), 0 24px 60px rgba(60, 45, 25, 0.12);
 }

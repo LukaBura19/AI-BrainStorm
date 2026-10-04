@@ -1,99 +1,92 @@
 /* =====================================================================
-   Teacher + admin panels — glass surfaces over the neural background.
-   Loaded after the page stylesheets so it refines, not replaces, them.
+   Teacher + admin panels — shared "Papir i šuma" surfaces.
+   Calm white cards on warm paper; forest for selection, terra for accents.
    ===================================================================== */
 
 .dash-page { position: relative; }
-.dash-page > :not(.neural-field) { position: relative; z-index: 1; }
 
-/* Tabs sit above the section card as a floating segmented control. */
+/* Tabs sit above the section card as a segmented control. */
 .dash-page .dashboard-tabs,
-.dash-page .admin-tabs { width: fit-content; max-width: 100%; margin: 0 0 18px; border: 1px solid rgba(225, 205, 255, .12); border-radius: 22px; background: rgba(8, 11, 40, .55); box-shadow: none; }
+.dash-page .admin-tabs {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--paper-deep);
+  box-shadow: none;
+}
 
 .dash-page :is(.section-card, .admin-section) {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(225, 205, 255, .13);
-  border-radius: 30px;
-  background: radial-gradient(70% 50% at 100% 0, rgba(241, 91, 181, .1), transparent 60%), linear-gradient(160deg, rgba(36, 32, 90, .72), rgba(12, 16, 54, .78));
-  box-shadow: 0 30px 80px rgba(2, 4, 24, .38), inset 0 1px 0 rgba(255, 255, 255, .07);
-  backdrop-filter: blur(18px);
-  animation: fx-rise .55s cubic-bezier(.2, .8, .2, 1) both;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: none;
 }
-.dash-page :is(.section-title, .admin-section h2) { font-size: clamp(22px, 2vw, 28px); font-weight: 550; letter-spacing: -.03em; }
+.dash-page :is(.section-title, .admin-section h2) {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 500;
+  letter-spacing: -.02em;
+}
 
-/* ---- Availability builder ---- */
-.dash-page .avail-step-num { background: linear-gradient(135deg, #f15bb5, #8b65d9); color: #fff; box-shadow: 0 6px 16px rgba(241, 91, 181, .35); }
-.dash-page .date-chip,
-.dash-page .time-chip {
-  border: 1px solid rgba(212, 196, 252, .16);
-  background: linear-gradient(160deg, rgba(62, 52, 120, .55), rgba(24, 26, 74, .6));
-  transition: transform .3s cubic-bezier(.3, 1.6, .5, 1), border-color .25s, background .25s, box-shadow .25s;
+/* ---- Filter chips (teacher + admin bookings) ---- */
+.dash-page .filter-chip {
+  border: 1px solid var(--color-border-strong);
+  background: #fff;
+  color: var(--color-text-secondary);
+  transition: background-color .2s, border-color .2s, color .2s;
 }
-.dash-page .date-chip { border-radius: 18px; }
-.dash-page .time-chip { border-radius: 12px; }
-.dash-page :is(.date-chip, .time-chip):hover { transform: translateY(-3px); border-color: rgba(246, 180, 230, .45); background: linear-gradient(160deg, rgba(90, 56, 130, .65), rgba(34, 30, 84, .7)); }
-.dash-page :is(.date-chip, .time-chip).selected {
-  border-color: transparent;
-  background: linear-gradient(140deg, #d42f95, #8b4fd9);
-  color: #fff;
-  box-shadow: 0 10px 26px rgba(194, 29, 131, .45), inset 0 1px 0 rgba(255, 255, 255, .25);
-  animation: dash-pop .45s cubic-bezier(.3, 1.6, .5, 1);
-}
-@keyframes dash-pop { 0% { transform: scale(.88); } 100% { transform: scale(1); } }
-.dash-page .date-chip.today:not(.selected) { border-color: rgba(142, 224, 193, .5); }
-.dash-page .avail-summary { border: 1px solid rgba(246, 180, 230, .3); border-radius: 22px; background: linear-gradient(110deg, rgba(241, 91, 181, .16), rgba(139, 101, 217, .1)); animation: fx-rise .45s cubic-bezier(.2, .8, .2, 1) both; }
-.dash-page .avail-summary-icon { display: grid; place-items: center; background: linear-gradient(135deg, #8ee0c1, #5bbf9a); color: #082a1f; }
-.dash-page .avail-count { background: linear-gradient(135deg, #f15bb5, #8b65d9); }
+.dash-page .filter-chip:hover { border-color: var(--forest); background: var(--forest-tint); color: var(--forest); }
+.dash-page .filter-chip.active { border-color: var(--forest); background: var(--forest); color: #fff; box-shadow: none; }
 
-.dash-page .avail-card {
-  border: 1px solid rgba(212, 196, 252, .1);
-  border-left: 3px solid #f15bb5;
+/* ---- Empty states ---- */
+.dash-page .empty-state-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
   border-radius: 16px;
-  background: linear-gradient(100deg, rgba(62, 52, 120, .45), rgba(24, 26, 74, .35));
-  transition: transform .3s cubic-bezier(.2, .8, .2, 1), border-color .3s, background .3s;
+  background: var(--paper-deep);
+  color: var(--forest);
+  opacity: 1;
+  animation: none;
 }
-.dash-page .avail-card:hover { transform: translateX(6px); border-color: rgba(246, 180, 230, .3); background: linear-gradient(100deg, rgba(90, 56, 130, .55), rgba(34, 30, 84, .45)); }
-.dash-page .avail-card-delete { display: grid; place-items: center; transition: transform .3s, background .3s, color .3s; }
-.dash-page .avail-card-delete:hover { transform: rotate(90deg) scale(1.1); }
-
-/* ---- Bookings ---- */
-.dash-page .filter-chip { border: 1px solid rgba(212, 196, 252, .16); background: rgba(10, 12, 44, .4); transition: transform .25s, background .25s, border-color .25s, color .25s; }
-.dash-page .filter-chip:hover { transform: translateY(-2px); border-color: rgba(246, 180, 230, .4); }
-.dash-page .filter-chip.active { border-color: transparent; background: linear-gradient(120deg, #c21d83, #8b4fd9); box-shadow: 0 8px 22px rgba(194, 29, 131, .35); }
-
-.dash-page .booking-card {
-  position: relative;
-  border: 1px solid rgba(212, 196, 252, .12);
-  border-radius: 24px;
-  background: linear-gradient(160deg, rgba(56, 46, 112, .55), rgba(20, 22, 66, .6));
-  transition: transform .35s cubic-bezier(.2, .8, .2, 1), border-color .3s, box-shadow .35s;
-}
-.dash-page .booking-card > * { position: relative; z-index: 1; }
-.dash-page .booking-card:hover { transform: translateY(-4px); border-color: rgba(246, 180, 230, .32); box-shadow: 0 22px 50px rgba(3, 5, 26, .4); }
-.dash-page .booking-card.cancelled { opacity: .7; }
-.dash-page .booking-subject { font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
-.dash-page .booking-attachments-list .btn { gap: 6px; }
-.dash-page .booking-notice { display: flex; align-items: center; gap: 8px; }
-
-.dash-page .empty-state-icon { width: 64px; height: 64px; display: grid; place-items: center; margin: 0 auto 10px; border-radius: 20px; background: rgba(241, 91, 181, .1); color: var(--color-hotpink); animation: studio-float 5s ease-in-out infinite; }
-@keyframes studio-float { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-6px) rotate(3deg); } }
 
 /* ---- Hero meta (email + subject chips) ---- */
 .dash-hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; color: var(--color-text-secondary); font-size: 13.5px; }
 .dash-hero-meta > span:first-child { margin-right: 6px; }
-.dash-hero-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border: 1px solid rgba(199, 181, 255, .25); border-radius: 999px; background: rgba(139, 101, 217, .14); color: #e3d9ff; font-size: 12.5px; }
+.dash-hero-meta .empty-text { padding: 0; text-align: left; }
+.dash-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--forest-soft);
+  color: var(--forest);
+  font-size: 12.5px;
+  font-weight: 600;
+}
 
 /* ---- Admin table ---- */
-.dash-page .admin-table-wrap { border-color: rgba(212, 196, 252, .12); border-radius: 20px; background: rgba(6, 9, 34, .35); }
-.dash-page .admin-table tbody tr { animation: fx-rise .5s cubic-bezier(.2, .8, .2, 1) both; }
-.dash-page .admin-table tbody tr:nth-child(2) { animation-delay: 40ms; }
-.dash-page .admin-table tbody tr:nth-child(3) { animation-delay: 80ms; }
-.dash-page .admin-table tbody tr:nth-child(4) { animation-delay: 120ms; }
-.dash-page .admin-table tbody tr:nth-child(5) { animation-delay: 160ms; }
-.dash-page .admin-table tbody tr:nth-child(n+6) { animation-delay: 200ms; }
-.dash-page .admin-table tr:hover td { background: rgba(241, 91, 181, .06); }
-.dash-page .admin-table tr:hover td:first-child { box-shadow: inset 3px 0 0 #f15bb5; }
+.dash-page .admin-table-wrap { border: 1px solid var(--color-border); border-radius: 16px; background: var(--card); }
+.dash-page .admin-table tr:hover td { background: var(--forest-tint); }
+.dash-page .admin-table tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--forest); }
+
+@media (max-width: 640px) {
+  .dash-page .dashboard-tabs { width: 100%; }
+  .dash-page .dashboard-tabs .animated-tab { flex: 1 1 0; justify-content: center; gap: 6px; padding: 0 8px; font-size: 13px; }
+  .dash-page .dashboard-tabs .animated-tab svg { display: none; }
+}
+
+/* Pointer spotlight is a neon-era effect; keep panels flat. */
+.dash-page [data-spotlight]::after { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .dash-page *, .dash-page *::before, .dash-page *::after { animation: none !important; }

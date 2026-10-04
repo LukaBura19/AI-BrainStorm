@@ -16,9 +16,10 @@ for (const width of [1440, 1920, 2560]) test(`radni prostor koristi celu širinu
   const brand = await page.locator(".app-header-brand").boundingBox();
   const navigation = await page.locator(".app-header-nav").boundingBox();
   expect(navigation.x - brand.x - brand.width).toBeLessThan(85);
-  expect((await page.locator(".app-login-trigger").boundingBox()).height).toBeGreaterThanOrEqual(58);
-  const brandType = await page.locator(".brand-logo-name > span").evaluateAll(nodes => nodes.map(el => ({ color: getComputedStyle(el).color, size: getComputedStyle(el).fontSize })));
-  expect(brandType[0]).toEqual(brandType[1]);
+  expect((await page.locator(".app-login-trigger").boundingBox()).height).toBeGreaterThanOrEqual(44);
+  // The original brain artwork stays the brand mark beside the "BrainStorm" wordmark.
+  await expect(page.locator(".app-header-brand .brand-logo-icon image")).toHaveAttribute("href", "/assets/logo2.png");
+  await expect(page.locator(".brand-logo-name > span")).toHaveText(["BrainStorm", "Edukativni centar"]);
   await expect(page.locator("footer")).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath(`home-${width}.png`), fullPage: true, animations: "disabled" });
   await page.getByRole("link", { name: "Zakaži svoj čas" }).click();
@@ -34,7 +35,6 @@ for (const width of [1440, 1920, 2560]) test(`radni prostor koristi celu širinu
   expect(journey.width).toBeGreaterThanOrEqual(width * .5);
   expect(journey.y + journey.height).toBeLessThanOrEqual(panel.y + 2);
   await expect(page.locator(".journey-node")).toHaveCount(8);
-  await expect(page.locator(".booking-summary-logo .brand-logo-icon image")).toHaveAttribute("href", "/assets/logo2.png");
   await expect(page.locator(".booking-summary canvas")).toHaveCount(0);
   expect(summary.x).toBeGreaterThan(panel.x + panel.width);
   await expect(page.getByRole("button", { name: "Nastavi" })).toBeInViewport({ ratio: 1 });
@@ -43,10 +43,11 @@ for (const width of [1440, 1920, 2560]) test(`radni prostor koristi celu širinu
   // Let the card's entrance animation settle before measuring the pointer tilt.
   await card.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
   const cardBox = await card.boundingBox();
-  await page.mouse.move(cardBox.x + 10, cardBox.y + 10);
-  const firstTilt = await card.evaluate((el) => getComputedStyle(el).transform);
-  await page.mouse.move(cardBox.x + cardBox.width - 10, cardBox.y + cardBox.height - 10);
-  await expect.poll(() => card.evaluate((el) => getComputedStyle(el).transform)).not.toBe(firstTilt);
+  await page.mouse.move(0, 0);
+  const resting = await card.evaluate((el) => getComputedStyle(el).transform);
+  // Hovering lifts the card slightly.
+  await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
+  await expect.poll(() => card.evaluate((el) => getComputedStyle(el).transform)).not.toBe(resting);
   await card.click();
   await expect(card).toHaveAttribute("aria-pressed", "true");
   await page.mouse.move(0, 0);

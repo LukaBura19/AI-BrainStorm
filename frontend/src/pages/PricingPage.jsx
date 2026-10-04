@@ -1,21 +1,21 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, GraduationCap, Sparkles } from "lucide-react";
+import { ArrowRight, Check, GraduationCap } from "lucide-react";
 import Reveal from "../components/Reveal";
 import CountUp from "../components/ui/CountUp";
 import TiltSurface from "../components/ui/TiltSurface";
 import "./PricingPage.css";
 
 const schoolPrices = [
-  { minutes: 45, amount: 1500, description: "Za jedno konkretno pitanje", tone: "#f15bb5" },
-  { minutes: 60, amount: 2000, description: "Standardni čas", featured: true, tone: "#c7b5ff" },
-  { minutes: 90, amount: 2500, description: "Za temeljnu pripremu", tone: "#8ee0c1" },
+  { minutes: 45, amount: 1500, description: "Za jedno konkretno pitanje", tone: "#c8643b" },
+  { minutes: 60, amount: 2000, description: "Standardni čas", featured: true, tone: "#1f4d3a" },
+  { minutes: 90, amount: 2500, description: "Za temeljnu pripremu", tone: "#6f8f62" },
 ];
 
 function PricingPage() {
   return (
     <div className="pricing-page">
       <header className="pricing-header">
-        <p><Sparkles size={13} aria-hidden="true" /> Jasno, bez sitnih slova</p>
+        <p>Jasno, bez sitnih slova</p>
         <h1>Izaberi vreme koje<br /><em>radi za tebe.</em></h1>
         <span>Cene su izražene u dinarima i važe za individualne časove.</span>
       </header>

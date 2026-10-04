@@ -20,6 +20,7 @@ export default function HomePage() {
     <section ref={heroRef} className="home-hero-layout" aria-labelledby="hero-title">
       <MouseScrubVideo visibilityRef={heroRef} />
       <div className="home-hero-copy">
+        <p className="home-eyebrow">Edukativni centar BrainStorm</p>
         <h1 id="hero-title" className="home-typewriter" data-typing={done ? "done" : "typing"}>
           <span className="home-typewriter-reserve" aria-hidden="true">{greeting}</span>
           <span className="home-typewriter-displayed" aria-hidden="true">{displayed}<span className={`home-typewriter-caret ${done ? "is-done" : ""}`} /></span>

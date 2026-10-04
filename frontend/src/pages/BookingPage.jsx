@@ -8,9 +8,7 @@ import api from "../services/api";
 import BrandLogo from "../components/BrandLogo";
 import JourneyProgress from "../components/JourneyProgress";
 import LiveTicket from "../components/LiveTicket";
-import NeuralField from "../components/NeuralField";
 import ScienceCard from "../components/ScienceCard";
-import SubjectBackdrop from "../components/SubjectBackdrop";
 import LessonFormatVisual from "../components/LessonFormatVisual";
 import TeacherPreviewCards from "../components/TeacherPreviewCards";
 import BookingDetailsForm from "../components/BookingDetailsForm";
@@ -26,8 +24,6 @@ import {
 import "./BookingStudio.css";
 
 const STEPS = ["Predmet", "Profesor", "Trajanje", "Vrsta časa", "Datum", "Termin", "Tvoji podaci", "Pregled"];
-// Each step tints the living background a little differently.
-const STEP_HUES = [322, 286, 305, 262, 334, 292, 314, 328];
 const DURATIONS = [
   { value: 45, title: "45 minuta", accent: "quick", tagline: "Brzi fokus", description: "Jedno konkretno pitanje ili zadatak", price: 1500 },
   { value: 60, title: "60 minuta", accent: "standard", tagline: "Najčešći izbor", description: "Standardni čas — objašnjenje i vežba", price: 2000, popular: true },
@@ -84,23 +80,26 @@ function subjectSymbol(name) {
   if (normalized.includes("fizik")) return "ƒ";
   if (normalized.includes("hemij")) return "⚗";
   if (normalized.includes("filoz")) return "φ";
+  if (normalized.includes("engles")) return "En";
+  if (normalized.includes("nema")) return "De";
+  if (normalized.includes("rusk")) return "Ру";
+  if (normalized.includes("italij")) return "It";
   if (normalized.includes("jezik")) return "Aa";
   return "✦";
 }
 
-function subjectFormulas(name) {
+function subjectTagline(name) {
   const text = String(name || "").toLocaleLowerCase("sr-Latn");
-  if (text.includes("matemat")) return ["∑", "π", "x² + y²", "√x", "a² + b² = c²", "∞", "Δ"];
-  if (text.includes("informat") || text.includes("program")) return ["if / else", "{ }", "const", "return", "</>", "true", "01"];
-  if (text.includes("fizik")) return ["F = ma", "E = mc²", "λ", "Δt", "v = s/t", "ω", "hν"];
-  if (text.includes("hemij")) return ["H₂O", "CO₂", "NaCl", "CH₄", "C₆H₁₂O₆", "O₂", "pH"];
-  if (text.includes("filoz")) return ["λόγος", "φ", "zašto?", "ideja", "cogito", "etika", "? →"];
-  if (text.includes("srpsk")) return ["Aa · Аа", "č · ć", "ko? šta?", "reč", "N · G · D", "ž · š", "! ?"];
-  if (text.includes("engles")) return ["hello", "be · was", "a / the", "word", "if · then", "ABC", "why?"];
-  if (text.includes("nema")) return ["der · die", "ä · ö · ü", "ich bin", "Wort", "das · ß", "ABC", "ja"];
-  if (text.includes("rusk")) return ["А · Я", "привет", "я · ты", "слово", "мир", "Ж · Ш", "да"];
-  if (text.includes("italij")) return ["ciao", "io · tu", "essere", "parola", "à · è", "ABC", "sì"];
-  return ["Aa", "reč", "?", "znanje", "→", "ABC", "!"];
+  if (text.includes("matemat")) return "Osnovna, srednja, faks";
+  if (text.includes("informat") || text.includes("program")) return "Programiranje, algoritmi";
+  if (text.includes("fizik")) return "Zadaci i teorija";
+  if (text.includes("hemij")) return "Neorganska, organska";
+  if (text.includes("filoz")) return "Eseji i teorija";
+  if (text.includes("srpsk")) return "Gramatika, pismeni";
+  if (text.includes("engles")) return "Konverzacija, ispiti";
+  if (text.includes("nema")) return "A1 – B2";
+  if (text.includes("rusk") || text.includes("italij")) return "Početni nivo";
+  return "Individualni časovi";
 }
 
 function StepHeading({ eyebrow, title, description, onMounted }) {
@@ -108,7 +107,7 @@ function StepHeading({ eyebrow, title, description, onMounted }) {
   useEffect(() => { onMounted?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <header className="booking-step-heading">
-      {eyebrow && <span className="studio-eyebrow"><i aria-hidden="true" />{eyebrow}</span>}
+      {eyebrow && <span className="studio-eyebrow">{eyebrow}</span>}
       <h2 tabIndex={-1}><TypewriterText text={title} /></h2>
       {description && <p>{description}</p>}
     </header>
@@ -393,20 +392,17 @@ function BookingPage() {
     slots: sortedSlots.filter((slot) => part.test(Math.floor(minutesOfDay(slot.start_time) / 60))),
   })).filter((group) => group.slots.length > 0), [sortedSlots]);
 
-  const hue = STEP_HUES[step - 1];
-
   if (bookingResult) {
     const mailStatus = bookingResult.notification_delivery?.status;
     return (
       <div ref={pageRef} className="booking-page studio booking-page--success">
-        <NeuralField hue={150} />
         <section className="booking-success" aria-labelledby="success-title">
           <div className="booking-success-hero">
             <div className="booking-success-brand"><BrandLogo compact /><span className="booking-success-status"><Check size={14} aria-hidden="true" /> Potvrđeno</span></div>
             <span className="booking-success-icon" aria-hidden="true">
               <svg viewBox="0 0 52 52"><circle className="success-ring" cx="26" cy="26" r="24" /><path className="success-tick" d="M15 27l7 7 15-16" /></svg>
             </span>
-            <p className="studio-eyebrow"><i aria-hidden="true" />Rezervacija #{bookingResult.id}</p>
+            <p className="studio-eyebrow">Rezervacija #{bookingResult.id}</p>
             <h1 id="success-title" tabIndex={-1}><TypewriterText text="Vidimo se na času!" /></h1>
             {mailStatus === "sent" ? (
               <p className="booking-success-lead">Potvrda i link za otkazivanje poslati su na <strong>{bookingResult.client_email}</strong>.</p>
@@ -460,10 +456,10 @@ function BookingPage() {
         ) : <div className="booking-subject-grid">
           {subjects.map((subject, index) => {
             const selected = subject.id === selectedSubject?.id;
-            return <ScienceCard key={subject.id} type="button" className={`booking-subject-card fx-rise ${selected ? "selected" : ""}`} style={{ "--i": index }} data-tone={index % 5} formulas={subjectFormulas(subject.name)} backdrop={<SubjectBackdrop name={subject.name} />} aria-pressed={selected} onClick={(event) => {
+            return <ScienceCard key={subject.id} type="button" className={`booking-subject-card fx-rise ${selected ? "selected" : ""}`} style={{ "--i": index }} aria-pressed={selected} onClick={(event) => {
               sparkBurst(event.currentTarget, event);
               setSelectedSubject(subject); setSelectedTeacher(null); setSelectedDate(""); setSelectedSlot(null);
-            }}><span className="booking-subject-glyph" aria-hidden="true">{subjectSymbol(subject.name)}</span><strong>{subject.name}</strong><ArrowUpRight className="booking-subject-arrow" size={18} aria-hidden="true" />{selected && <CheckMark />}</ScienceCard>;
+            }}><span className="booking-subject-glyph" aria-hidden="true">{subjectSymbol(subject.name)}</span><strong>{subject.name}</strong><span className="booking-subject-tagline">{subjectTagline(subject.name)}</span>{selected && <CheckMark />}</ScienceCard>;
           })}
         </div>}
         <StepActions onNext={goNext} nextDisabled={!selectedSubject} hint={selectedSubject ? `Odlično — ${selectedSubject.name}!` : "Klikni na predmet"} />
@@ -483,7 +479,7 @@ function BookingPage() {
               <span className="booking-teacher-subjects"><span>Informatika</span><span>Matematika</span></span>
               <span className="booking-teacher-perks" aria-hidden="true"><span><School size={14} /> U centru</span><span><Video size={14} /> Online</span><span><Users size={14} /> Individualno i grupno</span></span>
             </span>
-            <span className="booking-teacher-arrow" aria-hidden="true">{selected ? <Check size={21} /> : <ArrowUpRight size={21} />}</span>
+            <span className="booking-teacher-arrow" aria-hidden="true">{selected ? <Check size={20} /> : <ArrowUpRight size={20} />}</span>
           </ScienceCard>;
         })}<div className="booking-teacher-previews"><p className="booking-teacher-previews-title">Uskoro u timu</p><TeacherPreviewCards /></div></div>}
         <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedTeacher} hint={selectedTeacher ? null : "Izaberi profesora"} />
@@ -649,11 +645,10 @@ function BookingPage() {
   };
 
   return (
-    <div ref={pageRef} className="booking-page studio" style={{ "--step-hue": hue }}>
-      <NeuralField hue={hue} />
+    <div ref={pageRef} className="booking-page studio">
       <header className="booking-intro">
         <div>
-          <p className="studio-eyebrow"><Sparkles size={13} aria-hidden="true" /> Online zakazivanje</p>
+          <p className="studio-eyebrow">Online zakazivanje</p>
           <h1>Tvoj sledeći čas <em>počinje ovde.</em></h1>
         </div>
         <JourneyProgress steps={STEPS} currentStep={step} values={journeyValues} onStepClick={goTo} />
@@ -662,7 +657,6 @@ function BookingPage() {
       <div className="booking-shell">
         <div className="booking-workspace">
           <section className="booking-panel" data-step={step} data-spotlight>
-            <span className="studio-watermark" aria-hidden="true"><AnimatePresence mode="popLayout" initial={false}><motion.span key={step} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -40 }} transition={{ duration: .5 }}>{String(step).padStart(2, "0")}</motion.span></AnimatePresence></span>
             {error && <Alert type="error" onClose={() => setError("")}>{error}</Alert>}
             <AnimatePresence mode="wait" custom={direction} initial={false}>
               <motion.div key={step} className="booking-step" data-step={step} custom={direction} variants={reducedMotion ? undefined : stepVariants} initial="enter" animate="center" exit="exit" transition={{ duration: .42, ease: [.2, .8, .2, 1] }}>
@@ -672,7 +666,7 @@ function BookingPage() {
           </section>
         </div>
 
-        <LiveTicket rows={summaryRows} step={step} totalSteps={STEPS.length} symbol={subjectSymbol(selectedSubject?.name)} price={price} />
+        <LiveTicket rows={summaryRows} step={step} totalSteps={STEPS.length} price={price} />
       </div>
     </div>
   );
