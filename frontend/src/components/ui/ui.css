@@ -104,7 +104,6 @@
   background: none;
   color: var(--forest);
   -webkit-text-fill-color: currentColor;
-  font-style: italic;
 }
 .dash-hero-logout { align-self: flex-start; gap: 8px; }
 .dash-hero-next {

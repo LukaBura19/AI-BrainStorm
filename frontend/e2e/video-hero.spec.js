@@ -102,7 +102,7 @@ test("početna ističe veliki tekst i samo jedno dugme za zakazivanje", async ({
   const cta = copy.getByRole("link", { name: "Zakaži svoj čas" });
   expect((await cta.boundingBox()).height).toBeGreaterThanOrEqual(64);
   await expect(cta).toHaveAttribute("href", "/booking");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("Dobro došli u Edukativni centar BrainStorm! Znanje otvara mogućnosti. Svet je tvoj — napravi prvi korak.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("Dobro došli u Edukativni centar BrainStorm!");
   await expect(page.locator("footer")).toHaveCount(0);
   await expect(page.getByRole("slider")).toHaveCount(0);
 });

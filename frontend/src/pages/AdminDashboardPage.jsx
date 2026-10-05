@@ -474,7 +474,7 @@ function AdminDashboardPage() {
                         <div className="td-sub">{b.client_email}</div>
                       </td>
                       <td>{fmtDateFull(b.start_time)}</td>
-                      <td>{fmtTime(b.start_time)} — {fmtTime(b.end_time)}</td>
+                      <td>{fmtTime(b.start_time)}–{fmtTime(b.end_time)}</td>
                       <td>{b.duration_minutes} min</td>
                       <td>
                         <div>{b.delivery_mode === "online" ? "Online" : "Uživo"}</div>
@@ -796,7 +796,7 @@ function AdminDashboardPage() {
                       {cr.slots.map((s) => (
                         <div key={s.booking_id} className="classroom-slot">
                           <div className="slot-time">
-                            {fmtTime(s.start_time)} — {fmtTime(s.end_time)}
+                            {fmtTime(s.start_time)}–{fmtTime(s.end_time)}
                           </div>
                           <div className="slot-info">
                             <strong>{s.subject_name}</strong>

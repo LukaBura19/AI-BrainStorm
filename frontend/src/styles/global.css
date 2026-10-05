@@ -1,5 +1,4 @@
 @import "./variables.css";
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;450;500;550;600;650;700&display=swap");
 
 *,
 *::before,
@@ -288,7 +287,9 @@ svg {
   box-shadow: var(--shadow-sm);
 }
 .eyebrow { display: flex; align-items: center; gap: .7rem; font-size: .7rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--terra); }
-.editorial { font-family: var(--font-editorial); font-weight: 500; font-style: italic; letter-spacing: -.02em; color: var(--forest); }
+.editorial { font-family: var(--font-display); font-weight: inherit; font-style: normal; color: var(--forest); }
+/* Emphasis inside headings: same family, colour only (no synthetic italics). */
+:is(h1, h2, h3) em { font-style: normal; color: var(--forest); }
 .text-link { display: inline-flex; align-items: center; gap: .6rem; color: var(--color-text-secondary); font-size: .85rem; }
 .text-link svg { transition: transform 220ms ease; }
 .text-link:hover { color: var(--color-text-primary); }

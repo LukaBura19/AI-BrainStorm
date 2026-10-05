@@ -2,7 +2,7 @@
 .pricing-header { max-width: 780px; margin: 0 auto clamp(2.5rem, 5vw, 4rem); text-align: center; }
 .pricing-header > p { color: var(--terra); font-size: .72rem; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; }
 .pricing-header h1 { margin: .8rem 0 1rem; font-size: clamp(2.6rem, 6vw, 4.8rem); font-weight: 500; line-height: 1.04; letter-spacing: -.03em; }
-.pricing-header h1 em { color: var(--forest); font-family: var(--font-editorial); font-style: italic; font-weight: 500; }
+.pricing-header h1 em { color: var(--forest); font-family: var(--font-editorial); font-style: normal; font-weight: 500; }
 .pricing-header > span { color: var(--color-text-secondary); font-size: .95rem; }
 
 .pricing-section-heading { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: end; margin-bottom: 1.4rem; }

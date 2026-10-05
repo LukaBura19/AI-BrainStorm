@@ -55,7 +55,7 @@ test("mobilna navigacija nema horizontalno prelivanje", async ({ page }) => {
   const bookingLink = page.getByRole("navigation", { name: "Glavna navigacija" }).getByRole("link", { name: "Zakaži čas" });
   await expect(bookingLink).toBeVisible();
   await bookingLink.click();
-  await expect(page.getByRole("heading", { name: /Tvoj sledeći čas/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Izaberi predmet" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBeTruthy();
 });
 
@@ -137,7 +137,7 @@ test("alternativni tok: grupni čas uživo od 90 minuta dobija učionicu", async
   await page.getByRole("button", { name: /Nastavi/i }).click();
   await page.getByRole("button", { name: /90 minuta/i }).click();
   await page.getByRole("button", { name: /Nastavi/i }).click();
-  await page.getByRole("button", { name: /U centru/i }).click();
+  await page.getByRole("button", { name: /Uživo/i }).click();
   await page.getByRole("button", { name: /Grupni/i }).click();
   await page.getByRole("button", { name: /Nastavi/i }).click();
 
@@ -153,7 +153,7 @@ test("alternativni tok: grupni čas uživo od 90 minuta dobija učionicu", async
   await page.getByRole("button", { name: /Potvrdi rezervaciju/i }).click();
 
   await expect(page.getByRole("heading", { name: /Vidimo se na času/i })).toBeVisible();
-  await expect(page.getByText("U centru · Grupni")).toBeVisible();
+  await expect(page.getByText("Uživo · Grupni")).toBeVisible();
   await expect(page.getByText("Učionica 1")).toBeVisible();
 
   await page.getByRole("link", { name: /Otvori link za otkazivanje/i }).click();

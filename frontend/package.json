@@ -11,6 +11,8 @@
     "test:design": "playwright test e2e/design.spec.js e2e/spatial.spec.js e2e/enrichment.spec.js e2e/video-hero.spec.js"
   },
   "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/geist": "^5.3.0",
     "lucide-react": "^1.42.0",
     "motion": "^13.2.0",
     "react": "^18.3.1",

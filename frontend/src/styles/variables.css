@@ -51,9 +51,9 @@
   --color-error: #b3412e;
   --color-warning: #a8701c;
 
-  --font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
-  --font-editorial: "Fraunces", Georgia, serif;
+  --font-family: "Geist Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Geist Variable", system-ui, sans-serif;
+  --font-editorial: var(--font-display);
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;

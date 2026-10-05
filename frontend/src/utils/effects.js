@@ -43,7 +43,6 @@ export function confettiBurst({ particles = 170, duration = 3200 } = {}) {
   canvas.width = width * dpr; canvas.height = height * dpr;
   ctx.scale(dpr, dpr);
   const colors = ["#1f4d3a", "#2e6b52", "#c8643b", "#e39a78", "#6f8f62", "#efe8dc", "#a8701c"];
-  const glyphs = ["∑", "π", "√", "∞", "Δ", "λ", "{ }", "✦"];
   const pieces = Array.from({ length: particles }, (_, i) => {
     const fromLeft = i % 2 === 0;
     return {
@@ -55,7 +54,6 @@ export function confettiBurst({ particles = 170, duration = 3200 } = {}) {
       rotation: Math.random() * Math.PI,
       spin: (Math.random() - .5) * .3,
       color: colors[i % colors.length],
-      glyph: i % 9 === 0 ? glyphs[i % glyphs.length] : null,
       shape: i % 3,
     };
   });
@@ -72,10 +70,7 @@ export function confettiBurst({ particles = 170, duration = 3200 } = {}) {
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rotation);
       ctx.fillStyle = p.color;
-      if (p.glyph) {
-        ctx.font = `${p.size * 2.4}px Georgia, serif`;
-        ctx.fillText(p.glyph, 0, 0);
-      } else if (p.shape === 0) {
+      if (p.shape === 0) {
         ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
       } else if (p.shape === 1) {
         ctx.beginPath(); ctx.arc(0, 0, p.size / 2.6, 0, Math.PI * 2); ctx.fill();

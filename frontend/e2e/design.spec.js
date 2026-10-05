@@ -15,7 +15,7 @@ async function fixtureAPI(page, { conflict = false, emptyTeachers = false, dense
     const send = (json, status = 200) => route.fulfill({ status, json });
     if (url.pathname === "/public/subjects") return send({ items: subjects });
     if (url.pathname === "/public/teachers") return send({ items: emptyTeachers ? [] : [
-      { id: 41, full_name: "Luka Bura" }, { id: 42, full_name: "Drugi Profesor" },
+      { id: 41, full_name: "Luka Bura", subjects: [{ id: 2, name: "Matematika" }, { id: 3, name: "Informatika" }] }, { id: 42, full_name: "Drugi Profesor", subjects: [] },
     ] });
     if (url.pathname === "/public/available-slots") {
       state.availability.push(Object.fromEntries(url.searchParams));
@@ -348,10 +348,10 @@ test("23 termina ostaju čitljiva i dostupna u rasporedu nalik kalendaru", async
       await fits(page);
       for (const card of await cards.all()) {
         expect(await card.evaluate(el => {
+          // Each start time stays readable inside its tile; the end time appears once a slot is chosen.
           const tile = el.getBoundingClientRect();
           const start = el.querySelector(".booking-slot-start strong").getBoundingClientRect();
-          const end = el.querySelector(".booking-slot-end").getBoundingClientRect();
-          return end.top > start.bottom && [...el.querySelectorAll("strong")].every(node => { const time = node.getBoundingClientRect(); return time.left >= tile.left && time.right <= tile.right && time.top >= tile.top && time.bottom <= tile.bottom; });
+          return start.width > 0 && start.left >= tile.left && start.right <= tile.right && start.top >= tile.top && start.bottom <= tile.bottom;
         })).toBeTruthy();
       }
       await top(page);

@@ -166,6 +166,14 @@ function Layout() {
               >
                 Cenovnik
               </NavLink>
+              <NavLink
+                to="/o-nama"
+                className={({ isActive }) =>
+                  `app-nav-link ${isActive ? "active" : ""}`
+                }
+              >
+                O nama
+              </NavLink>
             </nav>
 
             <div className="app-header-actions" ref={loginWrapRef}>

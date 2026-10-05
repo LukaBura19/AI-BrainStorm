@@ -441,7 +441,7 @@ function TeacherDashboardPage() {
                 <span>
                   <strong>{formatDateFullLatn(selectedDate)}</strong>
                   <br />
-                  {startTime} — {endTime}
+                  {startTime}–{endTime}
                 </span>
               </div>
               <button
@@ -481,7 +481,7 @@ function TeacherDashboardPage() {
                         <span className="avail-card-dayname">{formatTimestampDateLatn(a.start_time)}</span>
                       </div>
                       <div className="avail-card-time">
-                        {formatTimeLatn(a.start_time)} — {formatTimeLatn(a.end_time)}
+                        {formatTimeLatn(a.start_time)}–{formatTimeLatn(a.end_time)}
                       </div>
                       <button
                         className="avail-card-delete"
@@ -572,7 +572,7 @@ function TeacherDashboardPage() {
                       <div className="booking-detail">
                         <span className="booking-detail-label">Vreme</span>
                         <span className="booking-detail-value">
-                          {formatTimeLatn(b.start_time)} — {formatTimeLatn(b.end_time)} ({b.duration_minutes} min)
+                          {formatTimeLatn(b.start_time)}–{formatTimeLatn(b.end_time)} ({b.duration_minutes} min)
                         </span>
                       </div>
                       <div className="booking-detail">
@@ -652,7 +652,7 @@ function TeacherDashboardPage() {
 
                     {b.status === "confirmed" && !isPast && !canCancel && (
                       <div className="booking-notice">
-                        <AlertTriangle size={14} aria-hidden="true" /> Otkazivanje nije moguće — manje od 24h do početka časa.
+                        <AlertTriangle size={14} aria-hidden="true" /> Otkazivanje nije moguće, manje od 24h do početka časa.
                       </div>
                     )}
                   </div>

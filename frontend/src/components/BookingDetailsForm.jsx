@@ -46,21 +46,10 @@ export default function BookingDetailsForm({
   addAttachments,
   maxAttachments,
 }) {
-  const displayName = clientName.trim();
-  const nameParts = displayName.split(/\s+/).filter(Boolean);
-  let initials = "BS";
-  if (nameParts.length > 0) {
-    initials = `${nameParts[0][0]}${nameParts.length > 1 ? nameParts.at(-1)[0] : ""}`.toLocaleUpperCase("sr-Latn");
-  }
-
   return <div className="booking-details">
     <div className="booking-details-columns">
       <section className="booking-form-panel booking-details-panel booking-details-panel--contact" aria-labelledby="booking-contact-heading">
         <DetailsHeading number="01" id="booking-contact-heading">Kontakt</DetailsHeading>
-        <div className="booking-details-identity" aria-hidden="true">
-          <span className="booking-details-monogram"><span key={initials}>{initials}</span></span>
-          <div><small>Tvoj prostor za učenje</small><strong>{displayName || "Tvoje ime"}</strong></div>
-        </div>
         <div className="booking-details-contact-fields">
           <div className="form-group">
             <label className="form-label" htmlFor="client-name">Ime i prezime <span className="required">*</span></label>

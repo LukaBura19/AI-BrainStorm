@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, CalendarDays, Check, Clock3, FileText, GraduationCap, Mail, Moon, RefreshCw, School, Sparkles, Sun, Sunrise, UserRound, Users, Video } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Atom, BookOpen, Brain, Calculator, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, CodeXml, FileText, FlaskConical, GraduationCap, Languages, Mail, MapPin, Paperclip, PenLine, RefreshCw, School, UserRound, Users, Video } from "lucide-react";
 import Alert from "../components/Alert";
 import Spinner from "../components/Spinner";
 import api from "../services/api";
-import BrandLogo from "../components/BrandLogo";
 import JourneyProgress from "../components/JourneyProgress";
 import LiveTicket from "../components/LiveTicket";
 import ScienceCard from "../components/ScienceCard";
@@ -26,13 +25,13 @@ import "./BookingStudio.css";
 const STEPS = ["Predmet", "Profesor", "Trajanje", "Vrsta časa", "Datum", "Termin", "Tvoji podaci", "Pregled"];
 const DURATIONS = [
   { value: 45, title: "45 minuta", accent: "quick", tagline: "Brzi fokus", description: "Jedno konkretno pitanje ili zadatak", price: 1500 },
-  { value: 60, title: "60 minuta", accent: "standard", tagline: "Najčešći izbor", description: "Standardni čas — objašnjenje i vežba", price: 2000, popular: true },
+  { value: 60, title: "60 minuta", accent: "standard", tagline: "Najčešći izbor", description: "Standardni čas, objašnjenje i vežba", price: 2000, popular: true },
   { value: 90, title: "90 minuta", accent: "deep", tagline: "Dubinski rad", description: "Više oblasti ili intenzivna priprema", price: 2500 },
 ];
 const FACULTY_PRICE_90 = 3000;
 const DELIVERY_OPTIONS = [
-  { value: "in_person", title: "U centru", description: "Čas uživo u BrainStorm učionici", icon: School },
-  { value: "online", title: "Online", description: "Čas na daljinu iz svog prostora", icon: Video },
+  { value: "in_person", title: "Uživo", description: "Čas uživo u našem edukativnom centru", icon: School },
+  { value: "online", title: "Online", description: "Online čas preko Google Meet-a", icon: Video },
 ];
 const SESSION_OPTIONS = [
   { value: "individual", title: "Individualni", description: "Profesor je posvećen samo tebi", icon: UserRound },
@@ -45,12 +44,8 @@ const CATEGORIES = [
   { value: "drugo", label: "Drugo" },
 ];
 const SUBJECT_ORDER = ["Srpski jezik", "Matematika", "Informatika", "Fizika", "Hemija", "Filozofija", "Engleski jezik", "Nemački jezik", "Nemacki jezik", "Ruski jezik", "Italijanski jezik"];
-const WEEK_HEADERS = ["pon", "uto", "sre", "čet", "pet", "sub", "ned"];
-const DAY_PARTS = [
-  { key: "morning", label: "Jutro", hint: "08–12h", icon: Sunrise, test: (hour) => hour < 12 },
-  { key: "afternoon", label: "Popodne", hint: "12–17h", icon: Sun, test: (hour) => hour >= 12 && hour < 17 },
-  { key: "evening", label: "Veče", hint: "17–20h", icon: Moon, test: (hour) => hour >= 17 },
-];
+const CENTER_ADDRESS = "Bože Jankovića 49, Beograd";
+const SLOT_STEP_MINUTES = 30;
 const WORK_START = 8 * 60;
 const WORK_END = 20 * 60;
 const ATTACHMENT_MAX_BYTES = 25 * 1024 * 1024;
@@ -64,6 +59,7 @@ const categoryLabel = (value) => CATEGORIES.find((option) => option.value === va
 const formatBookingDate = (value) => formatTimestampDateLatn(`${value}T12:00:00Z`, true);
 const formatRsd = (amount) => `${amount.toLocaleString("sr-Latn-RS").replace(/,/g, ".")} RSD`;
 const minutesOfDay = (iso) => { const [h, m] = formatTimeLatn(iso).split(":").map(Number); return h * 60 + m; };
+const clockLabel = (minutes) => `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
 
 /** Serbian plural for "slobodan termin" (1, 21… / 2–4, 22–24… / rest). */
 function slotCountLabel(count) {
@@ -73,41 +69,25 @@ function slotCountLabel(count) {
   return `${count} slobodnih termina`;
 }
 
-function subjectSymbol(name) {
-  const normalized = String(name || "").toLocaleLowerCase("sr-Latn");
-  if (normalized.includes("matemat")) return "∑";
-  if (normalized.includes("informat") || normalized.includes("program")) return "</>";
-  if (normalized.includes("fizik")) return "ƒ";
-  if (normalized.includes("hemij")) return "⚗";
-  if (normalized.includes("filoz")) return "φ";
-  if (normalized.includes("engles")) return "En";
-  if (normalized.includes("nema")) return "De";
-  if (normalized.includes("rusk")) return "Ру";
-  if (normalized.includes("italij")) return "It";
-  if (normalized.includes("jezik")) return "Aa";
-  return "✦";
-}
-
-function subjectTagline(name) {
+/** Drawn icon for each subject (one stroke family instead of unicode glyphs). */
+function SubjectIcon({ name, size = 20 }) {
   const text = String(name || "").toLocaleLowerCase("sr-Latn");
-  if (text.includes("matemat")) return "Osnovna, srednja, faks";
-  if (text.includes("informat") || text.includes("program")) return "Programiranje, algoritmi";
-  if (text.includes("fizik")) return "Zadaci i teorija";
-  if (text.includes("hemij")) return "Neorganska, organska";
-  if (text.includes("filoz")) return "Eseji i teorija";
-  if (text.includes("srpsk")) return "Gramatika, pismeni";
-  if (text.includes("engles")) return "Konverzacija, ispiti";
-  if (text.includes("nema")) return "A1 – B2";
-  if (text.includes("rusk") || text.includes("italij")) return "Početni nivo";
-  return "Individualni časovi";
+  let Icon = BookOpen;
+  if (text.includes("matemat")) Icon = Calculator;
+  else if (text.includes("informat") || text.includes("program")) Icon = CodeXml;
+  else if (text.includes("fizik")) Icon = Atom;
+  else if (text.includes("hemij")) Icon = FlaskConical;
+  else if (text.includes("filoz")) Icon = Brain;
+  else if (text.includes("srpsk")) Icon = PenLine;
+  else if (text.includes("jezik")) Icon = Languages;
+  return <Icon size={size} strokeWidth={1.7} aria-hidden="true" />;
 }
 
-function StepHeading({ eyebrow, title, description, onMounted }) {
+function StepHeading({ title, description, onMounted }) {
   // Runs once the incoming step is in the DOM (after AnimatePresence finished the exit).
   useEffect(() => { onMounted?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <header className="booking-step-heading">
-      {eyebrow && <span className="studio-eyebrow">{eyebrow}</span>}
       <h2 tabIndex={-1}><TypewriterText text={title} /></h2>
       {description && <p>{description}</p>}
     </header>
@@ -118,11 +98,10 @@ function CheckMark() {
   return <span className="booking-choice-check" aria-hidden="true"><Check size={14} strokeWidth={3} /></span>;
 }
 
-function StepActions({ onBack, onNext, nextDisabled = false, nextLabel = "Nastavi", busy = false, hint }) {
+function StepActions({ onBack, onNext, nextDisabled = false, nextLabel = "Nastavi", busy = false }) {
   return (
     <div className="booking-step-actions">
       {onBack ? <button type="button" className="btn btn-secondary studio-back" onClick={onBack} disabled={busy}><ArrowLeft size={16} aria-hidden="true" /> Nazad</button> : <span />}
-      {hint && <span className="studio-hint" aria-live="polite">{hint}</span>}
       <button type="button" className={`btn btn-primary studio-next ${nextDisabled ? "" : "is-ready"}`} onClick={onNext} disabled={nextDisabled || busy}>
         {busy ? <><span className="booking-button-spinner" /> Zakazujem…</> : <>{nextLabel} <span className="studio-next-arrow" aria-hidden="true"><ArrowRight size={16} /></span></>}
       </button>
@@ -131,9 +110,9 @@ function StepActions({ onBack, onNext, nextDisabled = false, nextLabel = "Nastav
 }
 
 const stepVariants = {
-  enter: (direction) => ({ opacity: 0, x: direction > 0 ? 70 : -70, filter: "blur(10px)", scale: .985 }),
-  center: { opacity: 1, x: 0, filter: "blur(0px)", scale: 1 },
-  exit: (direction) => ({ opacity: 0, x: direction > 0 ? -50 : 50, filter: "blur(8px)", scale: .99 }),
+  enter: (direction) => ({ opacity: 0, x: direction > 0 ? 28 : -28 }),
+  center: { opacity: 1, x: 0 },
+  exit: (direction) => ({ opacity: 0, x: direction > 0 ? -20 : 20 }),
 };
 
 function BookingPage() {
@@ -380,17 +359,30 @@ function BookingPage() {
   const journeyValues = [selectedSubject?.name, selectedTeacher?.full_name, selectedDuration ? `${selectedDuration} min` : null,
     deliveryLabel(deliveryMode), selectedDate ? formatBookingDate(selectedDate) : null, slotLabel, clientName.trim() || null, null];
 
-  // Calendar: pad the first week so weekdays line up under their headers.
-  const calendarCells = useMemo(() => {
-    const first = new Date(`${dateOptions[0].value}T12:00:00Z`);
-    const leading = (first.getUTCDay() + 6) % 7;
-    return [...Array.from({ length: leading }, (_, index) => ({ empty: true, key: `pad-${index}` })), ...dateOptions];
-  }, [dateOptions]);
+  // Free and taken start times for the chosen day, laid out hour by hour like a day planner.
+  const timeRows = useMemo(() => {
+    if (!selectedDuration) return [];
+    const free = new Map(sortedSlots.map((slot) => [minutesOfDay(slot.start_time), slot]));
+    const starts = new Set(free.keys());
+    for (let minute = WORK_START; minute + selectedDuration <= WORK_END; minute += SLOT_STEP_MINUTES) starts.add(minute);
+    const rows = new Map();
+    [...starts].sort((a, b) => a - b).forEach((minute) => {
+      const hour = Math.floor(minute / 60);
+      if (!rows.has(hour)) rows.set(hour, []);
+      rows.get(hour).push({ minute, slot: free.get(minute) || null });
+    });
+    return [...rows.entries()].map(([hour, cells]) => ({ hour, cells }));
+  }, [sortedSlots, selectedDuration]);
 
-  const slotGroups = useMemo(() => DAY_PARTS.map((part) => ({
-    ...part,
-    slots: sortedSlots.filter((slot) => part.test(Math.floor(minutesOfDay(slot.start_time) / 60))),
-  })).filter((group) => group.slots.length > 0), [sortedSlots]);
+  const dateIndex = dateOptions.findIndex((date) => date.value === selectedDate);
+  const selectedDateInfo = dateOptions[dateIndex];
+  const longDate = (value) => formatTimestampDateLatn(`${value}T12:00:00Z`).replace(/\s\d{4}\.$/, "");
+  const switchDay = (offset) => {
+    const next = dateOptions[dateIndex + offset];
+    if (!next) return;
+    setSelectedDate(next.value);
+    setSelectedSlot(null);
+  };
 
   if (bookingResult) {
     const mailStatus = bookingResult.notification_delivery?.status;
@@ -398,11 +390,10 @@ function BookingPage() {
       <div ref={pageRef} className="booking-page studio booking-page--success">
         <section className="booking-success" aria-labelledby="success-title">
           <div className="booking-success-hero">
-            <div className="booking-success-brand"><BrandLogo compact /><span className="booking-success-status"><Check size={14} aria-hidden="true" /> Potvrđeno</span></div>
             <span className="booking-success-icon" aria-hidden="true">
               <svg viewBox="0 0 52 52"><circle className="success-ring" cx="26" cy="26" r="24" /><path className="success-tick" d="M15 27l7 7 15-16" /></svg>
             </span>
-            <p className="studio-eyebrow">Rezervacija #{bookingResult.id}</p>
+            <span className="booking-success-status"><Check size={14} aria-hidden="true" /> Rezervacija #{bookingResult.id} je potvrđena</span>
             <h1 id="success-title" tabIndex={-1}><TypewriterText text="Vidimo se na času!" /></h1>
             {mailStatus === "sent" ? (
               <p className="booking-success-lead">Potvrda i link za otkazivanje poslati su na <strong>{bookingResult.client_email}</strong>.</p>
@@ -420,9 +411,9 @@ function BookingPage() {
             <p className="booking-cancel-note">Besplatno otkazivanje moguće je najkasnije 24 sata pre časa.</p>
           </div>
 
-          <motion.div className="booking-success-ticket" data-spotlight initial={reducedMotion ? false : { opacity: 0, y: 60, rotateX: 25 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ delay: .35, duration: .9, ease: [.2, .8, .2, 1] }}>
+          <motion.div className="booking-success-ticket" initial={reducedMotion ? false : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .3, duration: .7, ease: [.16, 1, .3, 1] }}>
             <div className="booking-ticket-date">
-              <span className="booking-ticket-symbol" aria-hidden="true">{subjectSymbol(bookingResult.subject_name)}</span>
+              <span className="booking-ticket-symbol"><SubjectIcon name={bookingResult.subject_name} size={26} /></span>
               <span>{formatTimestampDateLatn(bookingResult.start_time, true)}</span>
               <strong>{formatTimeLatn(bookingResult.start_time)}</strong>
               <small>do {formatTimeLatn(bookingResult.end_time)}</small>
@@ -431,7 +422,7 @@ function BookingPage() {
               <div><dt><BookOpen size={14} aria-hidden="true" /> Predmet</dt><dd>{bookingResult.subject_name}</dd></div>
               <div><dt><GraduationCap size={14} aria-hidden="true" /> Profesor</dt><dd>{bookingResult.teacher_name}</dd></div>
               <div><dt>Vrsta časa</dt><dd>{deliveryLabel(bookingResult.delivery_mode)} · {sessionLabel(bookingResult.session_type)}</dd></div>
-              <div><dt>Učionica</dt><dd>{bookingResult.delivery_mode === "online" ? "Online" : `Učionica ${bookingResult.classroom_number}`}</dd></div>
+              <div><dt>Učionica</dt><dd>{bookingResult.delivery_mode === "online" ? "Google Meet" : `Učionica ${bookingResult.classroom_number}`}</dd></div>
               <div><dt>Trajanje</dt><dd>{bookingResult.duration_minutes} minuta</dd></div>
               <div><dt>Nivo obrazovanja</dt><dd>{categoryLabel(bookingResult.client_category)}</dd></div>
             </dl>
@@ -447,10 +438,13 @@ function BookingPage() {
     );
   }
 
+  const heading = (title, description) => <StepHeading onMounted={navigatedRef.current ? focusScreen : undefined} title={title} description={description} />;
+  const editButton = (target, label) => <button type="button" className="booking-review-edit" onClick={() => goTo(target)} aria-label={`Izmeni: ${label}`}>Izmeni</button>;
+
   const renderStep = () => {
     switch (step) {
       case 1: return <>
-        <StepHeading onMounted={navigatedRef.current ? focusScreen : undefined} eyebrow="Počnimo" title="Izaberi predmet" description="Izaberi oblast u kojoj želiš više sigurnosti — ostalo slažemo zajedno." />
+        {heading("Izaberi predmet")}
         {subjectsLoading ? <Spinner text="Učitavamo predmete…" /> : subjects.length === 0 ? (
           <div className="booking-empty"><p>Nismo pronašli dostupne predmete.</p><button type="button" className="btn btn-secondary" onClick={() => loadSubjects()}>Pokušaj ponovo</button></div>
         ) : <div className="booking-subject-grid">
@@ -459,34 +453,34 @@ function BookingPage() {
             return <ScienceCard key={subject.id} type="button" className={`booking-subject-card fx-rise ${selected ? "selected" : ""}`} style={{ "--i": index }} aria-pressed={selected} onClick={(event) => {
               sparkBurst(event.currentTarget, event);
               setSelectedSubject(subject); setSelectedTeacher(null); setSelectedDate(""); setSelectedSlot(null);
-            }}><span className="booking-subject-glyph" aria-hidden="true">{subjectSymbol(subject.name)}</span><strong>{subject.name}</strong><span className="booking-subject-tagline">{subjectTagline(subject.name)}</span>{selected && <CheckMark />}</ScienceCard>;
+            }}><span className="booking-subject-glyph"><SubjectIcon name={subject.name} /></span><strong>{subject.name}</strong>{selected && <CheckMark />}</ScienceCard>;
           })}
         </div>}
-        <StepActions onNext={goNext} nextDisabled={!selectedSubject} hint={selectedSubject ? `Odlično — ${selectedSubject.name}!` : "Klikni na predmet"} />
+        <StepActions onNext={goNext} nextDisabled={!selectedSubject} />
       </>;
 
       case 2: return <>
-        <StepHeading onMounted={navigatedRef.current ? focusScreen : undefined} eyebrow={selectedSubject?.name} title="Izaberi profesora" description="Profesor koji vodi tvoj čas od prvog pitanja do poslednjeg zadatka." />
+        {heading("Izaberi profesora")}
         {teachersLoading ? <Spinner text="Tražimo profesore…" /> : displayedTeachers.length === 0 ? (
-          <div className="booking-empty"><span aria-hidden="true">⌁</span><p>Trenutno nema aktivnog profesora za ovaj predmet.</p><button type="button" className="btn btn-secondary" onClick={goBack}>Izaberi drugi predmet</button></div>
+          <div className="booking-empty"><p>Trenutno nema aktivnog profesora za ovaj predmet.</p><button type="button" className="btn btn-secondary" onClick={goBack}>Izaberi drugi predmet</button></div>
         ) : <div className="booking-teacher-grid">{displayedTeachers.map((teacher) => {
           const selected = teacher.id === selectedTeacher?.id;
+          const teacherSubjects = [...(teacher.subjects || [])].map((subject) => subject.name).sort(compareSrLatn);
           return <ScienceCard key={teacher.id} type="button" className={`booking-teacher-card booking-teacher-featured fx-rise ${selected ? "selected" : ""}`} aria-pressed={selected} onClick={(event) => { sparkBurst(event.currentTarget, event); setSelectedTeacher(teacher); setSelectedDate(""); setSelectedSlot(null); }}>
             <TeacherAvatar name={teacher.full_name} />
             <span className="booking-teacher-copy">
-              <span className="booking-teacher-note">Tvoj BrainStorm profesor</span>
               <strong>{teacher.full_name}</strong>
-              <span className="booking-teacher-subjects"><span>Informatika</span><span>Matematika</span></span>
-              <span className="booking-teacher-perks" aria-hidden="true"><span><School size={14} /> U centru</span><span><Video size={14} /> Online</span><span><Users size={14} /> Individualno i grupno</span></span>
+              {teacherSubjects.length > 0 && <span className="booking-teacher-subjects">{teacherSubjects.map((name) => <span key={name}>{name}</span>)}</span>}
+              <span className="booking-teacher-perks" aria-hidden="true"><span><School size={15} /> Uživo</span><span><Video size={15} /> Online</span><span><Users size={15} /> Individualno i grupno</span></span>
             </span>
             <span className="booking-teacher-arrow" aria-hidden="true">{selected ? <Check size={20} /> : <ArrowUpRight size={20} />}</span>
           </ScienceCard>;
         })}<div className="booking-teacher-previews"><p className="booking-teacher-previews-title">Uskoro u timu</p><TeacherPreviewCards /></div></div>}
-        <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedTeacher} hint={selectedTeacher ? null : "Izaberi profesora"} />
+        <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedTeacher} />
       </>;
 
       case 3: return <>
-        <StepHeading onMounted={navigatedRef.current ? focusScreen : undefined} eyebrow="Tvoj tempo" title="Koliko vremena ti treba?" description="Cene važe za individualni čas u osnovnoj i srednjoj školi." />
+        {heading("Koliko vremena ti treba?", "Cene važe za individualni čas u osnovnoj i srednjoj školi.")}
         <div className="booking-duration-grid">{DURATIONS.map((duration, index) => {
           const selected = selectedDuration === duration.value;
           return <ScienceCard key={duration.value} type="button" className={`booking-duration-card booking-duration-card--${duration.accent} fx-rise ${selected ? "selected" : ""}`} style={{ "--i": index }} aria-pressed={selected} onClick={(event) => { sparkBurst(event.currentTarget, event); setSelectedDuration(duration.value); setSelectedSlot(null); }}>
@@ -501,16 +495,16 @@ function BookingPage() {
             {selected && <CheckMark />}
           </ScienceCard>;
         })}</div>
-        <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedDuration} hint={selectedDuration ? null : "Izaberi trajanje"} />
+        <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedDuration} />
       </>;
 
       case 4: return <>
-        <StepHeading onMounted={navigatedRef.current ? focusScreen : undefined} eyebrow="Čas po tvojoj meri" title="Podesi vrstu časa" description="Uživo u učionici ili online — sam ili u grupi." />
+        {heading("Podesi vrstu časa")}
         <div className="booking-format-grid">
-          {[["delivery", "Način održavanja", "01 / 02", DELIVERY_OPTIONS, deliveryMode, (value) => { setDeliveryMode(value); setSelectedSlot(null); }],
-            ["session", "Tip časa", "02 / 02", SESSION_OPTIONS, sessionType, setSessionType]].map(([kind, title, index, options, value, onChange], panelIndex) => (
-            <section key={kind} className="booking-format-panel fx-rise" style={{ "--i": panelIndex }} data-spotlight aria-labelledby={`${kind}-heading`}>
-              <header><h3 id={`${kind}-heading`}>{title}</h3><span className="booking-format-index">{index}</span></header>
+          {[["delivery", "Način održavanja", DELIVERY_OPTIONS, deliveryMode, (value) => { setDeliveryMode(value); setSelectedSlot(null); }],
+            ["session", "Tip časa", SESSION_OPTIONS, sessionType, setSessionType]].map(([kind, title, options, value, onChange], panelIndex) => (
+            <section key={kind} className="booking-format-panel fx-rise" style={{ "--i": panelIndex }} aria-labelledby={`${kind}-heading`}>
+              <header><h3 id={`${kind}-heading`}>{title}</h3></header>
               <LessonFormatVisual kind={kind} mode={value} />
               <div className="booking-format-choices" role="group" aria-label={title}>{options.map((option) => {
                 const selected = option.value === value;
@@ -530,67 +524,58 @@ function BookingPage() {
       </>;
 
       case 5: return <>
-        <StepHeading onMounted={navigatedRef.current ? focusScreen : undefined} eyebrow="Naredne dve nedelje" title="Izaberi dan" description="Ispod svakog dana vidiš koliko slobodnih termina ima za tvoj izbor." />
-        <div className="booking-calendar">
-          <div className="booking-calendar-head" aria-hidden="true">{WEEK_HEADERS.map((day) => <span key={day} className={day === "sub" || day === "ned" ? "is-weekend" : ""}>{day}</span>)}</div>
-          <div className="booking-date-grid">{calendarCells.map((date, index) => {
-            if (date.empty) return <span key={date.key} className="booking-date-empty" aria-hidden="true" />;
-            const selected = date.value === selectedDate;
-            const free = dayAvailability[date.value];
-            const loading = free === undefined;
-            const full = free === 0;
-            const weekend = date.weekday === "sub" || date.weekday === "ned";
-            return <ScienceCard key={date.value} type="button" className={`booking-date-card fx-rise ${selected ? "selected" : ""} ${weekend ? "is-weekend" : ""} ${full ? "is-full" : ""}`} style={{ "--i": index * .5 }} aria-pressed={selected}
-              aria-label={`${date.weekdayLong}, ${date.day}. ${date.month}${loading ? "" : full ? ", nema slobodnih termina" : free ? `, ${slotCountLabel(free)}` : ""}`}
-              onClick={(event) => { sparkBurst(event.currentTarget, event, { count: 8 }); setSelectedDate(date.value); setSelectedSlot(null); }}>
-              {selected && <motion.span layoutId="date-glow" className="booking-date-glow" transition={{ type: "spring", stiffness: 400, damping: 32 }} />}
-              <span className="booking-date-weekday">{index === calendarCells.findIndex((cell) => !cell.empty) ? "sutra" : date.weekday}</span>
-              <strong>{date.day}</strong>
-              <small>{date.month}</small>
-              <span className={`booking-date-availability ${loading ? "is-loading" : ""}`} aria-hidden="true">
-                {loading ? <i /> : full ? "popunjeno" : free == null ? "" : <><b style={{ "--fill": Math.min(1, free / 24) }} />{free}</>}
-              </span>
-              {selected && <CheckMark />}
-            </ScienceCard>;
-          })}</div>
-        </div>
-        <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedDate} hint={selectedDate ? formatBookingDate(selectedDate) : "Izaberi dan"} />
+        {heading("Izaberi dan")}
+        <div className="booking-date-grid">{dateOptions.map((date, index) => {
+          const selected = date.value === selectedDate;
+          const free = dayAvailability[date.value];
+          const loading = free === undefined;
+          const full = free === 0;
+          const weekend = date.weekday === "sub" || date.weekday === "ned";
+          return <ScienceCard key={date.value} type="button" className={`booking-date-card fx-rise ${selected ? "selected" : ""} ${weekend ? "is-weekend" : ""} ${full ? "is-full" : ""}`} style={{ "--i": index * .5 }} aria-pressed={selected}
+            aria-label={`${date.weekdayLong}, ${date.day}. ${date.month}${loading ? "" : full ? ", nema slobodnih termina" : free ? `, ${slotCountLabel(free)}` : ""}`}
+            onClick={(event) => { sparkBurst(event.currentTarget, event, { count: 8 }); setSelectedDate(date.value); setSelectedSlot(null); }}>
+            <span className="booking-date-weekday">{index === 0 ? "sutra" : date.weekday}</span>
+            <strong>{date.day}</strong>
+            <small>{date.month}</small>
+            <span className={`booking-date-availability ${loading ? "is-loading" : ""}`} aria-hidden="true">
+              {loading ? <i /> : full ? "popunjeno" : free == null ? "" : <><b style={{ "--fill": Math.min(1, free / 24) }} />{free}</>}
+            </span>
+            {selected && <CheckMark />}
+          </ScienceCard>;
+        })}</div>
+        <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedDate} />
       </>;
 
       case 6: return <>
-        <StepHeading onMounted={navigatedRef.current ? focusScreen : undefined} eyebrow={selectedDate ? formatBookingDate(selectedDate) : "Termin"} title="Izaberi vreme" description="Termini su prilagođeni trajanju časa koje si izabrao." />
-        {slotsLoading ? <Spinner text="Proveravamo slobodne termine…" /> : sortedSlots.length === 0 ? (
-          <div className="booking-empty"><span aria-hidden="true">◷</span><p>Za ovu kombinaciju nema slobodnih termina.</p><div><button type="button" className="btn btn-secondary" onClick={goBack}>Promeni datum</button><button type="button" className="btn btn-secondary" onClick={() => loadSlots()}>Osveži</button></div></div>
-        ) : <>
-          <div className="booking-day-timeline" aria-hidden="true">
-            <div className="booking-day-timeline-bar">
-              {sortedSlots.map((slot) => <i key={slot.start_time} style={{ "--at": (minutesOfDay(slot.start_time) - WORK_START) / (WORK_END - WORK_START) }} />)}
-              {selectedSlot && <span className="booking-day-timeline-pick" data-anchor={minutesOfDay(selectedSlot.start_time) - WORK_START < 120 ? "start" : WORK_END - minutesOfDay(selectedSlot.end_time) < 120 ? "end" : "center"} style={{ "--from": (minutesOfDay(selectedSlot.start_time) - WORK_START) / (WORK_END - WORK_START), "--to": (minutesOfDay(selectedSlot.end_time) - WORK_START) / (WORK_END - WORK_START) }}><b>{slotLabel}</b></span>}
-            </div>
-            <div className="booking-day-timeline-hours">{[8, 10, 12, 14, 16, 18, 20].map((hour) => <span key={hour}>{String(hour).padStart(2, "0")}h</span>)}</div>
+        {heading("Izaberi vreme")}
+        <div className="booking-time-toolbar">
+          <div className="booking-day-switch">
+            <button type="button" onClick={() => switchDay(-1)} disabled={dateIndex <= 0 || slotsLoading} aria-label="Prethodni dan"><ChevronLeft size={18} aria-hidden="true" /></button>
+            <span aria-live="polite"><strong>{selectedDateInfo ? longDate(selectedDateInfo.value) : ""}</strong>{!slotsLoading && <small>{slotCountLabel(sortedSlots.length)}</small>}</span>
+            <button type="button" onClick={() => switchDay(1)} disabled={dateIndex < 0 || dateIndex >= dateOptions.length - 1 || slotsLoading} aria-label="Sledeći dan"><ChevronRight size={18} aria-hidden="true" /></button>
           </div>
-          <div className="booking-slots-heading"><span><i /> {slotCountLabel(sortedSlots.length)}</span><button type="button" onClick={() => loadSlots()} disabled={slotsLoading}><RefreshCw size={13} aria-hidden="true" /> Osveži</button></div>
-          <div className="booking-slot-groups">{slotGroups.map((group, groupIndex) => {
-            const Icon = group.icon;
-            return <section key={group.key} className={`booking-slot-group booking-slot-group--${group.key} fx-rise`} style={{ "--i": groupIndex }} aria-label={group.label}>
-              <header><span className="booking-slot-group-icon"><Icon size={17} aria-hidden="true" /></span><strong>{group.label}</strong><small>{group.hint}</small><em>{group.slots.length}</em></header>
-              <div className="booking-slot-grid">{group.slots.map((slot) => {
-                const selected = selectedSlot?.start_time === slot.start_time;
-                return <ScienceCard key={`${slot.start_time}-${slot.end_time}`} type="button" className={`booking-slot-card ${selected ? "selected" : ""}`} aria-pressed={selected} onClick={(event) => { sparkBurst(event.currentTarget, event, { count: 8 }); setSelectedSlot(slot); }}>
-                  {selected && <motion.span layoutId="slot-glow" className="booking-slot-glow" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
-                  <span className="booking-slot-start"><small>Početak časa</small><strong>{formatTimeLatn(slot.start_time)}</strong></span>
-                  <span className="booking-slot-end"><small>Završetak</small><strong>{formatTimeLatn(slot.end_time)}</strong></span>
-                  {selected && <CheckMark />}
-                </ScienceCard>;
-              })}</div>
-            </section>;
-          })}</div>
-        </>}
-        <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedSlot} hint={slotLabel || "Izaberi termin"} />
+          <button type="button" className="booking-time-refresh" onClick={() => loadSlots()} disabled={slotsLoading}><RefreshCw size={14} aria-hidden="true" /> Osveži</button>
+        </div>
+        {slotsLoading ? <Spinner text="Proveravamo slobodne termine…" /> : sortedSlots.length === 0 ? (
+          <div className="booking-empty"><p>Za ovaj dan nema slobodnih termina.</p><div><button type="button" className="btn btn-secondary" onClick={goBack}>Promeni datum</button><button type="button" className="btn btn-secondary" onClick={() => loadSlots()}>Osveži</button></div></div>
+        ) : <div className="booking-time-planner" role="group" aria-label="Slobodni termini" style={{ "--rows": Math.ceil(timeRows.length / 2) }}>
+          {timeRows.map(({ hour, cells }, rowIndex) => <div key={hour} className="booking-time-row fx-rise" style={{ "--i": rowIndex * .5 }}>
+            <span className="booking-time-hour" aria-hidden="true">{String(hour).padStart(2, "0")}</span>
+            <div className="booking-time-cells">{cells.map(({ minute, slot }) => {
+              if (!slot) return <span key={minute} className="booking-time-taken" aria-label={`${clockLabel(minute)}, zauzeto`}>{clockLabel(minute)}</span>;
+              const selected = selectedSlot?.start_time === slot.start_time;
+              return <ScienceCard key={slot.start_time} type="button" className={`booking-slot-card ${selected ? "selected" : ""}`} aria-pressed={selected} onClick={(event) => { sparkBurst(event.currentTarget, event, { count: 8 }); setSelectedSlot(slot); }}>
+                <span className="booking-slot-start"><small>Početak časa</small><strong>{formatTimeLatn(slot.start_time)}</strong></span>
+                <span className="booking-slot-end"><small>Završetak</small><strong>{formatTimeLatn(slot.end_time)}</strong></span>
+              </ScienceCard>;
+            })}</div>
+          </div>)}
+        </div>}
+        <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedSlot} />
       </>;
 
       case 7: return <>
-        <StepHeading onMounted={navigatedRef.current ? focusScreen : undefined} eyebrow="Još samo malo" title="Unesi svoje podatke" description="Podatke koristimo samo za ovu rezervaciju i obaveštenja o času." />
+        {heading("Unesi svoje podatke", "Podatke koristimo samo za ovu rezervaciju i obaveštenja o času.")}
         <BookingDetailsForm
           clientName={clientName}
           clientEmail={clientEmail}
@@ -617,28 +602,43 @@ function BookingPage() {
       </>;
 
       default: return <>
-        <StepHeading onMounted={navigatedRef.current ? focusScreen : undefined} eyebrow="Sve je spremno" title="Potvrdi rezervaciju" description="Termin se rezerviše tek kada pritisneš dugme za potvrdu." />
-        <div className="booking-review" data-spotlight>
-          <div className="booking-review-banner">
-            <span className="booking-review-symbol" aria-hidden="true">{subjectSymbol(selectedSubject?.name)}</span>
-            <div><small>Tvoj sledeći čas</small><strong>{selectedSubject?.name}</strong><span>sa profesorom · {selectedTeacher?.full_name}</span></div>
-            <span className="booking-review-duration"><Clock3 size={16} aria-hidden="true" />{selectedDuration} min</span>
-          </div>
+        {heading("Potvrdi rezervaciju")}
+        <div className="booking-review">
           <div className="booking-review-when">
-            <div><CalendarDays size={18} aria-hidden="true" /><span>{formatBookingDate(selectedDate)}</span></div>
-            <strong>{formatTimeLatn(selectedSlot?.start_time)}<span aria-hidden="true">→</span>{formatTimeLatn(selectedSlot?.end_time)}</strong>
-            <div className="booking-review-price"><small>Okvirna cena</small><b>{price}</b></div>
+            <div className="booking-review-datetile" aria-hidden="true">
+              <span>{selectedDateInfo?.weekday}</span>
+              <strong>{selectedDateInfo?.day}</strong>
+              <small>{selectedDateInfo?.month}</small>
+            </div>
+            <div className="booking-review-time">
+              <strong>{formatTimeLatn(selectedSlot?.start_time)}–{formatTimeLatn(selectedSlot?.end_time)}</strong>
+              <span>{selectedDate ? longDate(selectedDate) : ""} · {selectedDuration} min</span>
+            </div>
+            {editButton(5, "datum i vreme")}
           </div>
-          <div className="booking-review-perforation" aria-hidden="true"><i /><span /><i /></div>
-          <div className="booking-review-sections">
-            <section><h3><Sparkles size={16} aria-hidden="true" /> Detalji časa</h3><dl>
-              <div><dt>Datum</dt><dd>{formatBookingDate(selectedDate)}</dd></div><div><dt>Vreme</dt><dd>{slotLabel}</dd></div>
-              <div><dt>Trajanje</dt><dd>{selectedDuration} min</dd></div><div><dt>Vrsta</dt><dd>{deliveryLabel(deliveryMode)} · {sessionLabel(sessionType)}</dd></div>
-            </dl></section>
-            <section><h3><UserRound size={16} aria-hidden="true" /> Tvoji podaci</h3><dl><div><dt>Ime</dt><dd>{clientName}</dd></div><div><dt>Email</dt><dd>{clientEmail}</dd></div><div><dt>Nivo</dt><dd>{categoryLabel(clientCategory)}</dd></div>{clientNote && <div><dt>Napomena</dt><dd>{clientNote}</dd></div>}{attachmentFiles.length > 0 && <div><dt>Prilozi</dt><dd>{attachmentFiles.map((file) => file.name).join(", ")}</dd></div>}</dl></section>
-          </div>
+
+          <section className="booking-review-block" aria-labelledby="review-lesson">
+            <h3 id="review-lesson">Čas</h3>
+            <dl>
+              <div><dt><SubjectIcon name={selectedSubject?.name} size={17} /> Predmet</dt><dd>{selectedSubject?.name}</dd>{editButton(1, "predmet")}</div>
+              <div><dt><GraduationCap size={17} aria-hidden="true" /> Profesor</dt><dd>{selectedTeacher?.full_name}</dd>{editButton(2, "profesor")}</div>
+              <div><dt><Clock3 size={17} aria-hidden="true" /> Trajanje</dt><dd>{selectedDuration} minuta</dd>{editButton(3, "trajanje")}</div>
+              <div><dt>{deliveryMode === "online" ? <Video size={17} aria-hidden="true" /> : <MapPin size={17} aria-hidden="true" />} Vrsta</dt><dd>{deliveryLabel(deliveryMode)} · {sessionLabel(sessionType)}<small>{deliveryMode === "online" ? "Google Meet" : CENTER_ADDRESS}</small></dd>{editButton(4, "vrsta časa")}</div>
+            </dl>
+          </section>
+
+          <section className="booking-review-block" aria-labelledby="review-client">
+            <h3 id="review-client">Tvoji podaci</h3>
+            <dl>
+              <div><dt><UserRound size={17} aria-hidden="true" /> Ime</dt><dd>{clientName}</dd>{editButton(7, "podaci")}</div>
+              <div><dt><Mail size={17} aria-hidden="true" /> Email</dt><dd>{clientEmail}</dd></div>
+              <div><dt><School size={17} aria-hidden="true" /> Nivo</dt><dd>{categoryLabel(clientCategory)}</dd></div>
+              {clientNote && <div><dt><PenLine size={17} aria-hidden="true" /> Napomena</dt><dd>{clientNote}</dd></div>}
+              {attachmentFiles.length > 0 && <div><dt><Paperclip size={17} aria-hidden="true" /> Prilozi</dt><dd>{attachmentFiles.map((file) => file.name).join(", ")}</dd></div>}
+            </dl>
+          </section>
         </div>
-        <p className="booking-review-note"><span aria-hidden="true"><Check size={13} strokeWidth={3} /></span> Potvrdom rezervacije, obaveštenje se šalje tebi, profesoru i BrainStorm timu.</p>
+        <p className="booking-review-note"><CalendarDays size={16} aria-hidden="true" /> Potvrdom rezervacije, obaveštenje se šalje tebi i BrainStorm timu.</p>
         <StepActions onBack={goBack} onNext={handleSubmit} nextLabel="Potvrdi rezervaciju" busy={submitting} />
       </>;
     }
@@ -646,20 +646,14 @@ function BookingPage() {
 
   return (
     <div ref={pageRef} className="booking-page studio">
-      <header className="booking-intro">
-        <div>
-          <p className="studio-eyebrow">Online zakazivanje</p>
-          <h1>Tvoj sledeći čas <em>počinje ovde.</em></h1>
-        </div>
-        <JourneyProgress steps={STEPS} currentStep={step} values={journeyValues} onStepClick={goTo} />
-      </header>
+      <JourneyProgress steps={STEPS} currentStep={step} values={journeyValues} onStepClick={goTo} />
 
       <div className="booking-shell">
         <div className="booking-workspace">
-          <section className="booking-panel" data-step={step} data-spotlight>
+          <section className="booking-panel" data-step={step}>
             {error && <Alert type="error" onClose={() => setError("")}>{error}</Alert>}
             <AnimatePresence mode="wait" custom={direction} initial={false}>
-              <motion.div key={step} className="booking-step" data-step={step} custom={direction} variants={reducedMotion ? undefined : stepVariants} initial="enter" animate="center" exit="exit" transition={{ duration: .42, ease: [.2, .8, .2, 1] }}>
+              <motion.div key={step} className="booking-step" data-step={step} custom={direction} variants={reducedMotion ? undefined : stepVariants} initial="enter" animate="center" exit="exit" transition={{ duration: .42, ease: [.16, 1, .3, 1] }}>
                 {renderStep()}
               </motion.div>
             </AnimatePresence>
