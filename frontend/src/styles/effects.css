@@ -23,7 +23,6 @@
 @keyframes fx-spark { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
 @keyframes fx-ring { 0% { transform: scale(.4); opacity: 1; } 100% { transform: scale(9); opacity: 0; } }
 
-.fx-confetti { position: fixed; inset: 0; z-index: 9999; width: 100vw; height: 100vh; pointer-events: none; }
 
 /* ---- Pointer spotlight hook: kept as a no-op so [data-spotlight] markup stays valid ---- */
 [data-spotlight] { --mx: 50%; --my: 50%; }

@@ -2,11 +2,11 @@
 .home--video .home-hero-layout { --hero-inset: clamp(28px, 6.25vw, 160px); position: relative; isolation: isolate; min-height: 100svh; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); align-items: center; gap: clamp(28px, 4vw, 72px); padding: 116px var(--page-gutter) 40px var(--hero-inset); touch-action: pan-y pinch-zoom; }
 .home--video .home-hero-copy { position: relative; z-index: 2; max-width: 640px; }
 .home--video .home-video-backdrop { order: 2; }
-.home--video .home-typewriter { position: relative; display: grid; grid-template-columns: 1fr; margin: 0; color: var(--ink); font: 650 clamp(44px, 5.2vw, 88px)/1.02 var(--font-display); letter-spacing: -.035em; text-wrap: balance; }
-.home-typewriter-reserve,.home-typewriter-displayed { grid-area: 1 / 1; min-width: 0; }
-.home-typewriter-reserve { visibility: hidden; pointer-events: none; user-select: none; }
-.home-typewriter-displayed { position: absolute; inset: 0; }
-.home-typewriter-caret { display: inline-block; width: 2px; height: .85em; margin-left: 4px; vertical-align: -.06em; background: var(--terra); animation: home-caret 1s steps(1) infinite; }
+.home--video .home-typewriter { position: relative; display: grid; grid-template-columns: 1fr; margin: 0; color: var(--ink); font: 650 clamp(44px, 5.2vw, 88px)/1.02 var(--font-display); letter-spacing: -.035em; }
+.home-typewriter-lines { display: grid; }
+.home-typewriter-line { display: block; white-space: nowrap; }
+.home-typewriter-ghost { visibility: hidden; }
+.home-typewriter-caret { display: inline-block; width: 2px; height: .85em; margin: 0 -2px 0 0; vertical-align: -.06em; background: var(--terra); animation: home-caret 1s steps(1) infinite; }
 .home-typewriter-caret.is-done { display: none; }
 .home--video .home-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: clamp(28px, 3vw, 44px); opacity: 0; transform: translateY(8px); visibility: hidden; transition: opacity .4s ease, transform .4s ease; }
 .home--video .home-actions.is-visible { opacity: 1; transform: none; visibility: visible; }

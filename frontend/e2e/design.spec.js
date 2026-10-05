@@ -146,8 +146,8 @@ async function toClient(page, capture = async () => {}, { expectedSlots = 12 } =
   await expect(page.locator(".booking-date-card")).toHaveCount(14);
   expect(await page.locator(".booking-date-card strong").first().evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(page.viewportSize().width <= 640 ? 20 : 28);
   expect(await page.locator(".booking-date-card small").first().evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(10);
-  // Every day shows how many free slots it has for the chosen combination.
-  await expect(page.locator(".booking-date-card .booking-date-availability").first()).toHaveText(/\d+/);
+  // Days no longer carry slot counts.
+  await expect(page.locator(".booking-date-card .booking-date-availability")).toHaveCount(0);
   await page.locator(".booking-date-card").nth(1).click();
   await capture(5);
   await next(page);
@@ -219,6 +219,8 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 375, height: 812
       await expect(summary).toContainText("Luka Bura");
     }
     await page.getByRole("button", { name: "Potvrdi rezervaciju" }).click();
+    await expect(page.getByRole("dialog")).toContainText("Hvala vam što ste zakazali čas");
+    await page.getByRole("button", { name: "Pogledaj detalje časa" }).click();
     await expect(page.getByRole("heading", { name: "Vidimo se na času!" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Vidimo se na času!" })).toBeInViewport();
     await expect(page.locator(".booking-success-contact")).toContainText("Ana Jovanović");

@@ -4,7 +4,8 @@ import MouseScrubVideo from "../components/MouseScrubVideo";
 import useTypewriter from "../hooks/useTypewriter";
 import "./HomePage.css";
 
-const greeting = "Dobro došli u Edukativni centar BrainStorm!";
+const greetingLines = ["Dobro došli u", "Edukativni centar", "BrainStorm!"];
+const greeting = greetingLines.join(" ");
 
 export default function HomePage() {
   const heroRef = useRef(null);
@@ -21,8 +22,19 @@ export default function HomePage() {
       <MouseScrubVideo visibilityRef={heroRef} />
       <div className="home-hero-copy">
         <h1 id="hero-title" className="home-typewriter" data-typing={done ? "done" : "typing"}>
-          <span className="home-typewriter-reserve" aria-hidden="true">{greeting}</span>
-          <span className="home-typewriter-displayed" aria-hidden="true">{displayed}<span className={`home-typewriter-caret ${done ? "is-done" : ""}`} /></span>
+          {/* Every line is laid out in full from the start; untyped letters stay invisible, so words never jump lines. */}
+          <span className="home-typewriter-lines" aria-hidden="true">
+            {greetingLines.map((line, index) => {
+              const start = greetingLines.slice(0, index).reduce((sum, previous) => sum + previous.length + 1, 0);
+              const typed = Math.max(0, Math.min(line.length, displayed.length - start));
+              const caretHere = !done && displayed.length >= start && displayed.length <= start + line.length;
+              return <span key={line} className="home-typewriter-line">
+                {line.slice(0, typed)}
+                {caretHere && <span className="home-typewriter-caret" />}
+                <span className="home-typewriter-ghost">{line.slice(typed)}</span>
+              </span>;
+            })}
+          </span>
           <span className="home-sr-only">{greeting}</span>
         </h1>
         <div className={`home-actions ${actionsVisible ? "is-visible" : ""}`}>
