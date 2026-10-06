@@ -10,8 +10,7 @@
 .brain-run-ground { position: absolute; left: 0; right: 0; bottom: 14px; height: 2px; background: repeating-linear-gradient(90deg, var(--color-border-strong) 0 10px, transparent 10px 18px); animation: brain-ground .45s linear infinite; }
 @keyframes brain-ground { to { background-position: 18px 0; } }
 .brain-run-runner { position: absolute; bottom: 14px; left: 0; width: 120px; animation: brain-across 2.4s cubic-bezier(.45, 0, .55, 1) infinite; }
-/* The artwork faces right; mirror it so it runs toward the left. */
-.brain-run-runner .brain-mark { scale: -1 1; }
+/* The artwork already runs toward the left, so it moves right to left unmirrored. */
 .brain-run-mark { animation: brain-stride .32s ease-in-out infinite alternate; transform-origin: 50% 90%; }
 @keyframes brain-across { 0% { transform: translateX(560px); } 100% { transform: translateX(-130px); } }
 @keyframes brain-stride { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-9px) rotate(4deg); } }
