@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Clock3, Code2, DoorOpen, GraduationCap, Languages, MapPin, NotebookPen, Phone, Star } from "lucide-react";
+import { ArrowRight, Clock3, Code2, DoorOpen, GraduationCap, Languages, Mail, MapPin, NotebookPen, Phone, Speech, Star } from "lucide-react";
 import Reveal from "../components/Reveal";
 import "./AboutPage.css";
 
@@ -8,6 +8,9 @@ const MAPS_QUERY = encodeURIComponent(ADDRESS);
 const PHONE_DISPLAY = "064 546 7246";
 const PHONE_LINK = "tel:+381645467246";
 const INSTAGRAM_URL = "https://www.instagram.com/ec.brainstorm/";
+const EMAIL = "edukativni.centar.brainstorm@gmail.com";
+// On narrow screens the address may wrap, and it should wrap before the "@", not mid-word.
+const EMAIL_LABEL = <>edukativni.centar.brainstorm<wbr />@gmail.com</>;
 
 /** Instagram glyph drawn in the same 2px stroke style as the lucide icons. */
 function InstagramIcon({ size = 18 }) {
@@ -17,11 +20,21 @@ function InstagramIcon({ size = 18 }) {
 }
 
 const offers = [
-  { icon: NotebookPen, title: "Privatni časovi", text: "Matematika, informatika, fizika, hemija i jezici. Individualno ili u maloj grupi, uživo u centru ili online." },
-  { icon: GraduationCap, title: "Pripreme za malu maturu i prijemne", text: "Plan rada prema testu koji te čeka, zadaci sa prethodnih ispita i mirna glava pred sam ispit." },
-  { icon: Languages, title: "Kursevi stranih jezika", text: "Engleski, nemački i ruski, od prvih reči do sigurne konverzacije." },
-  { icon: Code2, title: "Kursevi programiranja", text: "Od prvog programa do projekata, tempom koji odgovara učeniku." },
-  { icon: DoorOpen, title: "Učionica za iznajmljivanje", text: "Tražiš prostor za svoje časove ili radionicu? Naša učionica je dostupna i za tebe." },
+  {
+    icon: NotebookPen,
+    title: "Privatni časovi",
+    text: "Časovi mogu biti individualni ili grupni, uživo u centru ili online. Predajemo matematiku, programiranje, srpski, hemiju, fiziku i filozofiju, a od stranih jezika engleski, nemački, ruski, španski i italijanski.",
+  },
+  {
+    icon: GraduationCap,
+    title: "Pripreme za malu i veliku maturu",
+    text: "Za malu maturu spremamo srpski i matematiku, a za veliku matematiku za prijemne na PMF-u, ETF-u, FON-u, Mašinskom, Građevinskom i Ekonomskom fakultetu. Zadatke sa ranijih ispita prolazimo oblast po oblast.",
+    links: [{ to: "/mala-matura", label: "Mala matura" }, { to: "/velika-matura", label: "Velika matura" }],
+  },
+  { icon: Languages, title: "Kursevi stranih jezika", text: "Učimo engleski, nemački i ruski. Možeš da kreneš od nule ili da samo vežbaš razgovor ako jezik već znaš." },
+  { icon: Code2, title: "Kursevi programiranja", text: "Kreće se od prvog programa, a stiže do projekata koje učenik pravi sam. Tempo prilagođavamo svakome." },
+  { icon: DoorOpen, title: "Iznajmljivanje učionica", text: "Ako ti treba prostor za časove ili radionicu, možeš da iznajmiš učionicu u centru." },
+  { icon: Speech, title: "Debatno veče", text: "Veče posvećeno raspravi o jednoj temi. Vežbaš kako da izneseš svoje mišljenje i kako da saslušaš drugu stranu. Kada je sledeće, pitaj nas na Instagramu." },
 ];
 
 export default function AboutPage() {
@@ -30,7 +43,7 @@ export default function AboutPage() {
       <section className="about-hero" aria-labelledby="about-title">
         <div className="about-hero-copy">
           <h1 id="about-title">Učimo zajedno, <em>korak po korak.</em></h1>
-          <p>Edukativni centar BrainStorm je mesto u Beogradu gde đaci i studenti dobijaju podršku koja im zaista treba: privatne časove, pripremu za malu maturu i prijemne ispite, kao i kurseve stranih jezika i programiranja.</p>
+          <p>BrainStorm je edukativni centar u Beogradu kakvih nema mnogo. Kod nas učenici imaju profesore koji su uz njih kroz celo školovanje, od osnovne škole do fakulteta. Profesore smo pažljivo birali i svi imaju iskustva u radu sa učenicima. Za pitanja i pomoć dostupni su i između časova.</p>
           <div className="about-hero-actions">
             <Link to="/booking" className="btn btn-primary">Zakaži čas <ArrowRight size={16} aria-hidden="true" /></Link>
             <Link to="/cenovnik" className="btn btn-secondary">Pogledaj cenovnik</Link>
@@ -47,18 +60,26 @@ export default function AboutPage() {
             <li><Clock3 size={18} aria-hidden="true" /><span>Svakog dana od 9 do 21h</span></li>
             <li><Phone size={18} aria-hidden="true" /><a href={PHONE_LINK}>{PHONE_DISPLAY}</a></li>
             <li><InstagramIcon /><a href={INSTAGRAM_URL} target="_blank" rel="noreferrer">@ec.brainstorm</a></li>
+            <li><Mail size={18} aria-hidden="true" /><a href={`mailto:${EMAIL}`}>{EMAIL_LABEL}</a></li>
           </ul>
         </aside>
       </section>
 
       <section className="about-offers" aria-labelledby="offers-title">
-        <h2 id="offers-title">Šta radimo</h2>
+        <h2 id="offers-title">Šta nudimo</h2>
         <div className="about-offer-list">
-          {offers.map(({ icon: Icon, title, text }, index) => (
+          {offers.map(({ icon: Icon, title, text, links }, index) => (
             <Reveal as="div" key={title} delay={index * .06} className="about-offer">
               <span className="about-offer-icon"><Icon size={22} strokeWidth={1.7} aria-hidden="true" /></span>
               <h3>{title}</h3>
-              <p>{text}</p>
+              <div className="about-offer-text">
+                <p>{text}</p>
+                {links && (
+                  <div className="about-offer-links">
+                    {links.map((link) => <Link key={link.to} to={link.to}>{link.label} <ArrowRight size={15} aria-hidden="true" /></Link>)}
+                  </div>
+                )}
+              </div>
             </Reveal>
           ))}
         </div>
@@ -72,12 +93,13 @@ export default function AboutPage() {
       <section className="about-visit" aria-labelledby="visit-title">
         <div className="about-visit-copy">
           <h2 id="visit-title">Dođi da se upoznamo</h2>
-          <p>Centar se nalazi na Voždovcu, blizu Kumodraške ulice. Javi se telefonom ili porukom na Instagramu, ili odmah izaberi termin online.</p>
+          <p>Edukativni centar se nalazi na Voždovcu, u blizini Autokomande. Za detalje nam se javi preko društvenih mreža ili na email.</p>
           <dl>
             <div><dt>Adresa</dt><dd><a href={`https://www.google.com/maps/search/?api=1&query=${MAPS_QUERY}`} target="_blank" rel="noreferrer">{ADDRESS}</a></dd></div>
             <div><dt>Telefon</dt><dd><a href={PHONE_LINK}>{PHONE_DISPLAY}</a></dd></div>
             <div><dt>Radno vreme</dt><dd>Ponedeljak – nedelja, 9–21h</dd></div>
             <div><dt>Instagram</dt><dd><a href={INSTAGRAM_URL} target="_blank" rel="noreferrer">@ec.brainstorm</a></dd></div>
+            <div><dt>Email</dt><dd><a href={`mailto:${EMAIL}`}>{EMAIL_LABEL}</a></dd></div>
           </dl>
         </div>
         <div className="about-map">
