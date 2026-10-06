@@ -219,9 +219,12 @@
 .booking-time-daybar i.is-picked { background: var(--forest); transition: left .4s cubic-bezier(.16, 1, .3, 1); }
 .booking-time-daylabels { display: flex; justify-content: space-between; margin-top: 6px; color: var(--color-text-muted); font-size: 12px; }
 @container booking-content (max-width: 720px) {
-  .booking-time-wheel { grid-template-columns: 1fr; }
-  .booking-time-side { order: -1; }
-  .booking-time-keys { display: none; }
+  .booking-time-wheel { grid-template-columns: 1fr; gap: 16px; }
+  /* Phones: the wheel comes first; the readout below only appears once a time is chosen. */
+  .booking-time-side p, .booking-time-keys, .booking-time-readout.is-empty { display: none; }
+  .booking-time-readout { font-size: 34px; text-align: center; }
+  .booking-time-daybar { margin-top: 14px; }
+  .booking-day-switch strong { font-size: 17px; }
 }
 
 /* =====================================================================
@@ -347,6 +350,9 @@
   .booking-date-availability b { width: 12px; }
   .booking-date-card .booking-choice-check { width: 18px; height: 18px; top: -6px; right: -6px; }
   .booking-date-card .booking-choice-check svg { width: 10px; }
+  /* "popunjeno" does not fit a phone-width day: strike the number instead and keep the word for screen readers. */
+  .booking-date-card.is-full strong { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--color-text-muted); }
+  .booking-date-card .booking-date-availability { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .booking-time-toolbar { flex-wrap: wrap; }
   .booking-day-switch { flex: 1; justify-content: space-between; }
   .booking-day-switch > span { min-width: 0; text-align: center; }

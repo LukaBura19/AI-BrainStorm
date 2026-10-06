@@ -9,6 +9,7 @@ const SECTIONS = [
   {
     id: "skola",
     title: "Osnovna i srednja škola",
+    note: "45, 60 ili 90 minuta",
     prices: [
       { minutes: 45, amount: 1500, description: "Za jedno konkretno pitanje", tone: "#c8643b" },
       { minutes: 60, amount: 2000, description: "Standardni čas", featured: true, tone: "#1f4d3a" },
@@ -18,6 +19,7 @@ const SECTIONS = [
   {
     id: "fakultet",
     title: "Fakultet",
+    note: "Čas od 90 minuta",
     prices: [
       { minutes: 90, amount: 3000, description: "Za zahtevnije oblasti, kolokvijume i ispite", tone: "#1f4d3a" },
     ],
@@ -46,16 +48,21 @@ function PricingPage() {
         <span>Cene su izražene u dinarima i važe za individualne časove.</span>
       </header>
 
-      {SECTIONS.map((section) => (
-        <section key={section.id} className={`pricing-main pricing-main--${section.id}`} aria-labelledby={`pricing-${section.id}`}>
-          <h2 id={`pricing-${section.id}`} className="pricing-section-title">{section.title}</h2>
-          <div className="pricing-grid">
-            {section.prices.map((price, index) => (
-              <Reveal key={price.minutes} delay={index * .08}><PriceCard {...price} /></Reveal>
-            ))}
-          </div>
-        </section>
-      ))}
+      <div className="pricing-sections">
+        {SECTIONS.map((section, sectionIndex) => (
+          <section key={section.id} className={`pricing-main pricing-main--${section.id}`} aria-labelledby={`pricing-${section.id}`}>
+            <header className="pricing-section-head">
+              <h2 id={`pricing-${section.id}`}>{section.title}</h2>
+              <span>{section.note}</span>
+            </header>
+            <div className="pricing-grid">
+              {section.prices.map((price, index) => (
+                <Reveal key={price.minutes} delay={(sectionIndex * 3 + index) * .07}><PriceCard {...price} /></Reveal>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
 
       <p className="pricing-footnote">Za grupne časove, pakete i posebne aranžmane kontaktirajte BrainStorm tim.</p>
     </div>

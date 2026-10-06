@@ -1,6 +1,82 @@
-.student-mode { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 22px; padding: 4px; border: 1px solid var(--color-border); border-radius: 14px; background: var(--paper); }
-.student-mode button { position: relative; min-height: 44px; border: 0; border-radius: 11px; background: none; color: var(--color-text-secondary); cursor: pointer; font: 600 15px/1 var(--font-family); transition: color .2s; }
-.student-mode button > span:last-child { position: relative; z-index: 1; }
-.student-mode button.active { color: #fff; }
-.student-mode-pill { position: absolute; inset: 0; z-index: 0; border-radius: inherit; background: var(--forest); }
-.login-page--student .login-btn { gap: 10px; }
+/* =====================================================================
+   Učenik: prijava + novi nalog u jednoj kartici sa zelenom površinom koja klizi.
+   ===================================================================== */
+
+.student-auth-page { width: min(1000px, calc(100% - 2rem)); margin-inline: auto; padding: clamp(2.5rem, 6vw, 5rem) 0; }
+
+.student-auth { --cover-ease: cubic-bezier(.76, 0, .24, 1); position: relative; isolation: isolate; display: grid; grid-template-columns: 1fr 1fr; min-height: 640px; overflow: hidden; border: 1px solid var(--color-border); border-radius: 24px; background: var(--card); box-shadow: var(--shadow-md); }
+.student-auth-mobile-head, .student-auth-switch { display: none; }
+
+/* ---- Forms ---- */
+.student-auth-pane { grid-row: 1; display: flex; flex-direction: column; justify-content: center; padding: clamp(2rem, 4vw, 3.25rem); transition: opacity .3s ease, transform .55s cubic-bezier(.16, 1, .3, 1); }
+.student-auth-pane--register { grid-column: 1; }
+.student-auth-pane--login { grid-column: 2; }
+.student-auth-pane[inert] { opacity: 0; }
+.student-auth-pane--register[inert] { transform: translateX(-28px); }
+.student-auth-pane--login[inert] { transform: translateX(28px); }
+/* The revealed form arrives once the cover has passed over it. */
+.student-auth.has-switched .student-auth-pane:not([inert]) { transition-delay: .4s; }
+.student-auth-pane h2 { color: var(--ink); font: 500 clamp(1.8rem, 3vw, 2.3rem)/1.1 var(--font-display); letter-spacing: -.025em; }
+.student-auth-sub { margin: .5rem 0 1.5rem; color: var(--color-text-secondary); font-size: .92rem; line-height: 1.55; }
+.student-auth-pane .alert { margin-bottom: 1rem; }
+.student-auth-pane .input, .student-auth-pane .select { border-radius: 12px; }
+.student-auth-submit { width: 100%; margin-top: .4rem; border-radius: 12px; }
+
+/* ---- Sliding cover: grows over both forms, then settles on the other side ---- */
+.student-auth-cover { position: absolute; z-index: 2; top: 0; bottom: 0; left: 0; width: 50%; overflow: hidden; border-radius: 0 28px 28px 0; background: var(--forest); }
+.student-auth-cover::before, .student-auth-cover::after { content: ""; position: absolute; right: -90px; bottom: -90px; width: 280px; height: 280px; border: 1px solid rgba(247, 243, 236, .12); border-radius: 50%; }
+.student-auth-cover::after { right: -30px; bottom: -30px; width: 160px; height: 160px; border-color: rgba(247, 243, 236, .08); }
+.student-auth[data-mode="register"] .student-auth-cover { left: 50%; border-radius: 28px 0 0 28px; }
+.student-auth.has-switched[data-mode="register"] .student-auth-cover { animation: student-cover-right .85s var(--cover-ease) both; }
+.student-auth.has-switched[data-mode="login"] .student-auth-cover { animation: student-cover-left .85s var(--cover-ease) both; }
+@keyframes student-cover-right {
+  0% { left: 0; width: 50%; border-radius: 0 28px 28px 0; }
+  50% { left: 0; width: 100%; border-radius: 0; }
+  100% { left: 50%; width: 50%; border-radius: 28px 0 0 28px; }
+}
+@keyframes student-cover-left {
+  0% { left: 50%; width: 50%; border-radius: 28px 0 0 28px; }
+  50% { left: 0; width: 100%; border-radius: 0; }
+  100% { left: 0; width: 50%; border-radius: 0 28px 28px 0; }
+}
+
+.student-auth-cover-text { position: absolute; z-index: 3; top: 0; bottom: 0; width: 50%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: clamp(2rem, 4.5vw, 3.75rem); color: var(--paper); transition: opacity .28s ease, transform .6s cubic-bezier(.16, 1, .3, 1); }
+.student-auth-cover-text--login { left: 0; }
+.student-auth-cover-text--register { left: 50%; }
+.student-auth-cover-text[inert] { opacity: 0; }
+.student-auth-cover-text--login[inert] { transform: translateX(48px); }
+.student-auth-cover-text--register[inert] { transform: translateX(-48px); }
+.student-auth.has-switched .student-auth-cover-text:not([inert]) { transition-delay: .45s; }
+.student-auth-badge { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 12px; background: var(--paper); color: var(--forest); }
+.student-auth-cover-text .student-auth-badge { margin-bottom: 1.75rem; }
+.student-auth-eyebrow { color: #f0b393; font-size: .7rem; font-weight: 600; letter-spacing: .18em; }
+.student-auth-cover-text :is(h1, h2) { max-width: 13ch; margin-top: .75rem; color: var(--paper); font: 400 clamp(2.1rem, 3.6vw, 3rem)/1.05 var(--font-display); letter-spacing: -.03em; }
+.student-auth-cover-text p:not(.student-auth-eyebrow) { max-width: 30ch; margin-top: 1rem; color: rgba(247, 243, 236, .8); font-size: 1rem; line-height: 1.55; }
+.student-auth-cover-btn { display: inline-flex; align-items: center; gap: .55rem; margin-top: 1.75rem; padding: .85rem 1.4rem; border: 1.5px solid rgba(247, 243, 236, .55); border-radius: 999px; background: transparent; color: var(--paper); cursor: pointer; font: 600 15px/1 var(--font-family); transition: background .25s, color .25s, border-color .25s, transform .3s cubic-bezier(.16, 1, .3, 1); }
+.student-auth-cover-btn:hover { border-color: var(--paper); background: var(--paper); color: var(--forest); }
+.student-auth-cover-btn:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
+
+/* ---- Phones and narrow tablets: stacked, with a sliding two-way switch ---- */
+@media (max-width: 899px) {
+  .student-auth-page { max-width: 560px; padding-block: 1.5rem 3rem; }
+  .student-auth { display: block; min-height: 0; border-radius: 20px; }
+  .student-auth-cover, .student-auth-cover-text { display: none; }
+  .student-auth-mobile-head { display: block; padding: 1.6rem 1.5rem 1.5rem; background: var(--forest); color: var(--paper); }
+  .student-auth-mobile-head .student-auth-badge { width: 44px; height: 44px; }
+  .student-auth-mobile-head h1 { margin-top: 1rem; color: var(--paper); font: 400 2rem/1.1 var(--font-display); letter-spacing: -.025em; }
+  .student-auth-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 1.4rem 1.5rem 0; padding: 4px; border: 1px solid var(--color-border); border-radius: 14px; background: var(--paper); }
+  .student-auth-switch::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 6px); border-radius: 11px; background: var(--forest); transition: transform .45s cubic-bezier(.16, 1, .3, 1); }
+  .student-auth[data-mode="register"] .student-auth-switch::before { transform: translateX(calc(100% + 4px)); }
+  .student-auth-switch button { position: relative; z-index: 1; min-height: 44px; border: 0; border-radius: 11px; background: none; color: var(--color-text-secondary); cursor: pointer; font: 600 15px/1 var(--font-family); transition: color .3s; }
+  .student-auth-switch button.active { color: #fff; }
+  .student-auth-pane { padding: 1.4rem 1.5rem 1.8rem; transition: none; }
+  .student-auth-pane[inert] { display: none; }
+  .student-auth.has-switched .student-auth-pane:not([inert]) { animation: student-pane-from-right .45s cubic-bezier(.16, 1, .3, 1) both; }
+  .student-auth.has-switched[data-mode="login"] .student-auth-pane--login { animation-name: student-pane-from-left; }
+}
+@keyframes student-pane-from-right { from { opacity: 0; transform: translateX(32px); } }
+@keyframes student-pane-from-left { from { opacity: 0; transform: translateX(-32px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .student-auth *, .student-auth *::before, .student-auth::before { animation: none !important; transition: none !important; }
+}

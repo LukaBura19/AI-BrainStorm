@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import Alert from "../components/Alert";
+import RoleIcon from "../components/RoleIcon";
 import "./TeacherLoginPage.css"; // reuse same login styles
 
 function AdminLoginPage() {
@@ -31,10 +32,9 @@ function AdminLoginPage() {
   return (
     <div className="login-page login-page--admin">
       <section className="login-visual" aria-hidden="true">
-        <span className="login-visual-badge">A</span>
+        <span className="login-visual-badge"><RoleIcon role="admin" size={26} /></span>
         <p>ADMINISTRACIJA</p>
         <h1>Centar pod kontrolom.</h1>
-        <div className="login-visual-card"><span>✓</span><strong>Rezervacije i tim<br /><small>jasno i pregledno</small></strong></div>
       </section>
       <div className="card login-card liquid-glass" data-spotlight>
         <div className="card-header">

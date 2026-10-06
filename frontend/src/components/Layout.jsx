@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import BrandLogo from "./BrandLogo";
+import RoleIcon from "./RoleIcon";
 
 // Pages that paint their own background (home video, booking studio, panels).
 const SELF_BACKGROUND_ROUTES = new Set(["/", "/booking", "/teacher/dashboard", "/admin/dashboard"]);
@@ -250,7 +251,7 @@ function Layout() {
                       className="app-login-panel-item"
                       role="menuitem"
                     >
-                      <span className="app-login-panel-icon app-login-panel-icon--student">U</span>
+                      <span className="app-login-panel-icon app-login-panel-icon--student"><RoleIcon role="student" /></span>
                       <span>
                         <strong>Učenik</strong>
                         <small>
@@ -267,7 +268,7 @@ function Layout() {
                       className="app-login-panel-item"
                       role="menuitem"
                     >
-                      <span className="app-login-panel-icon">P</span>
+                      <span className="app-login-panel-icon"><RoleIcon role="teacher" /></span>
                       <span>
                         <strong>Profesor</strong>
                         <small>
@@ -280,9 +281,7 @@ function Layout() {
                       className="app-login-panel-item"
                       role="menuitem"
                     >
-                      <span className="app-login-panel-icon app-login-panel-icon--blue">
-                        A
-                      </span>
+                      <span className="app-login-panel-icon app-login-panel-icon--blue"><RoleIcon role="admin" /></span>
                       <span>
                         <strong>Administrator</strong>
                         <small>
@@ -306,7 +305,6 @@ function Layout() {
                 )}
               </AnimatePresence>
             </div>
-            <Link to="/booking" className="btn btn-primary app-header-cta">Zakaži čas</Link>
           </div>
         </div>
       </header>

@@ -52,13 +52,30 @@
 
 @media (prefers-reduced-motion: reduce) { .pricing-ring-fill { animation: none; } .pricing-grid article.pricing-card { transition: none; } }
 
-/* ---- Two sections: school and university ---- */
-.pricing-header { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
-.pricing-header h1 { margin: 0 0 .9rem; }
-.pricing-main + .pricing-main { margin-top: clamp(3rem, 6vw, 4.5rem); }
-.pricing-section-title { margin-bottom: 1.4rem; font: 650 clamp(1.6rem, 2.6vw, 2.2rem)/1.15 var(--font-display); letter-spacing: -.02em; }
-.pricing-main--fakultet .pricing-grid { grid-template-columns: repeat(3, 1fr); }
+/* ---- Two separate sections side by side: school (3 cards) and university (1 card) ---- */
+.pricing-page { width: min(1360px, 100%); padding: clamp(2rem, 5vw, 3.5rem) var(--page-gutter, 1.5rem) 3rem; }
+.pricing-header { margin-bottom: clamp(1.75rem, 3.5vw, 2.5rem); }
+.pricing-header h1 { margin: 0 0 .7rem; font-size: clamp(2.4rem, 4.4vw, 3.6rem); }
+.pricing-sections { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1.05fr); gap: 20px; align-items: stretch; }
+.pricing-main { min-width: 0; padding: 22px; border-radius: 26px; background: var(--paper-deep); }
+.pricing-main--fakultet { background: var(--forest-soft); }
+.pricing-section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin: 2px 4px 18px; }
+.pricing-section-head h2 { font: 650 clamp(1.3rem, 1.8vw, 1.55rem)/1.15 var(--font-display); letter-spacing: -.02em; }
+.pricing-section-head span { color: var(--color-text-secondary); font-size: .85rem; }
+.pricing-main--skola .pricing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pricing-main--fakultet .pricing-grid { grid-template-columns: minmax(0, 1fr); }
 .pricing-main--fakultet .pricing-card { --tone: #1f4d3a; }
+.pricing-grid { gap: 14px; }
+.pricing-grid article.pricing-card { min-height: 380px; padding: 1.6rem; }
+.pricing-grid article > p strong { font-size: 3.8rem; }
+
+/* Narrower screens: the sections stack, the university card keeps the width of a school card. */
+@media (max-width: 1180px) {
+  .pricing-sections { grid-template-columns: minmax(0, 1fr); }
+  .pricing-main--fakultet .pricing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 @media (max-width: 800px) {
-  .pricing-main--fakultet .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-main { padding: 14px; border-radius: 20px; }
+  .pricing-main--skola .pricing-grid, .pricing-main--fakultet .pricing-grid { grid-template-columns: minmax(0, 1fr); }
+  .pricing-grid article.pricing-card { min-height: 0; }
 }

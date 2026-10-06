@@ -466,31 +466,31 @@ function AdminDashboardPage() {
                 <tbody>
                   {bookings.map((b) => (
                     <tr key={b.id} className={b.status === "cancelled" ? "row-cancelled" : ""}>
-                      <td className="td-id">#{b.id}</td>
-                      <td>{b.subject_name}</td>
-                      <td>{b.teacher_name}</td>
-                      <td>
+                      <td className="td-id" data-label="ID">#{b.id}</td>
+                      <td data-label="Predmet">{b.subject_name}</td>
+                      <td data-label="Profesor">{b.teacher_name}</td>
+                      <td data-label="Klijent">
                         <div>{b.client_full_name}</div>
                         <div className="td-sub">{b.client_email}</div>
                       </td>
-                      <td>{fmtDateFull(b.start_time)}</td>
-                      <td>{fmtTime(b.start_time)}–{fmtTime(b.end_time)}</td>
-                      <td>{b.duration_minutes} min</td>
-                      <td>
+                      <td data-label="Datum">{fmtDateFull(b.start_time)}</td>
+                      <td data-label="Vreme">{fmtTime(b.start_time)}–{fmtTime(b.end_time)}</td>
+                      <td data-label="Trajanje">{b.duration_minutes} min</td>
+                      <td data-label="Način / tip">
                         <div>{b.delivery_mode === "online" ? "Online" : "Uživo"}</div>
                         <div className="td-sub">
                           {b.session_type === "group" ? "Grupni" : "Individualni"}
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Učionica">
                         {b.classroom_number === 0 ? "—" : b.classroom_number}
                       </td>
-                      <td>
+                      <td data-label="Status">
                         <Badge type={b.status === "confirmed" ? "success" : "error"}>
                           {b.status === "confirmed" ? "Aktivna" : "Otkazana"}
                         </Badge>
                       </td>
-                      <td>
+                      <td data-label="Prilog">
                         {b.attachments?.length ? (
                           <div className="attachment-cell">
                             {b.attachments.map((a) => (
@@ -514,7 +514,7 @@ function AdminDashboardPage() {
                           <span className="td-sub">—</span>
                         )}
                       </td>
-                      <td>
+                      <td data-label="Akcije">
                         {b.status === "confirmed" && (
                           <button
                             className="btn-action btn-action-danger"

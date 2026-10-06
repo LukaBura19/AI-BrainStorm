@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import Alert from "../components/Alert";
+import RoleIcon from "../components/RoleIcon";
 import "./TeacherLoginPage.css";
 
 function TeacherLoginPage() {
@@ -31,10 +32,9 @@ function TeacherLoginPage() {
   return (
     <div className="login-page">
       <section className="login-visual" aria-hidden="true">
-        <span className="login-visual-badge">P</span>
+        <span className="login-visual-badge"><RoleIcon role="teacher" size={26} /></span>
         <p>PROFESORSKI PANEL</p>
         <h1>Raspored koji radi za tebe.</h1>
-        <div className="login-visual-card"><span>✓</span><strong>Termini i rezervacije<br /><small>na jednom mestu</small></strong></div>
       </section>
       <div className="card login-card liquid-glass" data-spotlight>
         <div className="card-header">
