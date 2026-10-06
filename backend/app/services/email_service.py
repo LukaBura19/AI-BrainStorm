@@ -125,7 +125,12 @@ def smtp_connection():
             server.ehlo_or_helo_if_needed()
 
         if settings.MAIL_USERNAME and settings.MAIL_PASSWORD:
-            server.login(settings.MAIL_USERNAME, settings.MAIL_PASSWORD)
+            try:
+                server.login(settings.MAIL_USERNAME, settings.MAIL_PASSWORD)
+            except smtplib.SMTPServerDisconnected as exc:
+                # Gmail odbije lozinku i odmah zatvori vezu, pa smtplib prijavi samo "prekid veze".
+                # Prekid baš tokom prijave znači da prijava nije prihvaćena.
+                raise smtplib.SMTPAuthenticationError(535, b"Server je zatvorio vezu tokom prijave") from exc
         yield server
 
 
@@ -367,16 +372,16 @@ def _base_html(content: str) -> str:
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body style="margin:0; padding:0; background-color:#f8f6ef; font-family:Arial,sans-serif; color:#171936;">
+    <body style="margin:0; padding:0; background-color:#f7f3ec; font-family:Arial,Helvetica,sans-serif; color:#1e2421;">
         <div style="max-width:600px; margin:0 auto; padding:32px 24px;">
             <div style="text-align:center; margin-bottom:24px;">
-                <div style="display:inline-block; background:#171a48; color:#ff74b6; border-radius:14px; padding:10px 14px; font-size:22px; font-weight:800;">BrainStorm</div>
-                <p style="color:#7a7d94; margin:8px 0 0; font-size:12px; letter-spacing:1px; text-transform:uppercase;">Edukativni centar</p>
+                <div style="color:#1f4d3a; font-size:26px; font-weight:700; letter-spacing:-0.5px;">BrainStorm</div>
+                <p style="color:#7c817a; margin:4px 0 0; font-size:11px; letter-spacing:2px; text-transform:uppercase;">Edukativni centar</p>
             </div>
-            <div style="background-color:#fffefa; border-radius:20px; padding:28px; border:1px solid #e3e0d9; box-shadow:0 12px 36px rgba(23,25,54,0.08);">
+            <div style="background-color:#fffdf9; border-radius:20px; padding:28px; border:1px solid #e8dfd0;">
                 {content}
             </div>
-            <p style="color:#7a7d94; font-size:12px; text-align:center; margin-top:24px;">
+            <p style="color:#7c817a; font-size:12px; text-align:center; margin-top:24px;">
                 Edukativni centar BrainStorm &copy; {current_year}
             </p>
         </div>
@@ -403,31 +408,31 @@ def _booking_details_html(data: dict, role: str = "client") -> str:
     session_str = SESSION_TYPE_LABELS.get(session_raw, session_raw)
 
     rows = [
-        ("📚 Predmet", data.get("subject_name", "N/A")),
-        ("👨‍🏫 Profesor", data.get("teacher_name", "N/A")),
-        ("📅 Datum", date_str),
-        ("🕐 Vreme", time_str),
-        ("⏱ Trajanje", f"{data.get('duration_minutes', 'N/A')} minuta"),
-        ("💻 Način", delivery_str),
-        ("👥 Tip časa", session_str),
-        ("🏫 Učionica", classroom_str),
+        ("Predmet", data.get("subject_name", "N/A")),
+        ("Profesor", data.get("teacher_name", "N/A")),
+        ("Datum", date_str),
+        ("Vreme", time_str),
+        ("Trajanje", f"{data.get('duration_minutes', 'N/A')} minuta"),
+        ("Način", delivery_str),
+        ("Tip časa", session_str),
+        ("Učionica", classroom_str),
     ]
 
     # Profesor i admin vide podatke klijenta; klijent vidi samo svoje ime
     if role in ("teacher", "admin"):
-        rows.append(("👤 Klijent", data.get("client_full_name", "N/A")))
-        rows.append(("📧 Email klijenta", data.get("client_email", "N/A")))
-        rows.append(("🎓 Kategorija", category_str))
+        rows.append(("Klijent", data.get("client_full_name", "N/A")))
+        rows.append(("Email klijenta", data.get("client_email", "N/A")))
+        rows.append(("Kategorija", category_str))
     else:
-        rows.append(("👤 Ime", data.get("client_full_name", "N/A")))
-        rows.append(("🎓 Kategorija", category_str))
+        rows.append(("Ime", data.get("client_full_name", "N/A")))
+        rows.append(("Kategorija", category_str))
 
     if data.get("client_note"):
-        rows.append(("📝 Napomena", data["client_note"]))
+        rows.append(("Napomena", data["client_note"]))
     att_names = data.get("attachment_names") or []
     if att_names:
         rows.append(
-            ("📎 Prilozi", ", ".join(att_names) + " (u sistemu BrainStorm)"),
+            ("Prilozi", ", ".join(att_names) + " (u sistemu BrainStorm)"),
         )
 
     row_html = ""
@@ -436,8 +441,8 @@ def _booking_details_html(data: dict, role: str = "client") -> str:
         safe_value = html.escape(str(value))
         row_html += f"""
         <tr>
-            <td style="padding:9px 8px; color:#7a7d94; font-size:13px; border-bottom:1px solid #ece9e2;">{safe_label}</td>
-            <td style="padding:9px 8px; color:#171936; font-size:13px; font-weight:700; border-bottom:1px solid #ece9e2; text-align:right;">{safe_value}</td>
+            <td style="padding:10px 4px; color:#7c817a; font-size:13px; border-bottom:1px solid #efe8dc;">{safe_label}</td>
+            <td style="padding:10px 4px; color:#1e2421; font-size:13px; font-weight:700; border-bottom:1px solid #efe8dc; text-align:right;">{safe_value}</td>
         </tr>
         """
 
@@ -464,27 +469,27 @@ def _build_confirmation_html(data: dict, role: str, cancel_url: Optional[str] = 
     if role == "client" and cancel_url:
         safe_cancel_url = html.escape(cancel_url, quote=True)
         cancel_section = f"""
-        <div style="margin-top:20px; padding:16px; background-color:#fff0f6; border-radius:12px; border:1px solid #f6bfd8;">
-            <p style="color:#c82972; font-size:14px; margin:0 0 8px; font-weight:700;">Upravljanje rezervacijom</p>
-            <p style="color:#50536f; font-size:13px; margin:0 0 12px;">
+        <div style="margin-top:20px; padding:16px 18px; background-color:#efe8dc; border-radius:14px;">
+            <p style="color:#1f4d3a; font-size:14px; margin:0 0 6px; font-weight:700;">Ako ne možete da dođete</p>
+            <p style="color:#4f5751; font-size:13px; margin:0 0 12px;">
                 Čas možete otkazati najkasnije 24 sata pre početka.
             </p>
-            <a href="{safe_cancel_url}" style="display:inline-block; background-color:#e83f8f; color:#ffffff; padding:11px 20px; border-radius:999px; text-decoration:none; font-size:14px; font-weight:700;">
+            <a href="{safe_cancel_url}" style="display:inline-block; background-color:#1f4d3a; color:#ffffff; padding:11px 20px; border-radius:12px; text-decoration:none; font-size:14px; font-weight:700;">
                 Otkaži čas
             </a>
         </div>
         """
     elif role == "client":
         cancel_section = """
-        <p style="color:#7a7d94; font-size:13px; margin-top:16px;">
+        <p style="color:#7c817a; font-size:13px; margin-top:16px;">
             Čas možete otkazati najkasnije 24 sata pre početka.
             Link za otkazivanje ćete dobiti u posebnom emailu.
         </p>
         """
 
     content = f"""
-    <h2 style="color:#171936; margin:0 0 4px; font-size:22px;">{greeting}</h2>
-    <p style="color:#50536f; margin:0 0 20px; font-size:15px;">{intro}</p>
+    <h2 style="color:#1e2421; margin:0 0 4px; font-size:22px;">{greeting}</h2>
+    <p style="color:#4f5751; margin:0 0 20px; font-size:15px;">{intro}</p>
     {_booking_details_html(data, role=role)}
     {cancel_section}
     """
@@ -500,11 +505,11 @@ def _build_cancellation_html(
 
     reason_html = ""
     if reason:
-        reason_html = f'<p style="color:#50536f; font-size:14px;"><strong>Razlog:</strong> {html.escape(str(reason))}</p>'
+        reason_html = f'<p style="color:#4f5751; font-size:14px;"><strong>Razlog:</strong> {html.escape(str(reason))}</p>'
 
     content = f"""
-    <h2 style="color:#ef4444; margin:0 0 4px; font-size:20px;">Čas je otkazan</h2>
-    <p style="color:#50536f; margin:0 0 8px; font-size:15px;">Rezervacija je otkazana od strane {by_label}.</p>
+    <h2 style="color:#b3412e; margin:0 0 4px; font-size:20px;">Čas je otkazan</h2>
+    <p style="color:#4f5751; margin:0 0 8px; font-size:15px;">Rezervacija je otkazana od strane {by_label}.</p>
     {reason_html}
     {_booking_details_html(data, role=role)}
     """
@@ -514,13 +519,13 @@ def _build_cancellation_html(
 def _build_late_cancellation_html(data: dict) -> str:
     """HTML za odbijeno otkazivanje (istekao rok od 24h)."""
     content = f"""
-    <h2 style="color:#f59e0b; margin:0 0 4px; font-size:20px;">Otkazivanje nije moguće</h2>
-    <p style="color:#50536f; margin:0 0 20px; font-size:15px;">
+    <h2 style="color:#a8701c; margin:0 0 4px; font-size:20px;">Otkazivanje nije moguće</h2>
+    <p style="color:#4f5751; margin:0 0 20px; font-size:15px;">
         Nažalost, prošao je rok za otkazivanje časa (24 sata pre početka).
-        <strong style="color:#171936;">Čas se mora naplatiti.</strong>
+        <strong style="color:#1e2421;">Čas se mora naplatiti.</strong>
     </p>
     {_booking_details_html(data, role="client")}
-    <p style="color:#7a7d94; font-size:13px; margin-top:16px;">
+    <p style="color:#7c817a; font-size:13px; margin-top:16px;">
         Za pitanja nas kontaktirajte direktno.
     </p>
     """

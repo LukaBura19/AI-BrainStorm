@@ -55,6 +55,12 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@brainstorm.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
       ADMIN_FULL_NAME: ${ADMIN_FULL_NAME:-Admin BrainStorm}
+      # AI asistent uz snimke (Claude API). Bez ključa asistent je isključen.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CHAT_MODEL: ${CHAT_MODEL:-claude-opus-5-5}
+      CHAT_EFFORT: ${CHAT_EFFORT:-medium}
+      CHAT_RATE_LIMIT: ${CHAT_RATE_LIMIT:-30}
+      CHAT_RATE_WINDOW_SECONDS: ${CHAT_RATE_WINDOW_SECONDS:-600}
     volumes:
       - ./backend:/app
       - booking_uploads:/app/uploads/booking_attachments

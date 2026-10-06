@@ -7,7 +7,9 @@ test("učenik pravi nalog, zakazuje čas i vidi ga u svom panelu", async ({ page
   await page.getByRole("menuitem", { name: /Učenik/ }).click();
   await expect(page).toHaveURL(/\/ucenik\/prijava$/);
 
-  await page.getByRole("button", { name: "Novi nalog" }).click();
+  // The green cover slides across and reveals the sign-up form.
+  await page.locator(".student-auth-cover-text--login").getByRole("button", { name: "Napravi nalog" }).click();
+  await expect(page.locator(".student-auth")).toHaveAttribute("data-mode", "register");
   const email = `e2e.ucenik.${Date.now()}@brainstorm.rs`;
   await page.locator("#student-name").fill("E2E Učenik");
   await page.locator("#student-email").fill(email);
@@ -46,8 +48,8 @@ test("učenik pravi nalog, zakazuje čas i vidi ga u svom panelu", async ({ page
 
   await page.getByRole("button", { name: "Odjavi se" }).click();
   await expect(page).toHaveURL(/\/ucenik\/prijava$/);
-  await page.locator("#student-email").fill(email);
-  await page.locator("#student-password").fill("pogresna");
+  await page.locator("#student-login-email").fill(email);
+  await page.locator("#student-login-password").fill("pogresna");
   await page.getByRole("button", { name: "Prijavi se" }).click();
   await expect(page.getByText("Pogrešan email ili lozinka.")).toBeVisible();
 });
@@ -63,7 +65,7 @@ test("cenovnik ima sekcije za školu i fakultet, a meni stranice za maturu", asy
 
   const nav = page.getByRole("navigation", { name: "Glavna navigacija" });
   await nav.getByRole("link", { name: "Mala matura" }).click();
-  await expect(page.getByRole("heading", { name: "Priprema za malu maturu" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Mala matura" })).toBeVisible();
   await nav.getByRole("link", { name: "Velika matura" }).click();
-  await expect(page.getByRole("heading", { name: "Priprema za veliku maturu" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Velika matura" })).toBeVisible();
 });

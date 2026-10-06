@@ -1,0 +1,286 @@
+{
+  "exams": [
+    {
+      "slug": "mala-matura",
+      "title": "Mala matura",
+      "lead": "Snimci rešenih zadataka i završnih ispita iz prethodnih godina, poređani po oblastima i nivoima.",
+      "audience": "učenik osmog razreda koji se sprema za završni ispit (malu maturu)",
+      "subjects": [
+        {
+          "slug": "matematika",
+          "name": "Matematika",
+          "groups": [
+            {
+              "slug": "osnovni-nivo",
+              "name": "Osnovni nivo",
+              "lectures": [
+                {
+                  "slug": "razlomci-i-decimalni-brojevi",
+                  "title": "Razlomci i decimalni brojevi",
+                  "summary": "Sabiranje razlomaka, poređenje po veličini i prelazak iz razlomka u decimalni zapis.",
+                  "tasks": [
+                    { "text": "Izračunaj 3/4 + 5/6.", "solution": "Zajednički imenilac je 12: 9/12 + 10/12 = 19/12 = 1 7/12." },
+                    { "text": "Poređaj od najmanjeg do najvećeg: 2/3, 0,6 i 5/8.", "solution": "2/3 ≈ 0,667 i 5/8 = 0,625, pa je redosled 0,6 < 5/8 < 2/3." },
+                    { "text": "Zapiši razlomak 7/20 kao decimalni broj i kao procenat.", "solution": "7/20 = 35/100 = 0,35 = 35%." }
+                  ]
+                },
+                {
+                  "slug": "procenti",
+                  "title": "Procenti u svakodnevnim zadacima",
+                  "summary": "Koliko je 15% od nečega, sniženja i vraćanje na cenu pre poskupljenja.",
+                  "tasks": [
+                    { "text": "Koliko je 15% od 240?", "solution": "0,15 · 240 = 36." },
+                    { "text": "Patike koštaju 6000 dinara i na sniženju su jeftinije za 25%. Kolika je nova cena?", "solution": "25% od 6000 je 1500, pa je nova cena 6000 − 1500 = 4500 dinara." },
+                    { "text": "Posle poskupljenja od 10% knjiga košta 1320 dinara. Kolika je bila cena pre poskupljenja?", "solution": "Nova cena je 110% stare: 1,1 · x = 1320, x = 1320 : 1,1 = 1200 dinara." }
+                  ]
+                }
+              ]
+            },
+            {
+              "slug": "srednji-nivo",
+              "name": "Srednji nivo",
+              "lectures": [
+                {
+                  "slug": "linearne-jednacine",
+                  "title": "Linearne jednačine i nejednačine",
+                  "summary": "Jednačine sa zagradama, nejednačine i zadaci sa tekstom.",
+                  "tasks": [
+                    { "text": "Reši jednačinu 3(x − 2) + 5 = 2x + 7.", "solution": "3x − 6 + 5 = 2x + 7, 3x − 1 = 2x + 7, x = 8." },
+                    { "text": "Reši nejednačinu 5 − 2x > 11.", "solution": "−2x > 6, pa je x < −3 (znak nejednakosti se okreće jer delimo negativnim brojem)." },
+                    { "text": "Zbir tri uzastopna prirodna broja je 72. Koji su to brojevi?", "solution": "n + (n + 1) + (n + 2) = 72, 3n + 3 = 72, n = 23. Brojevi su 23, 24 i 25." }
+                  ]
+                },
+                {
+                  "slug": "pitagorina-teorema",
+                  "title": "Pitagorina teorema",
+                  "summary": "Hipotenuza, dijagonala kvadrata i zadaci sa merdevinama.",
+                  "tasks": [
+                    { "text": "Katete pravouglog trougla su 6 cm i 8 cm. Kolika je hipotenuza?", "solution": "c² = 6² + 8² = 36 + 64 = 100, c = 10 cm." },
+                    { "text": "Kolika je dijagonala kvadrata čija je stranica 5 cm?", "solution": "d = a√2 = 5√2 cm ≈ 7,07 cm." },
+                    { "text": "Merdevine duge 5 m naslonjene su na zid, a donji kraj im je 3 m od zida. Na kojoj visini dodiruju zid?", "solution": "h² = 5² − 3² = 25 − 9 = 16, h = 4 m." }
+                  ]
+                }
+              ]
+            },
+            {
+              "slug": "napredni-nivo",
+              "name": "Napredni nivo",
+              "lectures": [
+                {
+                  "slug": "sistemi-jednacina",
+                  "title": "Sistemi linearnih jednačina",
+                  "summary": "Metoda zamene, metoda suprotnih koeficijenata i zadaci sa tekstom.",
+                  "tasks": [
+                    { "text": "Reši sistem: x + y = 10 i x − y = 4.", "solution": "Saberemo jednačine: 2x = 14, x = 7, pa je y = 3." },
+                    { "text": "Reši sistem: 2x + 3y = 12 i x − y = 1.", "solution": "Iz druge jednačine x = y + 1. Zamena: 2(y + 1) + 3y = 12, 5y = 10, y = 2 i x = 3." },
+                    { "text": "U odeljenju je 28 učenika, a devojčica ima 4 više nego dečaka. Koliko je dečaka, a koliko devojčica?", "solution": "d + (d + 4) = 28, 2d = 24, d = 12. Dečaka je 12, a devojčica 16." }
+                  ]
+                },
+                {
+                  "slug": "povrsina-i-zapremina",
+                  "title": "Površina i zapremina tela",
+                  "summary": "Kocka, kvadar i valjak: formule i kako da ih ne pomešaš.",
+                  "tasks": [
+                    { "text": "Izračunaj površinu i zapreminu kocke čija je ivica 4 cm.", "solution": "P = 6a² = 6 · 16 = 96 cm², V = a³ = 64 cm³." },
+                    { "text": "Valjak ima poluprečnik osnove 3 cm i visinu 10 cm. Kolika mu je zapremina? (π ≈ 3,14)", "solution": "V = r²πH = 9 · 3,14 · 10 = 282,6 cm³." },
+                    { "text": "Ivice kvadra su 3 cm, 4 cm i 12 cm. Kolika je dijagonala kvadra?", "solution": "D² = 3² + 4² + 12² = 9 + 16 + 144 = 169, D = 13 cm." }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "srpski-jezik",
+          "name": "Srpski jezik",
+          "groups": [
+            {
+              "slug": "osnovni-nivo",
+              "name": "Osnovni nivo",
+              "lectures": [
+                {
+                  "slug": "vrste-reci",
+                  "title": "Vrste reči",
+                  "summary": "Promenljive i nepromenljive reči i kako da ih prepoznaš u rečenici.",
+                  "tasks": [
+                    { "text": "Odredi vrstu svake reči u rečenici: Mali pas veselo trči po zelenoj livadi.", "solution": "mali – pridev, pas – imenica, veselo – prilog, trči – glagol, po – predlog, zelenoj – pridev, livadi – imenica." },
+                    { "text": "Od imenice hrabrost napravi pridev, a od glagola čitati imenicu.", "solution": "hrabrost → hrabar; čitati → čitanje (ili čitalac)." },
+                    { "text": "Izdvoj nepromenljive reči iz rečenice: Kroz prozor je juče ušla ptica, ali je brzo izletela.", "solution": "kroz – predlog, juče – prilog, ali – veznik, brzo – prilog." }
+                  ]
+                },
+                {
+                  "slug": "veliko-slovo",
+                  "title": "Pisanje velikog slova",
+                  "summary": "Imena, nazivi ustanova, praznici i pridevi izvedeni od imena.",
+                  "tasks": [
+                    { "text": "Ispravi greške u rečenici: u beogradu smo posetili narodni muzej i kalemegdan.", "solution": "U Beogradu smo posetili Narodni muzej i Kalemegdan." },
+                    { "text": "Pravilno napiši nazive praznika: nova godina, božić, dan škole.", "solution": "Nova godina, Božić, Dan škole – u nazivu praznika veliko je prvo slovo prve reči." },
+                    { "text": "Zašto pišemo Sava, a savski?", "solution": "Sava je vlastito ime reke. Pridevi izvedeni od vlastitih imena nastavkom -ski pišu se malim slovom (savski, beogradski), a prisvojni pridevi na -ov, -ev, -in velikim (Markov, Anin)." }
+                  ]
+                }
+              ]
+            },
+            {
+              "slug": "srednji-nivo",
+              "name": "Srednji nivo",
+              "lectures": [
+                {
+                  "slug": "padezi",
+                  "title": "Padeži",
+                  "summary": "Kako da odrediš padež pomoću pitanja i šta koji padež znači.",
+                  "tasks": [
+                    { "text": "Odredi padež reči „knjigu” i „bratu” u rečenici: Dao sam knjigu bratu.", "solution": "knjigu – akuzativ (koga? šta?), bratu – dativ (kome? čemu?)." },
+                    { "text": "U kom je padežu reč „školi” u rečenici: Ana je u školi?", "solution": "Lokativ (o kome? o čemu?); ovde označava mesto (gde?)." },
+                    { "text": "Koje značenje ima instrumental u rečenici: Išao sam u bioskop sa drugom?", "solution": "Instrumental društva (sa kim?) – osoba koja učestvuje u radnji zajedno sa vršiocem." }
+                  ]
+                },
+                {
+                  "slug": "sluzbe-reci",
+                  "title": "Službe reči u rečenici",
+                  "summary": "Subjekat, predikat, objekat i priloške odredbe, korak po korak.",
+                  "tasks": [
+                    { "text": "Odredi subjekat i predikat: Moja mlađa sestra svakog jutra trči u parku.", "solution": "Subjekat je sestra (moja i mlađa su atributi), predikat je trči." },
+                    { "text": "Pronađi objekat u rečenici: Nastavnica je pročitala zanimljivu knjigu.", "solution": "Objekat je knjigu (pravi objekat, akuzativ bez predloga); zanimljivu je atribut." },
+                    { "text": "Odredi vrstu priloških odredbi: Sutra ćemo brzo otići u bioskop.", "solution": "sutra – priloška odredba za vreme, brzo – za način, u bioskop – za mesto." }
+                  ]
+                }
+              ]
+            },
+            {
+              "slug": "napredni-nivo",
+              "name": "Napredni nivo",
+              "lectures": [
+                {
+                  "slug": "glasovne-promene",
+                  "title": "Glasovne promene",
+                  "summary": "Sibilarizacija, palatalizacija, jednačenje po zvučnosti i nepostojano a.",
+                  "tasks": [
+                    { "text": "Koja se glasovna promena vrši u obliku „ruci” (od ruka)?", "solution": "Sibilarizacija: k ispred i prelazi u c (ruka → ruci)." },
+                    { "text": "Objasni glasovne promene u vokativu „vrapče” (od vrabac).", "solution": "Gubi se nepostojano a (vrabac → vrabc-), c ispred e prelazi u č – palatalizacija (vrabče), a b ispred bezvučnog č prelazi u p – jednačenje po zvučnosti (vrapče)." },
+                    { "text": "Koje se promene vrše u genitivu „oca” (od otac)?", "solution": "Gubi se nepostojano a (otac → otca), a zatim se t gubi ispred c – gubljenje suglasnika (oca)." }
+                  ]
+                },
+                {
+                  "slug": "knjizevni-rodovi",
+                  "title": "Književni rodovi i vrste",
+                  "summary": "Lirika, epika i drama, odlike bajke i stilske figure.",
+                  "tasks": [
+                    { "text": "Kom književnom rodu i vrsti pripada „Pokondirena tikva” Jovana Sterije Popovića?", "solution": "Dramskom rodu; vrsta je komedija." },
+                    { "text": "Navedi tri odlike bajke.", "solution": "Čudesni događaji koji se prihvataju kao normalni, borba dobra i zla u kojoj dobro pobeđuje, neodređeno vreme i mesto radnje („Bio jednom jedan…”), ponavljanje, najčešće tri puta." },
+                    { "text": "Koja je stilska figura u izrazu „beo kao sneg”?", "solution": "Poređenje: dva pojma se dovode u vezu rečju kao." }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "velika-matura",
+      "title": "Velika matura",
+      "lead": "Snimci rešenih zadataka sa prijemnih ispita iz prethodnih godina, poređani po oblastima.",
+      "audience": "maturant koji se sprema za prijemni ispit iz matematike na fakultetu",
+      "subjects": [
+        {
+          "slug": "matematika",
+          "name": "Matematika",
+          "tagline": "PMF, ETF, FON, Mašinski, Građevinski, Ekonomski",
+          "groups": [
+            {
+              "slug": "algebra",
+              "name": "Algebra",
+              "lectures": [
+                {
+                  "slug": "kvadratna-jednacina",
+                  "title": "Kvadratna jednačina i Vietove formule",
+                  "summary": "Diskriminanta, rešenja i veza između rešenja i koeficijenata.",
+                  "tasks": [
+                    { "text": "Reši jednačinu x² − 5x + 6 = 0.", "solution": "D = 25 − 24 = 1, x₁ = 3, x₂ = 2." },
+                    { "text": "Za koje vrednosti parametra m jednačina x² + 4x + m = 0 ima dva različita realna rešenja?", "solution": "D = 16 − 4m > 0, pa je m < 4." },
+                    { "text": "Ako su x₁ i x₂ rešenja jednačine x² − 7x + 3 = 0, izračunaj x₁² + x₂².", "solution": "x₁ + x₂ = 7 i x₁x₂ = 3, pa je x₁² + x₂² = (x₁ + x₂)² − 2x₁x₂ = 49 − 6 = 43." }
+                  ]
+                },
+                {
+                  "slug": "racionalni-izrazi",
+                  "title": "Racionalni algebarski izrazi",
+                  "summary": "Rastavljanje na činioce, skraćivanje i sabiranje razlomaka sa promenljivom.",
+                  "tasks": [
+                    { "text": "Skrati razlomak (x² − 9) / (x² + 6x + 9).", "solution": "(x − 3)(x + 3) / (x + 3)² = (x − 3) / (x + 3), za x ≠ −3." },
+                    { "text": "Izračunaj 1/(x − 1) − 1/(x + 1).", "solution": "((x + 1) − (x − 1)) / (x² − 1) = 2 / (x² − 1), za x ≠ ±1." }
+                  ]
+                }
+              ]
+            },
+            {
+              "slug": "trigonometrija",
+              "name": "Trigonometrija",
+              "lectures": [
+                {
+                  "slug": "trigonometrijski-identiteti",
+                  "title": "Osnovni trigonometrijski identiteti",
+                  "summary": "sin²α + cos²α = 1 i kako iz jedne funkcije dobiti ostale.",
+                  "tasks": [
+                    { "text": "Ako je sin α = 3/5 i α je oštar ugao, izračunaj cos α i tg α.", "solution": "cos α = √(1 − 9/25) = 4/5, tg α = sin α / cos α = 3/4." },
+                    { "text": "Uprosti izraz (1 − cos²α) / sin α.", "solution": "1 − cos²α = sin²α, pa je izraz jednak sin α (za sin α ≠ 0)." },
+                    { "text": "Izračunaj sin 30° · cos 60° + tg 45°.", "solution": "1/2 · 1/2 + 1 = 1/4 + 1 = 5/4." }
+                  ]
+                },
+                {
+                  "slug": "trigonometrijske-jednacine",
+                  "title": "Trigonometrijske jednačine",
+                  "summary": "Osnovne jednačine, periodičnost i uvođenje smene.",
+                  "tasks": [
+                    { "text": "Reši jednačinu sin x = 1/2.", "solution": "x = π/6 + 2kπ ili x = 5π/6 + 2kπ, k ∈ ℤ." },
+                    { "text": "Reši jednačinu 2cos²x − cos x − 1 = 0.", "solution": "Smena t = cos x: 2t² − t − 1 = 0, t = 1 ili t = −1/2. Iz cos x = 1 sledi x = 2kπ, a iz cos x = −1/2 sledi x = ±2π/3 + 2kπ, k ∈ ℤ." }
+                  ]
+                }
+              ]
+            },
+            {
+              "slug": "logaritmi",
+              "name": "Logaritmi",
+              "lectures": [
+                {
+                  "slug": "logaritamske-jednacine",
+                  "title": "Logaritmi i logaritamske jednačine",
+                  "summary": "Definicija logaritma, pravila računanja i uslovi za rešenja.",
+                  "tasks": [
+                    { "text": "Izračunaj log₂ 32 + log₃ (1/9).", "solution": "log₂ 32 = 5 i log₃ (1/9) = −2, pa je zbir 3." },
+                    { "text": "Reši jednačinu log₃ (x − 1) = 2.", "solution": "Uslov x > 1. x − 1 = 3² = 9, pa je x = 10." },
+                    { "text": "Reši jednačinu log x + log (x − 3) = 1.", "solution": "Uslov x > 3. log (x(x − 3)) = 1, x² − 3x = 10, x² − 3x − 10 = 0, x = 5 ili x = −2. Zbog uslova rešenje je samo x = 5." }
+                  ]
+                },
+                {
+                  "slug": "eksponencijalne-jednacine",
+                  "title": "Eksponencijalne jednačine",
+                  "summary": "Svođenje na istu osnovu i smena t = aˣ.",
+                  "tasks": [
+                    { "text": "Reši jednačinu 2ˣ⁺¹ = 16.", "solution": "16 = 2⁴, pa je x + 1 = 4 i x = 3." },
+                    { "text": "Reši jednačinu 9ˣ − 4 · 3ˣ + 3 = 0.", "solution": "Smena t = 3ˣ > 0: t² − 4t + 3 = 0, t = 1 ili t = 3. Iz 3ˣ = 1 sledi x = 0, a iz 3ˣ = 3 sledi x = 1." }
+                  ]
+                }
+              ]
+            },
+            {
+              "slug": "analiticka-geometrija",
+              "name": "Analitička geometrija",
+              "lectures": [
+                {
+                  "slug": "prava-u-ravni",
+                  "title": "Prava u ravni",
+                  "summary": "Jednačina prave kroz dve tačke, rastojanje i paralelnost.",
+                  "tasks": [
+                    { "text": "Napiši jednačinu prave koja prolazi kroz tačke A(1, 2) i B(3, 6).", "solution": "k = (6 − 2) / (3 − 1) = 2, y − 2 = 2(x − 1), pa je y = 2x." },
+                    { "text": "Izračunaj rastojanje između tačaka A(1, 2) i B(4, 6).", "solution": "d = √((4 − 1)² + (6 − 2)²) = √(9 + 16) = 5." },
+                    { "text": "Da li su prave y = 3x + 1 i 6x − 2y + 5 = 0 paralelne?", "solution": "Druga prava je y = 3x + 5/2. Obe imaju koeficijent pravca 3, a različite odsečke, pa su paralelne." }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

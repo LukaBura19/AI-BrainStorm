@@ -50,6 +50,16 @@ class Settings(BaseSettings):
     MAX_ATTACHMENT_BYTES: int = 25 * 1024 * 1024  # po fajlu
     MAX_BOOKING_ATTACHMENTS: int = 10  # ukupno po rezervaciji
 
+    # ---- AI asistent uz snimke predavanja (Claude API) ----
+    # Bez ključa stranice sa snimcima rade, a asistent javlja da nije podešen.
+    ANTHROPIC_API_KEY: str = ""
+    CHAT_MODEL: str = "claude-opus-5-5"
+    CHAT_EFFORT: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
+    CHAT_MAX_TOKENS: int = 16000
+    # Zaštita troškova: najviše CHAT_RATE_LIMIT poruka sa jedne IP adrese u CHAT_RATE_WINDOW_SECONDS sekundi.
+    CHAT_RATE_LIMIT: int = 30
+    CHAT_RATE_WINDOW_SECONDS: int = 600
+
     # ---- Admin seed ----
     ADMIN_EMAIL: str = "admin@brainstorm.com"
     ADMIN_PASSWORD: str = "admin123"
@@ -61,7 +71,14 @@ class Settings(BaseSettings):
             raise ValueError("MAIL_TLS i MAIL_SSL ne mogu istovremeno biti uključeni.")
         if self.MAIL_ENABLED and bool(self.MAIL_USERNAME) != bool(self.MAIL_PASSWORD):
             raise ValueError("MAIL_USERNAME i MAIL_PASSWORD moraju biti podešeni zajedno.")
+        # Gmail prikazuje lozinku za aplikacije u grupama ("abcd efgh ijkl mnop"); razmaci nisu deo lozinke.
+        if self.uses_gmail:
+            self.MAIL_PASSWORD = "".join(self.MAIL_PASSWORD.split())
         return self
+
+    @property
+    def uses_gmail(self) -> bool:
+        return self.MAIL_SERVER.strip().lower().rstrip(".") == "smtp.gmail.com"
 
     model_config = {
         "env_file": ".env",

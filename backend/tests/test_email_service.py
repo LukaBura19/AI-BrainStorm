@@ -84,6 +84,35 @@ def test_authentication_failure_does_not_report_sent(smtp_transport):
     server.sendmail.assert_not_called()
 
 
+def test_server_closing_connection_during_login_counts_as_rejected_login(smtp_transport, capsys):
+    # Gmail answers a wrong password by closing the connection; that must read as a failed login.
+    from app.check_email import main
+
+    _, server = smtp_transport
+    server.login.side_effect = smtplib.SMTPServerDisconnected("Connection unexpectedly closed")
+    assert confirmation()["status"] == "failed"
+    server.sendmail.assert_not_called()
+    assert main([]) == 1
+    assert "prijava je odbijena (kod 535)" in capsys.readouterr().out
+
+
+def test_gmail_login_failure_points_to_app_password(smtp_transport, monkeypatch, capsys):
+    from app.check_email import main
+
+    monkeypatch.setattr(settings, "MAIL_SERVER", "smtp.gmail.com")
+    smtp_transport[1].login.side_effect = smtplib.SMTPAuthenticationError(535, b"Username and Password not accepted")
+    assert main([]) == 1
+    output = capsys.readouterr().out
+    assert "App Password" in output
+    assert "test-smtp-password" not in output
+
+
+@pytest.mark.parametrize("server, expected", [("smtp.gmail.com", "abcdefghijklmnop"), ("smtp.example.com", "abcd efgh ijkl mnop")])
+def test_gmail_app_password_spaces_are_ignored(server, expected):
+    configured = Settings(_env_file=None, MAIL_SERVER=server, MAIL_USERNAME="sender@gmail.com", MAIL_PASSWORD="abcd efgh ijkl mnop", MAIL_TLS=True, MAIL_SSL=False)
+    assert configured.MAIL_PASSWORD == expected
+
+
 def test_incomplete_smtp_credentials_are_rejected():
     with pytest.raises(ValidationError, match="MAIL_USERNAME.*MAIL_PASSWORD"):
         Settings(_env_file=None, MAIL_ENABLED=True, MAIL_USERNAME="sender@example.com", MAIL_PASSWORD="", MAIL_TLS=False, MAIL_SSL=False)

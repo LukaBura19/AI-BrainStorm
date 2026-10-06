@@ -3,6 +3,7 @@
 Web aplikacija za zakazivanje časova u **Edukativnom Centru BrainStorm**.
 
 Klijenti biraju predmet, profesora, datum, vreme i trajanje časa (45 / 60 / 90 min), unose svoje podatke i dobijaju email potvrdu. Profesori i admini imaju svoje panele za upravljanje rasporedom.
+Na stranicama za malu i veliku maturu su snimci rešenih zadataka, a uz svaki snimak AI asistent (Claude) kome učenik postavlja pitanja o zadacima.
 
 ---
 
@@ -15,6 +16,7 @@ Klijenti biraju predmet, profesora, datum, vreme i trajanje časa (45 / 60 / 90 
 | **Baza** | PostgreSQL 16 |
 | **Auth** | JWT (python-jose), Passlib + bcrypt |
 | **Email** | ugrađeni SMTP servis — MailHog lokalno, bilo koji SMTP nalog u produkciji |
+| **AI asistent** | Claude API (`anthropic` Python SDK), odgovor se strimuje u browser (SSE) |
 | **Infra** | Docker Compose (lokalni razvoj) |
 | **Testovi** | pytest, FastAPI TestClient, Playwright E2E |
 
@@ -26,12 +28,13 @@ Klijenti biraju predmet, profesora, datum, vreme i trajanje časa (45 / 60 / 90 
 AI-BrainStorm/
 ├── backend/                # FastAPI backend
 │   ├── app/
-│   │   ├── api/            # Rute (admin, teacher, public, auth)
+│   │   ├── api/            # Rute (admin, teacher, public, auth, student, prep)
+│   │   ├── data/           # Katalog snimaka za pripreme (prep_lectures.json)
 │   │   ├── core/           # Config, security, dependencies
 │   │   ├── db/             # Engine, session, seed
 │   │   ├── models/         # SQLAlchemy ORM modeli
 │   │   ├── schemas/        # Pydantic request/response sheme
-│   │   ├── services/       # Poslovna logika (availability, classroom, email)
+│   │   ├── services/       # Poslovna logika (availability, classroom, email, katalog, asistent)
 │   │   └── utils/
 │   ├── tests/              # pytest testovi
 │   ├── alembic/            # Migracije baze
@@ -118,19 +121,61 @@ Test pristupi:
 |-------|-------|---------|
 | Admin | `admin@brainstorm.com` | `admin123` |
 | Profesor Luka Bura | `lukabura89@gmail.com` | `profesor123` |
-| Učenik | napravi nalog na `/ucenik/prijava` → „Novi nalog“ | min. 8 karaktera |
+| Učenik | napravi nalog na `/ucenik/prijava` → „Napravi nalog“ | min. 8 karaktera |
 
 Učenici se sami registruju. Časovi zakazani dok je učenik prijavljen vezuju se za
 njegov nalog i vide se u panelu „Moji časovi“ (`/ucenik/panel`), sa linkom za
 otkazivanje. Časovi zakazani bez prijave se ne prikazuju u panelu, čak ni ako je
 email isti, da niko ne bi mogao da vidi tuđe časove registracijom na tuđu adresu.
 
-### Snimci predavanja (mala i velika matura)
+### Snimci predavanja i AI asistent (mala i velika matura)
 
-Stranice `/mala-matura` i `/velika-matura` čitaju snimke iz
-`frontend/src/data/prepLectures.js`. Novi snimak se dodaje u `lectures` niz
-predmeta, npr. `{ title: "Razlomci, 1. deo", duration: "42 min", youtubeId: "..." }`
-(`youtubeId` je deo YouTube linka posle `v=`). Dok je niz prazan, prikazuje se „Snimci uskoro“.
+Stranice `/mala-matura` i `/velika-matura` čitaju katalog iz
+`backend/app/data/prep_lectures.json`: ispit → predmet → oblast → snimak → zadaci.
+Mala matura ima srpski i matematiku podeljene na osnovni, srednji i napredni nivo,
+a velika matura matematiku po oblastima (algebra, trigonometrija, logaritmi...).
+Svaki snimak ima svoju stranicu, npr. `/mala-matura/matematika/procenti`, sa
+videom, zadacima sa snimka i asistentom pored videa.
+
+Novi snimak ili nova oblast dodaju se samo u JSON, bez izmene koda:
+
+```json
+{
+  "slug": "razlomci-2",
+  "title": "Razlomci, 2. deo",
+  "summary": "Množenje i deljenje razlomaka.",
+  "youtube_id": "dQw4w9WgXcQ",
+  "duration_minutes": 42,
+  "tasks": [
+    { "text": "Izračunaj 2/3 · 9/4.", "solution": "2/3 · 9/4 = 18/12 = 3/2." }
+  ]
+}
+```
+
+`youtube_id` je deo YouTube linka posle `watch?v=` (11 znakova); umesto njega
+može `video_url` sa direktnim linkom na video fajl. Bez videa stranica prikazuje
+„Snimak stiže uskoro“. `slug` mora biti jedinstven u okviru predmeta. Rešenja
+(`solution`) se ne prikazuju na sajtu: dobija ih samo asistent, da bi proverio
+postupak učenika i davao tačne rezultate. Posle izmene JSON-a restartuj backend
+(`docker compose restart backend`).
+
+**Asistent** koristi Claude API. Ključ se pravi na
+[platform.claude.com](https://platform.claude.com) i upisuje samo u lokalni `.env`:
+
+```dotenv
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Zatim `docker compose up -d --no-deps --force-recreate backend`. Bez ključa sve
+stranice rade, a asistent piše da još nije uključen. Model je `claude-opus-5-5`
+(`CHAT_MODEL`), sa `CHAT_EFFORT=medium` kao kompromisom između kvaliteta, brzine
+i cene. Uključeni su i rezervni modeli na serveru (`fallbacks: "default"`): ako
+model odbije zahtev, Claude API ga u istom pozivu ponovi na modelu koji Anthropic
+preporučuje za tu vrstu zahteva. Svaki odgovor se plaća po potrošenim tokenima;
+potrošnja i model koji je odgovorio upisuju se u backend log. Jedna IP adresa
+može poslati najviše `CHAT_RATE_LIMIT` poruka u `CHAT_RATE_WINDOW_SECONDS`
+sekundi (podrazumevano 30 u 10 minuta). Razgovor se čuva samo u browseru
+učenika (sessionStorage) dok je kartica otvorena.
 
 > Pre produkcije obavezno promeni podrazumevanu admin lozinku i `SECRET_KEY`.
 
@@ -249,6 +294,11 @@ docker compose exec backend python -m app.db.seed
 | `MAIL_DELIVERY_MODE` | `smtp` | `smtp` za pravi server; `capture` za test server. MailHog/Mailpit se prepoznaju automatski. |
 | `VITE_API_URL` | `http://localhost:8002` | API URL za frontend |
 | `ADMIN_EMAIL` | `admin@brainstorm.com` | Seed admin email |
+| `ANTHROPIC_API_KEY` | *(prazno)* | Ključ za Claude API; bez njega je asistent isključen |
+| `CHAT_MODEL` | `claude-opus-5-5` | Model asistenta |
+| `CHAT_EFFORT` | `medium` | `low`/`medium`/`high`/`xhigh`/`max`: temeljnost naspram brzine i cene |
+| `CHAT_RATE_LIMIT` | `30` | Najviše poruka sa jedne IP adrese u prozoru |
+| `CHAT_RATE_WINDOW_SECONDS` | `600` | Dužina prozora za `CHAT_RATE_LIMIT` |
 | `ADMIN_PASSWORD` | `admin123` | Seed admin lozinka |
 
 ### Email u produkciji
@@ -308,7 +358,10 @@ testovi koriste **MailHog**, a ne pravi SMTP nalog, i proveravaju test poruke.
 
 Za Gmail koristi `MAIL_SERVER=smtp.gmail.com`, `MAIL_PORT=587`, `MAIL_TLS=true`,
 `MAIL_SSL=false` i `MAIL_DELIVERY_MODE=smtp`. `MAIL_USERNAME` i `MAIL_FROM`
-su puna Gmail adresa. `MAIL_PASSWORD` je Google App password za tu aplikaciju.
+su puna Gmail adresa. `MAIL_PASSWORD` je Google App password za tu aplikaciju:
+16 slova koje Google prikaže u grupama od po četiri (razmaci se ignorišu).
+Obična lozinka Gmail naloga ne radi: Gmail odbije prijavu i zatvori vezu, a
+`check_email` tada javlja „SMTP prijava je odbijena (kod 535)“.
 Potreban je nalog sa uključenom verifikacijom u dva koraka:
 [Google uputstvo](https://support.google.com/mail/answer/185833),
 [kreiranje App password-a](https://myaccount.google.com/apppasswords).

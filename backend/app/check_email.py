@@ -36,6 +36,9 @@ def main(argv=None) -> int:
                 raise smtplib.SMTPResponseException(code, response)
     except smtplib.SMTPAuthenticationError as exc:
         print(f"SMTP prijava je odbijena (kod {exc.smtp_code}). Proverite korisničko ime i SMTP lozinku.")
+        if settings.uses_gmail:
+            print("Gmail prihvata samo lozinku za aplikacije (App Password, 16 slova), ne običnu lozinku naloga.")
+            print("Napravite je na https://myaccount.google.com/apppasswords (potrebna je verifikacija u 2 koraka).")
         return 1
     except Exception as exc:
         print(f"SMTP provera nije uspela: {type(exc).__name__}; kod={getattr(exc, 'smtp_code', 'n/a')}.")

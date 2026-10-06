@@ -22,6 +22,7 @@ from app.api.admin import router as admin_router
 from app.api.teacher import router as teacher_router
 from app.api.public import router as public_router
 from app.api.student import router as student_router
+from app.api.prep import router as prep_router
 
 app = FastAPI(
     title=settings.APP_TITLE,
@@ -53,6 +54,7 @@ app.include_router(admin_router)
 app.include_router(teacher_router)
 app.include_router(public_router)
 app.include_router(student_router)
+app.include_router(prep_router)
 
 
 @app.get("/health")

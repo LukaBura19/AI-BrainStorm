@@ -111,6 +111,12 @@ def disable_transactional_email(monkeypatch):
     monkeypatch.setattr(settings, "MAIL_ENABLED", False)
 
 
+@pytest.fixture(autouse=True)
+def disable_claude_api(monkeypatch):
+    """Testovi nikad ne zovu pravi Claude API; testovi asistenta ubacuju lažnog klijenta."""
+    monkeypatch.setattr(settings, "ANTHROPIC_API_KEY", "")
+
+
 # =============================================
 #  Seed fiksture
 # =============================================
