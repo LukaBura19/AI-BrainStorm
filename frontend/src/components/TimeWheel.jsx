@@ -31,6 +31,7 @@ export default function TimeWheel({ items, selected, onSelect, reducedMotion }) 
       row.style.setProperty("--wheel-offset", reducedMotion ? 0 : offset.toFixed(3));
       row.style.setProperty("--wheel-scale", reducedMotion ? 1 : (1 - distance * 0.05).toFixed(3));
       row.style.opacity = String(Math.max(0.12, 1 - distance * 0.22));
+      row.classList.toggle("in-band", Math.abs(offset) < 0.5);
     }
   }, [reducedMotion]);
 
@@ -46,11 +47,15 @@ export default function TimeWheel({ items, selected, onSelect, reducedMotion }) 
   }, [freeIndexes]);
 
   // When the wheel comes to rest, select the free time in the band (or glide to the nearest free one).
+  const rootRef = useRef(null);
   const onScroll = () => {
+    // While turning, the band goes light so whatever passes through it stays readable.
+    rootRef.current?.classList.add("is-turning");
     cancelAnimationFrame(frameRef.current);
     frameRef.current = requestAnimationFrame(paint);
     clearTimeout(settleRef.current);
     settleRef.current = setTimeout(() => {
+      rootRef.current?.classList.remove("is-turning");
       const wheel = wheelRef.current;
       if (!wheel || !userTurnRef.current) return;
       userTurnRef.current = false;
@@ -91,7 +96,7 @@ export default function TimeWheel({ items, selected, onSelect, reducedMotion }) 
     else if (event.key === "End" && freeIndexes.length) { event.preventDefault(); const last = freeIndexes.at(-1); onSelect(items[last].slot); scrollToIndex(last); }
   };
 
-  return <div className={`time-wheel ${selectedIndex >= 0 ? "has-selection" : ""}`}>
+  return <div ref={rootRef} className={`time-wheel ${selectedIndex >= 0 ? "has-selection" : ""}`}>
     <span className="time-wheel-band" aria-hidden="true" />
     <div ref={wheelRef} className="time-wheel-scroll" role="group" aria-label="Slobodni termini, okreni točkić ili koristi strelice gore i dole" tabIndex={0} onScroll={onScroll} onKeyDown={onKeyDown} onWheel={markUserTurn} onTouchStart={markUserTurn} onPointerDown={markUserTurn}>
       {items.map((item, index) => {

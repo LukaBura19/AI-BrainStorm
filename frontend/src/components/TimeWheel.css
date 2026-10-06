@@ -24,6 +24,13 @@
 .time-wheel-row--taken .time-wheel-time { text-decoration: line-through; text-decoration-thickness: 2px; }
 .time-wheel-row--taken small { color: #c4bcae; font-size: 13px; }
 
+/* Turning: light band, the time passing through it in forest green. */
+.time-wheel.is-turning .time-wheel-band { border: 1.5px solid var(--forest); background: var(--forest-soft); box-shadow: none; transition: none; }
+.time-wheel.is-turning .time-wheel-row.selected { color: var(--ink); }
+.time-wheel.is-turning .time-wheel-row.selected .time-wheel-time { font-size: 30px; }
+.time-wheel.is-turning .time-wheel-row.selected .booking-slot-end { display: none; }
+.time-wheel.is-turning .time-wheel-row.in-band:not(.time-wheel-row--taken) { color: var(--forest); }
+.time-wheel.is-turning .time-wheel-row.in-band .booking-slot-end { color: var(--forest); }
 .time-wheel-arrows { position: absolute; top: 50%; right: 12px; z-index: 4; display: grid; gap: 8px; transform: translateY(-50%); }
 .time-wheel-arrows button { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--color-border-strong); border-radius: 50%; background: #fff; color: var(--forest); cursor: pointer; transition: border-color .2s, background .2s; }
 .time-wheel-arrows button:hover { border-color: var(--forest); background: var(--forest-tint); }

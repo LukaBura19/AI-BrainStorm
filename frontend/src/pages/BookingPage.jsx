@@ -15,7 +15,7 @@ import TypewriterText from "../components/TypewriterText";
 import TeacherAvatar from "../components/TeacherAvatar";
 import TimeWheel from "../components/TimeWheel";
 import { sparkBurst } from "../utils/effects";
-import { BookingSavingOverlay, BookingThanksDialog } from "../components/RunningBrain";
+import { BookingSavingOverlay } from "../components/RunningBrain";
 import {
   compareSrLatn,
   formatTimeLatn,
@@ -149,7 +149,6 @@ function BookingPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [bookingResult, setBookingResult] = useState(null);
-  const [showThanks, setShowThanks] = useState(false);
   const pageRef = useRef(null);
   const lastScreen = useRef({ step, bookingResult });
   const submittingRef = useRef(false);
@@ -302,7 +301,6 @@ function BookingPage() {
       const minimumRun = new Promise((resolve) => setTimeout(resolve, reducedMotion ? 0 : 1600));
       const [result] = await Promise.all([api.postFormData("/public/bookings", payload), minimumRun]);
       setBookingResult(result);
-      setShowThanks(true);
     } catch (requestError) {
       if (requestError.status === 409 || /zauzet|zakazan/i.test(requestError.message)) {
         setDirection(-1);
@@ -323,7 +321,7 @@ function BookingPage() {
     setStep(1); setSelectedSubject(null); setSelectedTeacher(null); setSelectedDuration(null);
     setDeliveryMode("in_person"); setSessionType("individual"); setSelectedDate(""); setSelectedSlot(null);
     setClientName(""); setClientEmail(""); setClientCategory(""); setClientNote(""); setAttachmentFiles([]);
-    setFormErrors({}); setError(""); setBookingResult(null); setShowThanks(false);
+    setFormErrors({}); setError(""); setBookingResult(null);
   };
 
   // Keep the new screen in view and move focus to its heading once it has mounted.
@@ -340,15 +338,14 @@ function BookingPage() {
     const resultChanged = lastScreen.current.bookingResult !== bookingResult;
     lastScreen.current = { step, bookingResult };
     // Step changes are focused by StepHeading on mount; result screens are handled here.
-    // The confirmation is a new screen: start it at the top. While the thank-you dialog is open
-    // it owns focus; closing it returns focus to the page.
+    // The confirmation is a new screen: start it at the top.
     if (resultChanged && bookingResult) window.scrollTo({ top: 0, behavior: "instant" });
-    if (resultChanged && !showThanks) {
+    if (resultChanged) {
       const frame = requestAnimationFrame(focusScreen);
       return () => cancelAnimationFrame(frame);
     }
     return undefined;
-  }, [step, bookingResult, reducedMotion, focusScreen, showThanks]);
+  }, [step, bookingResult, reducedMotion, focusScreen]);
 
   const price = useMemo(() => {
     if (!selectedDuration) return null;
@@ -395,16 +392,10 @@ function BookingPage() {
     setSelectedSlot(null);
   };
 
-  const closeThanks = useCallback(() => {
-    setShowThanks(false);
-    requestAnimationFrame(() => pageRef.current?.querySelector(".booking-success h1")?.focus({ preventScroll: true }));
-  }, []);
-
   if (bookingResult) {
     const mailStatus = bookingResult.notification_delivery?.status;
     return (
       <div ref={pageRef} className="booking-page studio booking-page--success">
-        {showThanks && <BookingThanksDialog onClose={closeThanks} />}
         <section className="booking-success" aria-labelledby="success-title">
           <div className="booking-success-hero">
             <span className="booking-success-icon" aria-hidden="true">

@@ -3,38 +3,31 @@
 .brain-overlay { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; background: color-mix(in srgb, var(--paper) 86%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: brain-fade .3s ease both; }
 @keyframes brain-fade { from { opacity: 0; } }
 
-/* ---- Saving: the brain runs across a dashed track ---- */
+/* ---- Saving: the brain runs right to left across a dashed track ---- */
 .brain-run { width: min(520px, 100%); display: grid; justify-items: center; gap: 18px; }
 .brain-run p { color: var(--color-text-secondary); font: 500 17px/1.3 var(--font-display); }
 .brain-run-track { position: relative; width: 100%; height: 120px; overflow: hidden; }
 .brain-run-ground { position: absolute; left: 0; right: 0; bottom: 14px; height: 2px; background: repeating-linear-gradient(90deg, var(--color-border-strong) 0 10px, transparent 10px 18px); animation: brain-ground .45s linear infinite; }
-@keyframes brain-ground { to { background-position: -18px 0; } }
+@keyframes brain-ground { to { background-position: 18px 0; } }
 .brain-run-runner { position: absolute; bottom: 14px; left: 0; width: 120px; animation: brain-across 2.4s cubic-bezier(.45, 0, .55, 1) infinite; }
+/* The artwork faces right; mirror it so it runs toward the left. */
+.brain-run-runner .brain-mark { scale: -1 1; }
 .brain-run-mark { animation: brain-stride .32s ease-in-out infinite alternate; transform-origin: 50% 90%; }
-@keyframes brain-across { 0% { transform: translateX(-130px); } 100% { transform: translateX(560px); } }
+@keyframes brain-across { 0% { transform: translateX(560px); } 100% { transform: translateX(-130px); } }
 @keyframes brain-stride { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-9px) rotate(4deg); } }
-.brain-run-speedlines { position: absolute; top: 34%; left: -36px; display: grid; gap: 7px; }
+.brain-run-speedlines { position: absolute; top: 34%; right: -36px; display: grid; justify-items: end; gap: 7px; }
 .brain-run-speedlines i { display: block; height: 3px; border-radius: 3px; background: var(--terra); opacity: .55; animation: brain-lines .32s ease-in-out infinite alternate; }
 .brain-run-speedlines i:nth-child(1) { width: 26px; }
-.brain-run-speedlines i:nth-child(2) { width: 18px; margin-left: 8px; animation-delay: .1s; }
+.brain-run-speedlines i:nth-child(2) { width: 18px; margin-right: 8px; animation-delay: .1s; }
 .brain-run-speedlines i:nth-child(3) { width: 22px; animation-delay: .2s; }
-@keyframes brain-lines { from { transform: translateX(0); opacity: .2; } to { transform: translateX(-8px); opacity: .6; } }
-.brain-run-dust { position: absolute; left: 6px; bottom: -2px; display: flex; gap: 5px; }
+@keyframes brain-lines { from { transform: translateX(0); opacity: .2; } to { transform: translateX(8px); opacity: .6; } }
+.brain-run-dust { position: absolute; right: 6px; bottom: -2px; display: flex; gap: 5px; }
 .brain-run-dust i { width: 7px; height: 7px; border-radius: 50%; background: var(--color-border-strong); animation: brain-dust .64s ease-out infinite; }
 .brain-run-dust i:nth-child(2) { animation-delay: .2s; }
 .brain-run-dust i:nth-child(3) { animation-delay: .4s; }
-@keyframes brain-dust { from { transform: translate(0, 0) scale(1); opacity: .8; } to { transform: translate(-18px, -10px) scale(.2); opacity: 0; } }
-
-/* ---- Thanks dialog ---- */
-.brain-thanks { width: min(520px, 100%); display: grid; justify-items: center; gap: 12px; padding: 36px 32px 30px; border: 1px solid var(--color-border); border-radius: 26px; background: var(--card); box-shadow: var(--shadow-lg); text-align: center; animation: brain-pop .55s cubic-bezier(.16, 1, .3, 1) both; }
-@keyframes brain-pop { from { opacity: 0; transform: translateY(24px) scale(.96); } }
-.brain-thanks-mark { width: 150px; margin-bottom: 4px; animation: brain-hop .9s cubic-bezier(.3, 0, .3, 1) .2s 2 both; }
-@keyframes brain-hop { 0%, 100% { transform: translateY(0) rotate(0); } 35% { transform: translateY(-22px) rotate(-6deg); } 60% { transform: translateY(0) rotate(3deg); } }
-.brain-thanks h2 { max-width: 22ch; font: 650 clamp(24px, 3vw, 30px)/1.15 var(--font-display); letter-spacing: -.02em; }
-.brain-thanks p { color: var(--terra); font: 650 22px/1.2 var(--font-display); }
-.brain-thanks .btn { min-height: 50px; margin-top: 10px; padding-inline: 24px; border-radius: 14px; }
+@keyframes brain-dust { from { transform: translate(0, 0) scale(1); opacity: .8; } to { transform: translate(18px, -10px) scale(.2); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .brain-overlay, .brain-run-runner, .brain-run-mark, .brain-run-ground, .brain-run-speedlines i, .brain-run-dust i, .brain-thanks, .brain-thanks-mark { animation: none; }
+  .brain-overlay, .brain-run-runner, .brain-run-mark, .brain-run-ground, .brain-run-speedlines i, .brain-run-dust i { animation: none; }
   .brain-run-runner { left: 50%; transform: translateX(-50%); }
 }

@@ -154,8 +154,10 @@ async function toClient(page, capture = async () => {}, { expectedSlots = 12 } =
   await expect(page.locator(".booking-slot-card")).toHaveCount(expectedSlots);
   await expect(page.locator(".booking-slot-card").first().locator(".booking-slot-start")).toHaveText("Početak časa08:00");
   await expect(page.locator(".booking-slot-card").first().locator(".booking-slot-end")).toHaveText("Završetak09:00");
-  await page.locator(".booking-slot-card").first().click();
+  // Check the step on arrival; choosing a wheel row may scroll the page on narrow screens.
   await capture(6);
+  await page.locator(".booking-slot-card").first().click();
+  await expect(page.locator(".booking-slot-card").first()).toHaveAttribute("aria-pressed", "true");
   await next(page);
   await expect(page.locator(".booking-form-panel")).toHaveCount(3);
   await expect(page.locator(".booking-details-section-head h3")).toHaveText(["Kontakt", "O času", "Materijali"]);
@@ -222,8 +224,6 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 375, height: 812
     await expect(summary).toHaveCount(0);
     await expect(page.locator(".booking-review")).toContainText("Luka Bura");
     await page.getByRole("button", { name: "Potvrdi rezervaciju" }).click();
-    await expect(page.getByRole("dialog")).toContainText("Hvala vam što ste zakazali čas");
-    await page.getByRole("button", { name: "Pogledaj detalje časa" }).click();
     await expect(page.getByRole("heading", { name: "Vidimo se na času!" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Vidimo se na času!" })).toBeInViewport();
     await expect(page.locator(".booking-success-contact")).toContainText("Ana Jovanović");

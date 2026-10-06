@@ -96,9 +96,6 @@ test("kompletan javni tok: Luka, prilog, tri MailHog test poruke i otkazivanje",
   await expect(page.getByRole("heading", { name: /Potvrdi rezervaciju/i })).toBeVisible();
   const bookingResponse = page.waitForResponse((response) => response.url().includes("/public/bookings") && response.request().method() === "POST");
   await page.getByRole("button", { name: /Potvrdi rezervaciju/i }).click();
-  // The thank-you dialog appears once the booking is saved; close it to see the details.
-  await expect(page.getByRole("dialog")).toContainText("Hvala vam što ste zakazali čas");
-  await page.getByRole("button", { name: "Pogledaj detalje časa" }).click();
 
   await expect(page.getByRole("heading", { name: /Vidimo se na času/i })).toBeVisible();
   expect((await (await bookingResponse).json()).notification_delivery).toEqual({ sent: 0, captured: 3, failed: 0, total: 3, status: "captured" });
@@ -154,9 +151,6 @@ test("alternativni tok: grupni čas uživo od 90 minuta dobija učionicu", async
   await page.locator("#client-category").selectOption("faks");
   await page.getByRole("button", { name: /Pregledaj/i }).click();
   await page.getByRole("button", { name: /Potvrdi rezervaciju/i }).click();
-  // The thank-you dialog appears once the booking is saved; close it to see the details.
-  await expect(page.getByRole("dialog")).toContainText("Hvala vam što ste zakazali čas");
-  await page.getByRole("button", { name: "Pogledaj detalje časa" }).click();
 
   await expect(page.getByRole("heading", { name: /Vidimo se na času/i })).toBeVisible();
   await expect(page.getByText("Uživo · Grupni")).toBeVisible();

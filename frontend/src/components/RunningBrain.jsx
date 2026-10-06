@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from "react";
+import { useId } from "react";
 import { createPortal } from "react-dom";
 import "./RunningBrain.css";
 
@@ -27,28 +27,6 @@ export function BookingSavingOverlay() {
         <span className="brain-run-ground" />
       </div>
       <p>Čuvamo tvoj termin…</p>
-    </div>
-  </div>, document.body);
-}
-
-/** Thank-you dialog shown once the booking is saved. */
-export function BookingThanksDialog({ onClose }) {
-  const buttonRef = useRef(null);
-  useEffect(() => {
-    buttonRef.current?.focus();
-    const onKey = (event) => { if (event.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = previousOverflow; };
-  }, [onClose]);
-
-  return createPortal(<div className="brain-overlay brain-overlay--thanks" onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <div className="brain-thanks" role="dialog" aria-modal="true" aria-labelledby="thanks-title">
-      <span className="brain-thanks-mark"><BrainMark /></span>
-      <h2 id="thanks-title">Hvala vam što ste zakazali čas u Edukativnom centru BrainStorm.</h2>
-      <p>Vidimo se!</p>
-      <button ref={buttonRef} type="button" className="btn btn-primary" onClick={onClose}>Pogledaj detalje časa</button>
     </div>
   </div>, document.body);
 }
