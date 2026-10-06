@@ -15,11 +15,9 @@ export const PREP_PAGES = {
   },
   velika: {
     title: "Priprema za veliku maturu",
-    lead: "Matura na kraju srednje škole i prijemni ispiti. Ovde će biti snimci predavanja i rešeni zadaci, poređani po predmetima i oblastima.",
+    lead: "Matematika za maturu i prijemne ispite na fakultetima. Ovde će biti snimci predavanja i rešeni zadaci sa prijemnih ispita.",
     subjects: [
-      { name: "Srpski jezik i književnost", topics: "Jezik, književni periodi, analiza teksta, pismeni sastav", lectures: [] },
-      { name: "Matematika", topics: "Funkcije, trigonometrija, analiza, verovatnoća", lectures: [] },
-      { name: "Izborni predmet", topics: "Informatika, fizika, hemija, strani jezici", lectures: [] },
+      { name: "Matematika", topics: "PMF, ETF, FON, Mašinski, Građevinski, Ekonomski", lectures: [] },
     ],
   },
 };
