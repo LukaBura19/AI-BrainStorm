@@ -13,6 +13,7 @@ import TeacherPreviewCards from "../components/TeacherPreviewCards";
 import BookingDetailsForm from "../components/BookingDetailsForm";
 import TypewriterText from "../components/TypewriterText";
 import TeacherAvatar from "../components/TeacherAvatar";
+import TimeWheel from "../components/TimeWheel";
 import { sparkBurst } from "../utils/effects";
 import { BookingSavingOverlay, BookingThanksDialog } from "../components/RunningBrain";
 import {
@@ -382,6 +383,8 @@ function BookingPage() {
     return [...rows.entries()].map(([hour, cells]) => ({ hour, cells }));
   }, [sortedSlots, selectedDuration]);
 
+  const wheelItems = useMemo(() => timeRows.flatMap((row) => row.cells).map(({ minute, slot }) => ({ minute, slot, label: clockLabel(minute) })), [timeRows]);
+
   const dateIndex = dateOptions.findIndex((date) => date.value === selectedDate);
   const selectedDateInfo = dateOptions[dateIndex];
   const longDate = (value) => formatTimestampDateLatn(`${value}T12:00:00Z`).replace(/\s\d{4}\.$/, "");
@@ -570,18 +573,18 @@ function BookingPage() {
         </div>
         {slotsLoading ? <Spinner text="Proveravamo slobodne termine…" /> : sortedSlots.length === 0 ? (
           <div className="booking-empty"><p>Za ovaj dan nema slobodnih termina.</p><div><button type="button" className="btn btn-secondary" onClick={goBack}>Promeni datum</button><button type="button" className="btn btn-secondary" onClick={() => loadSlots()}>Osveži</button></div></div>
-        ) : <div className="booking-time-planner" role="group" aria-label="Slobodni termini" style={{ "--rows": Math.ceil(timeRows.length / 2) }}>
-          {timeRows.map(({ hour, cells }, rowIndex) => <div key={hour} className="booking-time-row fx-rise" style={{ "--i": rowIndex * .5 }}>
-            <span className="booking-time-hour" aria-hidden="true">{String(hour).padStart(2, "0")}</span>
-            <div className="booking-time-cells">{cells.map(({ minute, slot }) => {
-              if (!slot) return <span key={minute} className="booking-time-taken" aria-label={`${clockLabel(minute)}, zauzeto`}>{clockLabel(minute)}</span>;
-              const selected = selectedSlot?.start_time === slot.start_time;
-              return <ScienceCard key={slot.start_time} type="button" className={`booking-slot-card ${selected ? "selected" : ""}`} aria-pressed={selected} onClick={(event) => { sparkBurst(event.currentTarget, event, { count: 8 }); setSelectedSlot(slot); }}>
-                <span className="booking-slot-start"><small>Početak časa</small><strong>{formatTimeLatn(slot.start_time)}</strong></span>
-                <span className="booking-slot-end"><small>Završetak</small><strong>{formatTimeLatn(slot.end_time)}</strong></span>
-              </ScienceCard>;
-            })}</div>
-          </div>)}
+        ) : <div className="booking-time-wheel">
+          <TimeWheel items={wheelItems} selected={selectedSlot} onSelect={setSelectedSlot} reducedMotion={reducedMotion} />
+          <div className="booking-time-side" aria-live="polite">
+            {selectedSlot ? <strong className="booking-time-readout">{slotLabel}</strong> : <strong className="booking-time-readout is-empty">--:--</strong>}
+            <p>{selectedSlot ? `${longDate(selectedDate)} · ${selectedDuration} minuta` : "Okreni točkić mišem, prstom ili strelicama. Zauzeti termini su precrtani i preskaču se."}</p>
+            <div className="booking-time-keys" aria-hidden="true"><span>↑ ranije</span><span>↓ kasnije</span></div>
+            <div className="booking-time-daybar" aria-hidden="true">
+              {wheelItems.filter((item) => !item.slot).map((item) => <i key={item.minute} className="is-taken" style={{ "--from": (item.minute - WORK_START) / (WORK_END - WORK_START), "--to": (item.minute + SLOT_STEP_MINUTES - WORK_START) / (WORK_END - WORK_START) }} />)}
+              {selectedSlot && <i className="is-picked" style={{ "--from": (minutesOfDay(selectedSlot.start_time) - WORK_START) / (WORK_END - WORK_START), "--to": (minutesOfDay(selectedSlot.end_time) - WORK_START) / (WORK_END - WORK_START) }} />}
+            </div>
+            <div className="booking-time-daylabels" aria-hidden="true"><span>08h</span><span>12h</span><span>16h</span><span>20h</span></div>
+          </div>
         </div>}
         <StepActions onBack={goBack} onNext={goNext} nextDisabled={!selectedSlot} />
       </>;
@@ -661,7 +664,7 @@ function BookingPage() {
       {submitting && <BookingSavingOverlay />}
       <JourneyProgress steps={STEPS} currentStep={step} values={journeyValues} onStepClick={goTo} />
 
-      <div className="booking-shell">
+      <div className={`booking-shell ${step === STEPS.length ? "booking-shell--solo" : ""}`}>
         <div className="booking-workspace">
           <section className="booking-panel" data-step={step}>
             {error && <Alert type="error" onClose={() => setError("")}>{error}</Alert>}
@@ -673,7 +676,8 @@ function BookingPage() {
           </section>
         </div>
 
-        <LiveTicket rows={summaryRows} step={step} totalSteps={STEPS.length} price={price} />
+        {/* The review step already shows every choice, so the running summary would only repeat it. */}
+        {step !== STEPS.length && <LiveTicket rows={summaryRows} step={step} totalSteps={STEPS.length} price={price} />}
       </div>
     </div>
   );

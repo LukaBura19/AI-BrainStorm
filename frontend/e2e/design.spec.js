@@ -202,8 +202,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 375, height: 812
     expect(api.submissions).toHaveLength(0);
     await clientDetails(page);
     await expect(page.getByText("zadatak.pdf", { exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "Pregledaj" }).click();
-    await capture(8);
+    // The running summary is checked on the details step; the review step shows everything itself.
     const summary = page.getByRole("complementary", { name: "Pregled izbora" });
     if (viewport.width < 821) {
       const toggle = summary.getByRole("button", { name: /Tvoj izbor/ });
@@ -218,6 +217,10 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 375, height: 812
       expect(summaryBox.x).toBeGreaterThan(panelBox.x + panelBox.width);
       await expect(summary).toContainText("Luka Bura");
     }
+    await page.getByRole("button", { name: "Pregledaj" }).click();
+    await capture(8);
+    await expect(summary).toHaveCount(0);
+    await expect(page.locator(".booking-review")).toContainText("Luka Bura");
     await page.getByRole("button", { name: "Potvrdi rezervaciju" }).click();
     await expect(page.getByRole("dialog")).toContainText("Hvala vam što ste zakazali čas");
     await page.getByRole("button", { name: "Pogledaj detalje časa" }).click();
