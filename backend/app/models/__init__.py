@@ -4,6 +4,7 @@
 from app.models.subject import Subject
 from app.models.teacher import Teacher
 from app.models.admin import Admin
+from app.models.student import Student
 from app.models.teacher_subject import TeacherSubject
 from app.models.teacher_availability import TeacherAvailability
 from app.models.booking import Booking
@@ -13,6 +14,7 @@ __all__ = [
     "Subject",
     "Teacher",
     "Admin",
+    "Student",
     "TeacherSubject",
     "TeacherAvailability",
     "Booking",

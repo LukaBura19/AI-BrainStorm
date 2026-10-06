@@ -11,6 +11,8 @@ class Booking(Base):
     id = Column(Integer, primary_key=True, index=True)
     subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="RESTRICT"), nullable=False)
     teacher_id = Column(Integer, ForeignKey("teachers.id", ondelete="RESTRICT"), nullable=False, index=True)
+    # Popunjeno samo kada je čas zakazan dok je učenik bio prijavljen (ne po email adresi).
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="SET NULL"), nullable=True, index=True)
 
     # Podaci o klijentu
     client_full_name = Column(String(255), nullable=False)
@@ -57,6 +59,7 @@ class Booking(Base):
     # Relationships
     subject = relationship("Subject", back_populates="bookings")
     teacher = relationship("Teacher", back_populates="bookings")
+    student = relationship("Student", back_populates="bookings")
     attachments = relationship(
         "BookingAttachment",
         back_populates="booking",

@@ -95,7 +95,8 @@ function Layout() {
   const role = localStorage.getItem("role");
   const teacherLoggedIn = Boolean(token && role === "teacher");
   const adminLoggedIn = Boolean(token && role === "admin");
-  const loggedIn = teacherLoggedIn || adminLoggedIn;
+  const studentLoggedIn = Boolean(token && role === "student");
+  const loggedIn = teacherLoggedIn || adminLoggedIn || studentLoggedIn;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -167,6 +168,22 @@ function Layout() {
                 Cenovnik
               </NavLink>
               <NavLink
+                to="/mala-matura"
+                className={({ isActive }) =>
+                  `app-nav-link ${isActive ? "active" : ""}`
+                }
+              >
+                Mala matura
+              </NavLink>
+              <NavLink
+                to="/velika-matura"
+                className={({ isActive }) =>
+                  `app-nav-link ${isActive ? "active" : ""}`
+                }
+              >
+                Velika matura
+              </NavLink>
+              <NavLink
                 to="/o-nama"
                 className={({ isActive }) =>
                   `app-nav-link ${isActive ? "active" : ""}`
@@ -228,6 +245,19 @@ function Layout() {
                     transition={{ duration: 0.18 }}
                   >
                     <p className="app-login-panel-title">Pristup sistemu</p>
+                    <Link
+                      to={studentLoggedIn ? "/ucenik/panel" : "/ucenik/prijava"}
+                      className="app-login-panel-item"
+                      role="menuitem"
+                    >
+                      <span className="app-login-panel-icon app-login-panel-icon--student">U</span>
+                      <span>
+                        <strong>Učenik</strong>
+                        <small>
+                          {studentLoggedIn ? "Moji časovi" : "Prijavi se ili napravi nalog"}
+                        </small>
+                      </span>
+                    </Link>
                     <Link
                       to={
                         teacherLoggedIn

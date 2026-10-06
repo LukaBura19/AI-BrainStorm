@@ -158,6 +158,22 @@ function BookingPage() {
   // The current public design features Luka; keep real IDs and subject eligibility from the API.
   const displayedTeachers = teachers.filter((teacher) => teacher.full_name?.trim().toLocaleLowerCase("sr-Latn") === "luka bura");
 
+  // A signed-in student gets their name, email and level filled in; the lesson is linked to their account.
+  const [student, setStudent] = useState(null);
+  useEffect(() => {
+    if (localStorage.getItem("role") !== "student" || !localStorage.getItem("token")) return undefined;
+    const controller = new AbortController();
+    api.get("/student/me", { signal: controller.signal })
+      .then((me) => {
+        setStudent(me);
+        setClientName((current) => current || me.full_name);
+        setClientEmail((current) => current || me.email);
+        if (me.category) setClientCategory((current) => current || me.category);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+
   const loadSubjects = useCallback(async (signal) => {
     setSubjectsLoading(true);
     setError("");
@@ -582,6 +598,7 @@ function BookingPage() {
 
       case 7: return <>
         {heading("Unesi svoje podatke", "Podatke koristimo samo za ovu rezervaciju i obaveštenja o času.")}
+        {student && <p className="booking-student-note"><UserRound size={16} aria-hidden="true" /> Zakazuješ sa naloga <strong>{student.full_name}</strong>. Čas će se pojaviti u tvom panelu <Link to="/ucenik/panel">Moji časovi</Link>.</p>}
         <BookingDetailsForm
           clientName={clientName}
           clientEmail={clientEmail}

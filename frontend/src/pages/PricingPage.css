@@ -5,9 +5,6 @@
 .pricing-header h1 em { color: var(--forest); font-family: var(--font-editorial); font-style: normal; font-weight: 500; }
 .pricing-header > span { color: var(--color-text-secondary); font-size: .95rem; }
 
-.pricing-section-heading { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: end; margin-bottom: 1.4rem; }
-.pricing-section-heading > span { color: var(--terra); font-size: .7rem; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; }
-.pricing-section-heading h2 { font-size: clamp(1.6rem, 2.8vw, 2.4rem); font-weight: 500; letter-spacing: -.02em; }
 
 .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
 .pricing-grid > div { min-width: 0; height: 100%; }
@@ -46,20 +43,22 @@
 .pricing-grid article.featured .btn-primary { background: var(--terra); box-shadow: none; }
 .pricing-grid article.featured .btn-primary:hover:not(:disabled) { background: var(--terra-hover); }
 
-.pricing-faculty { margin-top: 3rem; padding: clamp(1.5rem, 4vw, 2.6rem); display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 2rem; border: 1px solid var(--color-border); border-radius: 22px; background: var(--terra-soft); }
-.pricing-faculty-icon { width: 62px; height: 62px; display: grid; place-items: center; border-radius: 16px; background: var(--terra); color: #fff; }
-.pricing-faculty > div > p { color: var(--terra); font-size: .7rem; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; }
-.pricing-faculty h2 { margin: .3rem 0; font-size: clamp(1.4rem, 2.6vw, 2.1rem); font-weight: 500; letter-spacing: -.02em; }
-.pricing-faculty > div > span { color: var(--color-text-secondary); font-size: .88rem; }
-.pricing-faculty > strong { color: var(--ink); font: 600 2.2rem/1 var(--font-display); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.pricing-faculty > strong small { color: var(--color-text-muted); font: 600 .7rem/1 var(--font-family); }
 .pricing-footnote { max-width: 650px; margin: 2rem auto 0; color: var(--color-text-muted); font-size: .82rem; line-height: 1.8; text-align: center; }
 
 @media (max-width: 800px) {
   .pricing-grid { grid-template-columns: 1fr; }
   .pricing-grid article.pricing-card { min-height: 0; }
-  .pricing-faculty { grid-template-columns: 1fr; justify-items: center; text-align: center; }
-  .pricing-faculty .btn { width: 100%; }
 }
-@media (max-width: 520px) { .pricing-section-heading { grid-template-columns: 1fr; text-align: center; } }
+
 @media (prefers-reduced-motion: reduce) { .pricing-ring-fill { animation: none; } .pricing-grid article.pricing-card { transition: none; } }
+
+/* ---- Two sections: school and university ---- */
+.pricing-header { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+.pricing-header h1 { margin: 0 0 .9rem; }
+.pricing-main + .pricing-main { margin-top: clamp(3rem, 6vw, 4.5rem); }
+.pricing-section-title { margin-bottom: 1.4rem; font: 650 clamp(1.6rem, 2.6vw, 2.2rem)/1.15 var(--font-display); letter-spacing: -.02em; }
+.pricing-main--fakultet .pricing-grid { grid-template-columns: repeat(3, 1fr); }
+.pricing-main--fakultet .pricing-card { --tone: #1f4d3a; }
+@media (max-width: 800px) {
+  .pricing-main--fakultet .pricing-grid { grid-template-columns: 1fr; }
+}

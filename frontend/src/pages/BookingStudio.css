@@ -227,6 +227,11 @@
 /* =====================================================================
    Step 8 — review
    ===================================================================== */
+.booking-student-note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: -8px 0 18px; padding: 12px 16px; border-radius: 12px; background: var(--forest-tint); color: var(--color-text-secondary); font-size: 14.5px; }
+.booking-student-note svg { color: var(--forest); }
+.booking-student-note strong { color: var(--ink); }
+.booking-student-note a { color: var(--forest); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
 /* Two cards: the lesson on forest, the client's details on paper. */
 .booking-review { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; align-items: stretch; }
 .booking-review-lesson { padding: 26px 28px; border-radius: 20px; background: var(--forest); color: #fff; }

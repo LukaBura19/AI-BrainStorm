@@ -118,6 +118,19 @@ Test pristupi:
 |-------|-------|---------|
 | Admin | `admin@brainstorm.com` | `admin123` |
 | Profesor Luka Bura | `lukabura89@gmail.com` | `profesor123` |
+| Učenik | napravi nalog na `/ucenik/prijava` → „Novi nalog“ | min. 8 karaktera |
+
+Učenici se sami registruju. Časovi zakazani dok je učenik prijavljen vezuju se za
+njegov nalog i vide se u panelu „Moji časovi“ (`/ucenik/panel`), sa linkom za
+otkazivanje. Časovi zakazani bez prijave se ne prikazuju u panelu, čak ni ako je
+email isti, da niko ne bi mogao da vidi tuđe časove registracijom na tuđu adresu.
+
+### Snimci predavanja (mala i velika matura)
+
+Stranice `/mala-matura` i `/velika-matura` čitaju snimke iz
+`frontend/src/data/prepLectures.js`. Novi snimak se dodaje u `lectures` niz
+predmeta, npr. `{ title: "Razlomci, 1. deo", duration: "42 min", youtubeId: "..." }`
+(`youtubeId` je deo YouTube linka posle `v=`). Dok je niz prazan, prikazuje se „Snimci uskoro“.
 
 > Pre produkcije obavezno promeni podrazumevanu admin lozinku i `SECRET_KEY`.
 

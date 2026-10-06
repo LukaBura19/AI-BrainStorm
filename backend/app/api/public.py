@@ -9,7 +9,9 @@ from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.orm import Session, joinedload
 
+from app.core.deps import get_optional_student
 from app.db.session import get_db
+from app.models.student import Student
 from app.models.booking import Booking
 from app.models.booking_attachment import BookingAttachment
 from app.models.subject import Subject
@@ -222,9 +224,11 @@ def create_booking(
     session_type: str = Form("individual"),
     attachments: Optional[List[UploadFile]] = File(None),
     db: Session = Depends(get_db),
+    student: Optional[Student] = Depends(get_optional_student),
 ):
     """
-    Kreira novu rezervaciju časa (multipart/form-data). Javni endpoint — bez autentikacije.
+    Kreira novu rezervaciju časa (multipart/form-data). Javni endpoint — bez obavezne autentikacije;
+    ako je poslat važeći učenički token, čas se vezuje za taj učenički nalog.
 
     Opcioni prilozi: PDF, JPG, PNG ili WEBP (do MAX_BOOKING_ATTACHMENTS fajlova, veličina po konfiguraciji).
 
@@ -428,6 +432,7 @@ def create_booking(
         status="confirmed",
         classroom_number=classroom,
         client_cancel_token=cancel_token,
+        student_id=student.id if student else None,
     )
     db.add(booking)
     stored_attachment_names: list[str] = []

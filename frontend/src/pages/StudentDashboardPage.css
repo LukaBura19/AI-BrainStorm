@@ -1,0 +1,25 @@
+.student-dashboard { width: min(1080px, 100%); margin: 0 auto; padding: clamp(28px, 5vw, 56px) var(--page-gutter) 72px; }
+.student-section { margin-top: 32px; }
+.student-section header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.student-section h2 { font: 650 clamp(22px, 2.2vw, 28px)/1.2 var(--font-display); letter-spacing: -.02em; }
+.student-section header .btn { gap: 8px; border-radius: 12px; }
+.student-lessons { display: grid; gap: 12px; }
+.student-lesson { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; align-items: center; gap: 20px; padding: 18px 22px; border: 1px solid var(--color-border); border-radius: 18px; background: var(--card); box-shadow: var(--shadow-sm); }
+.student-lesson-date { display: grid; gap: 2px; padding-right: 18px; border-right: 1px solid var(--color-border); }
+.student-lesson-date strong { font: 650 28px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.student-lesson-date span { color: var(--color-text-muted); font-size: 13px; }
+.student-lesson-body h3 { font: 600 19px/1.2 var(--font-display); }
+.student-lesson-body p { margin-top: 3px; color: var(--color-text-secondary); font-size: 14px; }
+.student-lesson-place { display: flex; align-items: center; gap: 6px; }
+.student-lesson-place svg { color: var(--forest); }
+.student-lesson-cancel { color: var(--color-error); font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.student-lesson-status { padding: 4px 10px; border-radius: 999px; background: var(--terra-soft); color: var(--terra); font-size: 12.5px; font-weight: 600; }
+.student-lesson-status.is-done { background: var(--forest-soft); color: var(--forest); }
+.student-lesson.is-cancelled { opacity: .7; }
+.student-empty { display: grid; justify-items: center; gap: 12px; padding: 36px 20px; border: 1.5px dashed var(--color-border-strong); border-radius: 18px; color: var(--color-text-secondary); text-align: center; }
+.student-note { margin-top: 28px; color: var(--color-text-muted); font-size: 13.5px; }
+@media (max-width: 640px) {
+  .student-lesson { grid-template-columns: 1fr; gap: 10px; }
+  .student-lesson-date { display: flex; align-items: baseline; gap: 10px; padding: 0 0 10px; border-right: 0; border-bottom: 1px solid var(--color-border); }
+  .student-section header { flex-wrap: wrap; }
+}
