@@ -616,38 +616,38 @@ function BookingPage() {
       default: return <>
         {heading("Potvrdi rezervaciju")}
         <div className="booking-review">
-          <div className="booking-review-when">
-            <div className="booking-review-datetile" aria-hidden="true">
-              <span>{selectedDateInfo?.weekday}</span>
-              <strong>{selectedDateInfo?.day}</strong>
-              <small>{selectedDateInfo?.month}</small>
+          <section className="booking-review-lesson" aria-labelledby="review-lesson">
+            <h3 id="review-lesson" className="sr-only">Čas</h3>
+            <div className="booking-review-when">
+              <div className="booking-review-datetile" aria-hidden="true">
+                <span>{selectedDateInfo?.weekday}</span>
+                <strong>{selectedDateInfo?.day}</strong>
+                <small>{selectedDateInfo?.month}</small>
+              </div>
+              <div className="booking-review-time">
+                <strong>{formatTimeLatn(selectedSlot?.start_time)}–{formatTimeLatn(selectedSlot?.end_time)}</strong>
+                <span>{selectedDate ? longDate(selectedDate) : ""} · {selectedDuration} min</span>
+              </div>
             </div>
-            <div className="booking-review-time">
-              <strong>{formatTimeLatn(selectedSlot?.start_time)}–{formatTimeLatn(selectedSlot?.end_time)}</strong>
-              <span>{selectedDate ? longDate(selectedDate) : ""} · {selectedDuration} min</span>
-            </div>
-            {editButton(5, "datum i vreme")}
-          </div>
-
-          <section className="booking-review-block" aria-labelledby="review-lesson">
-            <h3 id="review-lesson">Čas</h3>
             <dl>
-              <div><dt><SubjectIcon name={selectedSubject?.name} size={17} /> Predmet</dt><dd>{selectedSubject?.name}</dd>{editButton(1, "predmet")}</div>
-              <div><dt><GraduationCap size={17} aria-hidden="true" /> Profesor</dt><dd>{selectedTeacher?.full_name}</dd>{editButton(2, "profesor")}</div>
-              <div><dt><Clock3 size={17} aria-hidden="true" /> Trajanje</dt><dd>{selectedDuration} minuta</dd>{editButton(3, "trajanje")}</div>
-              <div><dt>{deliveryMode === "online" ? <Video size={17} aria-hidden="true" /> : <MapPin size={17} aria-hidden="true" />} Vrsta</dt><dd>{deliveryLabel(deliveryMode)} · {sessionLabel(sessionType)}<small>{deliveryMode === "online" ? "Google Meet" : CENTER_ADDRESS}</small></dd>{editButton(4, "vrsta časa")}</div>
+              <div><dt>Termin</dt><dd>{selectedDate ? formatBookingDate(selectedDate) : ""} u {formatTimeLatn(selectedSlot?.start_time)}</dd>{editButton(5, "datum i vreme")}</div>
+              <div><dt>Predmet</dt><dd>{selectedSubject?.name}</dd>{editButton(1, "predmet")}</div>
+              <div><dt>Profesor</dt><dd>{selectedTeacher?.full_name}</dd>{editButton(2, "profesor")}</div>
+              <div><dt>Trajanje</dt><dd>{selectedDuration} minuta</dd>{editButton(3, "trajanje")}</div>
+              <div><dt>Vrsta</dt><dd>{deliveryLabel(deliveryMode)} · {sessionLabel(sessionType)}<small>{deliveryMode === "online" ? "Google Meet" : CENTER_ADDRESS}</small></dd>{editButton(4, "vrsta časa")}</div>
             </dl>
           </section>
 
-          <section className="booking-review-block" aria-labelledby="review-client">
-            <h3 id="review-client">Tvoji podaci</h3>
+          <section className="booking-review-person" aria-labelledby="review-client">
+            <header><h3 id="review-client">Tvoji podaci</h3>{editButton(7, "podaci")}</header>
             <dl>
-              <div><dt><UserRound size={17} aria-hidden="true" /> Ime</dt><dd>{clientName}</dd>{editButton(7, "podaci")}</div>
-              <div><dt><Mail size={17} aria-hidden="true" /> Email</dt><dd>{clientEmail}</dd></div>
-              <div><dt><School size={17} aria-hidden="true" /> Nivo</dt><dd>{categoryLabel(clientCategory)}</dd></div>
-              {clientNote && <div><dt><PenLine size={17} aria-hidden="true" /> Napomena</dt><dd>{clientNote}</dd></div>}
-              {attachmentFiles.length > 0 && <div><dt><Paperclip size={17} aria-hidden="true" /> Prilozi</dt><dd>{attachmentFiles.map((file) => file.name).join(", ")}</dd></div>}
+              <div><dt>Ime</dt><dd>{clientName}</dd></div>
+              <div><dt>Email</dt><dd>{clientEmail}</dd></div>
+              <div><dt>Nivo</dt><dd>{categoryLabel(clientCategory)}</dd></div>
+              {clientNote && <div><dt>Napomena</dt><dd>{clientNote}</dd></div>}
+              {attachmentFiles.length > 0 && <div><dt>Prilozi</dt><dd>{attachmentFiles.map((file) => file.name).join(", ")}</dd></div>}
             </dl>
+            <p className="booking-review-mail"><Mail size={16} aria-hidden="true" /> Potvrda i link za otkazivanje stižu na <strong>{clientEmail}</strong>.</p>
           </section>
         </div>
         <p className="booking-review-note"><CalendarDays size={16} aria-hidden="true" /> Potvrdom rezervacije, obaveštenje se šalje tebi i BrainStorm timu.</p>
