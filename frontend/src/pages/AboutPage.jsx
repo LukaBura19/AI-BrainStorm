@@ -23,7 +23,7 @@ const offers = [
   {
     icon: NotebookPen,
     title: "Privatni časovi",
-    text: "Časovi mogu biti individualni ili grupni, uživo u centru ili online. Predajemo matematiku, programiranje, srpski, hemiju, fiziku i filozofiju, a od stranih jezika engleski, nemački, ruski, španski i italijanski.",
+    text: "Časovi mogu biti individualni ili grupni, uživo ili online. Predajemo matematiku, programiranje, srpski, hemiju, fiziku i filozofiju, a od stranih jezika engleski, nemački, ruski, španski i italijanski.",
   },
   {
     icon: GraduationCap,
@@ -43,7 +43,8 @@ export default function AboutPage() {
       <section className="about-hero" aria-labelledby="about-title">
         <div className="about-hero-copy">
           <h1 id="about-title">Učimo zajedno, <em>korak po korak.</em></h1>
-          <p>BrainStorm je edukativni centar u Beogradu kakvih nema mnogo. Kod nas učenici imaju profesore koji su uz njih kroz celo školovanje, od osnovne škole do fakulteta. Profesore smo pažljivo birali i svi imaju iskustva u radu sa učenicima. Za pitanja i pomoć dostupni su i između časova.</p>
+          <p>BrainStorm je edukativni centar u Beogradu koji okuplja mlade i stručne profesore, ambiciozne i sa puno potencijala. Svi su visokoobrazovani i odlično poznaju svoju oblast, a uz učenike su kroz celo školovanje, od osnovne škole do fakulteta.</p>
+          <p>Pratimo šta je novo u obrazovanju i koristimo savremene tehnologije, pa su časovi zanimljivi i učenik na njima aktivno učestvuje. Kroz zadatke, izazove i elemente igre budimo radoznalost i držimo pažnju, a učenici onda nova znanja usvajaju sa više motivacije.</p>
           <div className="about-hero-actions">
             <Link to="/booking" className="btn btn-primary">Zakaži čas <ArrowRight size={16} aria-hidden="true" /></Link>
             <Link to="/cenovnik" className="btn btn-secondary">Pogledaj cenovnik</Link>

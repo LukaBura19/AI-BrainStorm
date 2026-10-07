@@ -35,7 +35,7 @@ function PriceCard({ minutes, amount, description, featured, tone }) {
     <p><strong>{minutes}</strong> minuta</p>
     <div><b><CountUp value={amount} /></b><small>RSD / čas</small></div>
     <span className="pricing-description">{description}</span>
-    <ul className="pricing-includes"><li><Check size={13} aria-hidden="true" /> Individualni rad sa profesorom</li><li><Check size={13} aria-hidden="true" /> U centru ili online</li></ul>
+    <ul className="pricing-includes"><li><Check size={13} aria-hidden="true" /> Individualni rad sa profesorom</li><li><Check size={13} aria-hidden="true" /> Uživo ili online</li></ul>
     <Link to="/booking" className={`btn ${featured ? "btn-primary" : "btn-secondary"}`}>Izaberi ovaj čas <ArrowRight size={15} aria-hidden="true" /></Link>
   </TiltSurface>;
 }

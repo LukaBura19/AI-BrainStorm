@@ -3,7 +3,7 @@
 /* ---- Hero ---- */
 .about-hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, .85fr); align-items: end; gap: clamp(32px, 5vw, 80px); }
 .about-hero h1 { max-width: 13ch; font: 650 clamp(44px, 5.4vw, 84px)/1 var(--font-display); letter-spacing: -.035em; text-wrap: balance; }
-.about-hero-copy > p { max-width: 58ch; margin-top: 24px; color: var(--color-text-secondary); font-size: clamp(17px, 1.25vw, 19px); line-height: 1.65; }
+.about-hero-copy > p { max-width: 62ch; margin-top: 24px; color: var(--color-text-secondary); font-size: clamp(17px, 1.25vw, 19px); line-height: 1.65; }
 .about-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
 .about-hero-actions .btn { min-height: 52px; padding-inline: 24px; border-radius: 14px; }
 
@@ -71,3 +71,4 @@
 @media (prefers-reduced-motion: reduce) {
   .about-offer, .about-quote-link, .about-offer-links a svg { transition: none; }
 }
+.about-hero-copy > p + p { margin-top: 14px; }
