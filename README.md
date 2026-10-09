@@ -3,7 +3,7 @@
 Web aplikacija za zakazivanje časova u **Edukativnom Centru BrainStorm**.
 
 Klijenti biraju predmet, profesora, datum, vreme i trajanje časa (45 / 60 / 90 min), unose svoje podatke i dobijaju email potvrdu. Profesori i admini imaju svoje panele za upravljanje rasporedom.
-Na stranicama za malu i veliku maturu su snimci rešenih zadataka, a uz svaki snimak AI asistent (Claude) kome učenik postavlja pitanja o zadacima.
+Na stranicama za malu i veliku maturu su snimci rešenih zadataka, a uz svaki snimak AI asistent (Claude) kome učenik postavlja pitanja o zadacima. Snimke vidi samo učenik koji je platio pristup (50 € po pripremi); plaćanjem se automatski pravi učenički nalog.
 
 ---
 
@@ -122,6 +122,7 @@ Test pristupi:
 | Admin | `admin@brainstorm.com` | `admin123` |
 | Profesor Luka Bura | `lukabura89@gmail.com` | `profesor123` |
 | Učenik | napravi nalog na `/ucenik/prijava` → „Napravi nalog“ | min. 8 karaktera |
+| Učenik sa plaćenom malom i velikom maturom | `matura@brainstorm.com` | `matura123` |
 
 Učenici se sami registruju. Časovi zakazani dok je učenik prijavljen vezuju se za
 njegov nalog i vide se u panelu „Moji časovi“ (`/ucenik/panel`), sa linkom za
@@ -176,6 +177,38 @@ potrošnja i model koji je odgovorio upisuju se u backend log. Jedna IP adresa
 može poslati najviše `CHAT_RATE_LIMIT` poruka u `CHAT_RATE_WINDOW_SECONDS`
 sekundi (podrazumevano 30 u 10 minuta). Razgovor se čuva samo u browseru
 učenika (sessionStorage) dok je kartica otvorena.
+
+### Plaćen pristup snimcima
+
+Video se prikazuje samo učeniku koji je platio pristup toj pripremi. Cena i opis
+paketa stoje uz svaki ispit u `prep_lectures.json` (`price_eur`, `includes`);
+trenutno su obe pripreme po 50 €. Bez plaćenog pristupa stranice i dalje rade:
+zadaci i asistent su dostupni, a umesto videa stoji poziv na kupovinu. API ne
+šalje `youtube_id` ni `video_url` nikome ko nije platio, pa link do snimka ne
+može da procuri kroz stranicu.
+
+Kupovina ide preko `/mala-matura/kupovina` i `/velika-matura/kupovina`, u tri
+koraka: podaci (ime, email, lozinka), kartica, potvrda. Ako učenik nije
+prijavljen, uspešna naplata pravi učenički nalog i odmah ga prijavljuje; ko već
+ima nalog, prijavi se pa plaća samo karticom. Svaka priprema se plaća posebno,
+najviše jednom po nalogu (`prep_purchases`, račun `BS-000001`…). Učenik dobija
+email potvrdu, a u panelu (`/ucenik/panel`) vidi šta je platio.
+
+**Naplata je za sada lažna** (`backend/app/services/payment_service.py`): ništa se
+ne naplaćuje, a prolaze samo ugrađene test kartice, uz bilo koji budući datum
+isteka i trocifreni CVC:
+
+| Kartica | Ishod |
+|---------|-------|
+| `4242 4242 4242 4242` | Visa, naplata prolazi |
+| `5555 5555 5555 4444` | Mastercard, naplata prolazi |
+| `4000 0000 0000 0002` | banka odbija karticu |
+| bilo koja druga | odbijena uz poruku o test režimu |
+
+Stranica za plaćanje ima dugme „Popuni test karticu“. Pravi provajder (Stripe,
+Payten/ChipCard…) menja samo funkciju `charge()`; nalog, upis kupovine, email i
+token ostaju isti. Seed pravi učenika `matura@brainstorm.com` / `matura123` sa
+plaćenom malom i velikom maturom, da bi snimci mogli da se probaju čim se ubace.
 
 > Pre produkcije obavezno promeni podrazumevanu admin lozinku i `SECRET_KEY`.
 
@@ -249,10 +282,11 @@ npm install
 npm run test:e2e
 ```
 
-E2E očekuje da Docker servisi rade na podrazumevanim adresama i da je Luka
-prethodno dobio termine pomoću `seed_luka_test_data`. Alternativne adrese mogu
-se zadati kroz `E2E_BASE_URL` i `MAILHOG_URL`, a putanja do Chrome/Chromium
-browsera kroz `CHROME_PATH`.
+E2E očekuje da Docker servisi rade na podrazumevanim adresama, da je pokrenut
+`app.db.seed` (test učenik `matura@brainstorm.com` za kupovinu snimaka) i da je
+Luka prethodno dobio termine pomoću `seed_luka_test_data`. Alternativne adrese
+mogu se zadati kroz `E2E_BASE_URL`, `E2E_API_URL` i `MAILHOG_URL`, a putanja do
+Chrome/Chromium browsera kroz `CHROME_PATH`.
 
 ### Resetovanje baze
 
@@ -383,6 +417,7 @@ sopstvenu adresu. Pristupni podatak unosi samo u lokalni `.env`.
 - **Email notifikacije:** klijent, profesor i admin dobijaju email pri rezervaciji i otkazivanju
 - **Vremenska zona:** svi termini i rokovi računaju se u `Europe/Belgrade`, dok se u bazi čuvaju u UTC-u
 - **Prilozi:** najviše 10 PDF/slikovnih fajlova, do 25 MB po fajlu; proverava se i sadržaj fajla, ne samo ekstenzija
+- **Snimci za maturu:** 50 € po pripremi (mala: matematika i srpski; velika: matematika), jednokratno, vezano za učenički nalog; video se šalje samo uz plaćen pristup
 
 ## Dokumentacija
 
@@ -396,7 +431,9 @@ sopstvenu adresu. Pristupni podatak unosi samo u lokalni `.env`.
 | Grupa | Prefix | Auth | Opis |
 |-------|--------|------|------|
 | Public | `/public/*` | ❌ | Predmeti, profesori, termini, booking, cancel |
-| Auth | `/auth/*` | ❌ | Login za admin i profesora |
+| Auth | `/auth/*` | ❌ | Login za admin, profesora i učenika; registracija učenika |
+| Prep | `/public/prep/*` | ❌ / 🔐 učenik | Katalog snimaka, stranica snimka, asistent, kupovina pristupa (`POST …/checkout`) |
+| Student | `/student/*` | 🔐 JWT | Profil, časovi i plaćene pripreme (`/student/prep`) |
 | Teacher | `/teacher/*` | 🔐 JWT | Dashboard, bookings, cancel, availability |
 | Admin | `/admin/*` | 🔐 JWT | CRUD predmeti/profesori, bookings, reassign, cancel, učionice |
 

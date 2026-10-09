@@ -13,6 +13,7 @@ import StudentLoginPage from "./pages/StudentLoginPage";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
 import PrepPage from "./pages/PrepPage";
 import LecturePage from "./pages/LecturePage";
+import CheckoutPage from "./pages/CheckoutPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import CancelBookingPage from "./pages/CancelBookingPage";
 
@@ -27,8 +28,10 @@ function App() {
             <Route path="cenovnik" element={<PricingPage />} />
             <Route path="o-nama" element={<AboutPage />} />
             <Route path="mala-matura" element={<PrepPage exam="mala-matura" />} />
+            <Route path="mala-matura/kupovina" element={<CheckoutPage exam="mala-matura" />} />
             <Route path="mala-matura/:subjectSlug/:lectureSlug" element={<LecturePage exam="mala-matura" />} />
             <Route path="velika-matura" element={<PrepPage exam="velika-matura" />} />
+            <Route path="velika-matura/kupovina" element={<CheckoutPage exam="velika-matura" />} />
             <Route path="velika-matura/:subjectSlug/:lectureSlug" element={<LecturePage exam="velika-matura" />} />
             <Route path="ucenik/prijava" element={<StudentLoginPage />} />
             <Route path="ucenik/panel" element={<StudentDashboardPage />} />

@@ -562,3 +562,33 @@ def booking_to_email_data(booking) -> dict:
         "session_type": getattr(booking, "session_type", "individual"),
         "attachment_names": att_names,
     }
+
+
+# =============================================
+#  Pristup snimcima (mala i velika matura)
+# =============================================
+
+def send_prep_purchase_receipt(*, to: str, full_name: str, exam_title: str, exam_slug: str, amount_eur: int, card_brand: str, card_last4: str, receipt_number: str, paid_at, account_created: bool) -> bool:
+    """Potvrda plaćenog pristupa snimcima; uz nov nalog i podsetnik kako se prijavljuje."""
+    lectures_url = f"{settings.FRONTEND_URL.rstrip('/')}/{exam_slug}"
+    login_url = f"{settings.FRONTEND_URL.rstrip('/')}/ucenik/prijava"
+    account_note = (
+        f"<p style=\"margin:0 0 16px; color:#4f5751;\">Napravili smo ti učenički nalog na adresi <strong>{html.escape(to)}</strong>. "
+        f"Prijavljuješ se lozinkom iz kupovine na <a href=\"{login_url}\" style=\"color:#1f4d3a;\">{login_url}</a>.</p>"
+        if account_created else
+        f"<p style=\"margin:0 0 16px; color:#4f5751;\">Snimci su vezani za tvoj učenički nalog <strong>{html.escape(to)}</strong>.</p>"
+    )
+    content = f"""
+        <h1 style="margin:0 0 8px; color:#1f4d3a; font-size:22px;">Pristup je aktiviran</h1>
+        <p style="margin:0 0 20px; color:#4f5751;">Zdravo {html.escape(full_name)}, hvala na uplati. Paket <strong>{html.escape(exam_title)}</strong> je aktivan i svi snimci su ti dostupni odmah.</p>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:14px;">
+            <tr><td style="padding:8px 0; color:#7c817a; border-bottom:1px solid #e8dfd0;">Broj računa</td><td style="padding:8px 0; text-align:right; border-bottom:1px solid #e8dfd0;">{html.escape(receipt_number)}</td></tr>
+            <tr><td style="padding:8px 0; color:#7c817a; border-bottom:1px solid #e8dfd0;">Paket</td><td style="padding:8px 0; text-align:right; border-bottom:1px solid #e8dfd0;">{html.escape(exam_title)}</td></tr>
+            <tr><td style="padding:8px 0; color:#7c817a; border-bottom:1px solid #e8dfd0;">Iznos</td><td style="padding:8px 0; text-align:right; border-bottom:1px solid #e8dfd0;"><strong>{amount_eur} €</strong></td></tr>
+            <tr><td style="padding:8px 0; color:#7c817a; border-bottom:1px solid #e8dfd0;">Kartica</td><td style="padding:8px 0; text-align:right; border-bottom:1px solid #e8dfd0;">{html.escape(card_brand)} •••• {html.escape(card_last4)}</td></tr>
+            <tr><td style="padding:8px 0; color:#7c817a;">Datum</td><td style="padding:8px 0; text-align:right;">{_format_datetime_sr(paid_at)}</td></tr>
+        </table>
+        {account_note}
+        <a href="{lectures_url}" style="display:inline-block; padding:12px 22px; background:#1f4d3a; color:#ffffff; text-decoration:none; border-radius:12px; font-weight:bold;">Otvori snimke</a>
+    """
+    return send_email(to=to, subject=f"Pristup snimcima: {exam_title} ({receipt_number})", html_body=_base_html(content))

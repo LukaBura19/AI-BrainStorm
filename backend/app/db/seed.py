@@ -8,6 +8,7 @@ Kreira:
   - admin naloge
   - predmete
   - profesore (odobrene, sa predmetima)
+  - test učenika sa plaćenim pristupom snimcima za malu i veliku maturu
 """
 
 from sqlalchemy.orm import Session
@@ -15,9 +16,12 @@ from app.db.session import SessionLocal
 from app.core.config import settings
 from app.core.security import hash_password
 from app.models.admin import Admin
+from app.models.prep_purchase import PrepPurchase
+from app.models.student import Student
 from app.models.subject import Subject
 from app.models.teacher import Teacher
 from app.models.teacher_subject import TeacherSubject
+from app.services.prep_catalog import get_exam
 
 
 # ---- Predmeti ----
@@ -122,6 +126,58 @@ SEED_TEACHERS = [
         "subjects": ["Hemija"],
     },
 ]
+
+
+# ---- Učenici sa plaćenim pristupom snimcima (za probu dok se ubacuju videi) ----
+SEED_STUDENTS = [
+    {
+        "full_name": "Test Matura",
+        "email": "matura@brainstorm.com",
+        "password": "matura123",
+        "category": "osnovna",
+        "prep": ["mala-matura", "velika-matura"],
+    },
+]
+
+
+def seed_students(db: Session) -> None:
+    """Kreira test učenike i upisuje im plaćen pristup pripremama (ponovljivo)."""
+    for s_data in SEED_STUDENTS:
+        student = db.query(Student).filter(Student.email == s_data["email"]).first()
+        if student:
+            print(f"  [skip] Učenik '{s_data['full_name']}' ({s_data['email']}) vec postoji.")
+        else:
+            student = Student(
+                full_name=s_data["full_name"],
+                email=s_data["email"],
+                password_hash=hash_password(s_data["password"]),
+                category=s_data["category"],
+                is_active=True,
+            )
+            db.add(student)
+            db.commit()
+            db.refresh(student)
+            print(f"  [ok] Učenik kreiran: {s_data['full_name']} ({s_data['email']})")
+
+        for exam_slug in s_data["prep"]:
+            exam = get_exam(exam_slug)
+            if not exam:
+                print(f"  [!] Priprema '{exam_slug}' ne postoji u katalogu, preskačem.")
+                continue
+            existing = db.query(PrepPurchase).filter(PrepPurchase.student_id == student.id, PrepPurchase.exam_slug == exam_slug).first()
+            if existing:
+                print(f"    [skip] Pristup '{exam.title}' vec placen -> {s_data['full_name']}")
+                continue
+            db.add(PrepPurchase(
+                student_id=student.id,
+                exam_slug=exam_slug,
+                amount_eur=exam.price_eur,
+                card_brand="Visa",
+                card_last4="4242",
+                transaction_id=f"seed_{student.id}_{exam_slug}",
+            ))
+            db.commit()
+            print(f"    [ok] Pristup '{exam.title}' ({exam.price_eur} €) upisan -> {s_data['full_name']}")
 
 
 def seed_admins(db: Session) -> None:
@@ -237,6 +293,9 @@ def run_seed() -> None:
 
         print("\n--- Profesori ---")
         seed_teachers(db)
+
+        print("\n--- Učenici sa plaćenim pristupom ---")
+        seed_students(db)
 
         print("\n" + "=" * 50)
         print("Seed zavrsen!")

@@ -12,6 +12,8 @@ export class ApiError extends Error {
 
 function detailToMessage(detail) {
   if (typeof detail === "string") return detail;
+  // Greške sa kodom, npr. { code: "account_exists", message: "…" }; kod ostaje u ApiError.details.code.
+  if (detail && typeof detail === "object" && typeof detail.message === "string") return detail.message;
   if (Array.isArray(detail)) {
     const message = detail
       .map((item) => item?.msg || item?.message || JSON.stringify(item))

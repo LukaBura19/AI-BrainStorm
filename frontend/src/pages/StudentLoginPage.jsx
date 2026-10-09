@@ -13,6 +13,13 @@ const CATEGORIES = [
   { value: "drugo", label: "Drugo" },
 ];
 
+/** `dalje=zakazivanje` or a local path such as `/mala-matura/kupovina`; anything else lands on the panel. */
+function nextPath(value) {
+  if (value === "zakazivanje") return "/booking";
+  if (value && /^\/(?!\/)[\w\-/?=&]*$/.test(value)) return value;
+  return "/ucenik/panel";
+}
+
 // React 18 has no boolean `inert` prop; an empty string sets the attribute, undefined removes it.
 const hiddenWhen = (hidden) => (hidden ? { inert: "", "aria-hidden": "true" } : {});
 
@@ -33,8 +40,8 @@ export default function StudentLoginPage() {
   const [loading, setLoading] = useState(false);
   const registering = mode === "register";
   const shownMode = useRef(mode);
-  // After signing in from the booking flow, go back there instead of the panel.
-  const next = params.get("dalje") === "zakazivanje" ? "/booking" : "/ucenik/panel";
+  // After signing in, go back where the student came from (booking, a matura page or its checkout) instead of the panel.
+  const next = nextPath(params.get("dalje"));
 
   const switchTo = (nextMode) => {
     if (nextMode === mode) return;

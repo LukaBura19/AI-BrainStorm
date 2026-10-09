@@ -19,3 +19,4 @@ class Student(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     bookings = relationship("Booking", back_populates="student", lazy="selectin")
+    prep_purchases = relationship("PrepPurchase", back_populates="student", lazy="selectin", cascade="all, delete-orphan")

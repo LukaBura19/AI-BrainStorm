@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, PlayCircle } from "lucide-react";
 import Reveal from "../components/Reveal";
 import CountUp from "../components/ui/CountUp";
 import TiltSurface from "../components/ui/TiltSurface";
@@ -25,6 +25,21 @@ const SECTIONS = [
     ],
   },
 ];
+
+const PREP = [
+  { slug: "mala-matura", title: "Mala matura", description: "Matematika i srpski jezik", tone: "#c8643b", includes: ["Osnovni, srednji i napredni nivo", "Zadaci sa svakog snimka", "AI asistent uz svaki snimak"] },
+  { slug: "velika-matura", title: "Velika matura", description: "Matematika za prijemni", tone: "#1f4d3a", includes: ["Algebra, trigonometrija, logaritmi i geometrija", "Zadaci sa svakog snimka", "AI asistent uz svaki snimak"] },
+];
+
+function PrepCard({ slug, title, description, tone, includes }) {
+  return <TiltSurface as="article" className="pricing-card pricing-card--prep" style={{ "--tone": tone }}>
+    <span className="pricing-prep-icon" aria-hidden="true"><PlayCircle size={22} strokeWidth={1.8} /></span>
+    <p><strong>{title}</strong>{description}</p>
+    <div><b><CountUp value={50} format={(n) => `${n} €`} /></b><small>jednokratno, bez pretplate</small></div>
+    <ul className="pricing-includes">{includes.map((item) => <li key={item}><Check size={13} aria-hidden="true" /> {item}</li>)}</ul>
+    <Link to={`/${slug}/kupovina`} className="btn btn-accent">Kupi pristup <ArrowRight size={15} aria-hidden="true" /></Link>
+  </TiltSurface>;
+}
 
 function PriceCard({ minutes, amount, description, featured, tone }) {
   return <TiltSurface as="article" className={`pricing-card ${featured ? "featured" : ""}`} style={{ "--tone": tone, "--fill": minutes / 90 }}>
@@ -63,6 +78,16 @@ function PricingPage() {
           </section>
         ))}
       </div>
+
+      <section className="pricing-main pricing-main--matura" aria-labelledby="pricing-matura">
+        <header className="pricing-section-head">
+          <h2 id="pricing-matura">Pripreme za maturu</h2>
+          <span>Snimci rešenih zadataka, jednokratna uplata</span>
+        </header>
+        <div className="pricing-grid">
+          {PREP.map((item, index) => <Reveal key={item.slug} delay={index * .07}><PrepCard {...item} /></Reveal>)}
+        </div>
+      </section>
 
       <p className="pricing-footnote">Za grupne časove, pakete i posebne aranžmane kontaktirajte BrainStorm tim.</p>
     </div>

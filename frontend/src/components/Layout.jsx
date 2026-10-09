@@ -255,7 +255,7 @@ function Layout() {
                       <span>
                         <strong>Učenik</strong>
                         <small>
-                          {studentLoggedIn ? "Moji časovi" : "Prijavi se ili napravi nalog"}
+                          {studentLoggedIn ? "Moji časovi i snimci" : "Prijavi se ili napravi nalog"}
                         </small>
                       </span>
                     </Link>

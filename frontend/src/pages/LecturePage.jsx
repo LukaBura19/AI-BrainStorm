@@ -1,13 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, MessageCircleQuestion, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, MessageCircleQuestion, Play } from "lucide-react";
 import api from "../services/api";
 import Alert from "../components/Alert";
 import Spinner from "../components/Spinner";
 import LectureChat from "../components/LectureChat";
 import "./LecturePage.css";
 
-function LectureVideo({ lecture }) {
+function LectureVideo({ lecture, exam, subjectSlug, lectureSlug }) {
+  const access = lecture.access ?? {};
+  const buyTo = `/${exam}/kupovina`;
+  if (lecture.has_video && !access.purchased) {
+    return (
+      <div className="lecture-video lecture-video--soon lecture-video--locked" role="region" aria-label="Zaključan snimak">
+        <span className="lecture-video-play lecture-video-lock" aria-hidden="true"><Lock size={28} strokeWidth={2} /></span>
+        <strong>Snimak je zaključan</strong>
+        <p>Otključaj sve snimke iz paketa {lecture.exam.name} za {access.price_eur} €, jednokratno.</p>
+        <div className="lecture-video-actions">
+          <Link to={buyTo} className="btn btn-accent">Kupi pristup <ArrowRight size={16} aria-hidden="true" /></Link>
+          {!access.signed_in && <Link to={`/ucenik/prijava?dalje=/${exam}/${subjectSlug}/${lectureSlug}`} className="btn lecture-video-login">Prijavi se</Link>}
+        </div>
+      </div>
+    );
+  }
   if (lecture.youtube_id) {
     return (
       <div className="lecture-video">
@@ -23,6 +38,7 @@ function LectureVideo({ lecture }) {
       <span className="lecture-video-play" aria-hidden="true"><Play size={26} fill="currentColor" /></span>
       <strong>Snimak stiže uskoro</strong>
       <p>{lecture.chat_available ? "Zadaci su već ovde, a asistent može odmah da ti pomogne oko njih." : "Zadaci su već ovde, pa možeš da kreneš od njih."}</p>
+      {!access.purchased && access.price_eur && <Link to={buyTo} className="lecture-video-offer">Pristup svim snimcima · {access.price_eur} € <ArrowRight size={15} aria-hidden="true" /></Link>}
     </div>
   );
 }
@@ -78,7 +94,7 @@ export default function LecturePage({ exam }) {
       </header>
 
       <div className="lecture-layout">
-        <div className="lecture-area lecture-area--video"><LectureVideo lecture={lecture} /></div>
+        <div className="lecture-area lecture-area--video"><LectureVideo lecture={lecture} exam={exam} subjectSlug={subjectSlug} lectureSlug={lectureSlug} /></div>
 
         <aside className="lecture-area lecture-area--chat" ref={chatBoxRef} aria-label="Asistent">
           <LectureChat key={`${exam}/${subjectSlug}/${lectureSlug}`} ref={chatRef} exam={exam} subject={subjectSlug} lecture={lectureSlug} available={lecture.chat_available} />

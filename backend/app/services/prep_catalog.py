@@ -4,6 +4,7 @@ Katalog snimaka za pripreme (mala i velika matura).
 Sadržaj se drži u app/data/prep_lectures.json: ispit → predmet → oblast → snimak → zadaci.
 Novi snimak se dodaje u JSON (youtube_id ili video_url), bez izmena u kodu.
 Rešenja zadataka ne idu na stranicu; koristi ih samo asistent da bi proveravao rad učenika.
+Svaki ispit ima cenu pristupa (price_eur); video se šalje samo učeniku koji je platio.
 """
 
 import json
@@ -75,7 +76,14 @@ class PrepExam(BaseModel):
     lead: str = ""
     # Kome se asistent obraća (ulazi u uputstvo za asistenta, ne prikazuje se na stranici).
     audience: str = ""
+    # Cena pristupa svim snimcima ove pripreme i šta učenik dobija (prikazuje se pri kupovini).
+    price_eur: int = Field(ge=1)
+    includes: List[str] = []
     subjects: List[PrepSubject] = []
+
+    @property
+    def lectures(self) -> List[PrepLecture]:
+        return [lecture for subject in self.subjects for group in subject.groups for lecture in group.lectures]
 
 
 class PrepCatalog(BaseModel):

@@ -25,6 +25,17 @@
 .lecture-video-play { position: relative; width: 72px; height: 72px; display: grid; place-items: center; padding-left: 4px; border: 1px solid rgba(247, 243, 236, .28); border-radius: 50%; background: rgba(247, 243, 236, .12); color: var(--paper); }
 .lecture-video--soon strong { position: relative; margin-top: 10px; font: 600 clamp(18px, 1.8vw, 22px)/1.2 var(--font-display); letter-spacing: -.01em; }
 .lecture-video--soon p { position: relative; max-width: 40ch; color: rgba(247, 243, 236, .78); font-size: 14.5px; line-height: 1.5; }
+.lecture-video-offer { position: relative; min-height: 40px; display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 0 14px; border: 1px solid rgba(247, 243, 236, .3); border-radius: 999px; color: var(--paper); font-size: 13.5px; font-weight: 600; transition: background .2s, border-color .2s; }
+.lecture-video-offer:hover { border-color: var(--paper); background: rgba(247, 243, 236, .12); color: var(--paper); }
+.lecture-video-offer:focus-visible { outline-color: var(--paper); }
+/* Zaključan snimak: isti okvir kao „uskoro“, katanac i dugmad za kupovinu/prijavu. */
+.lecture-video--locked { background: radial-gradient(120% 95% at 82% 0%, #2b644b 0%, var(--forest) 48%, #15382a 100%); }
+.lecture-video-lock { padding-left: 0; border-color: rgba(240, 179, 147, .55); background: rgba(240, 179, 147, .16); color: #f0b393; }
+.lecture-video-actions { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 14px; }
+.lecture-video-actions .btn { min-height: 48px; border-radius: 14px; }
+.lecture-video-actions .lecture-video-login { border-color: rgba(247, 243, 236, .5); background: transparent; color: var(--paper); }
+.lecture-video-actions .lecture-video-login:hover { border-color: var(--paper); background: var(--paper); color: var(--forest); }
+.lecture-video-login:focus-visible, .lecture-video-actions .btn-accent:focus-visible { outline-color: var(--paper); }
 
 /* ---- Zadaci ---- */
 .lecture-tasks { padding: clamp(18px, 2.2vw, 26px); border: 1px solid var(--color-border); border-radius: 22px; background: var(--card); }
@@ -55,6 +66,12 @@
   .lecture-video { border-radius: 16px; }
   .lecture-video--soon p { font-size: 13.5px; }
   .lecture-video-play { width: 58px; height: 58px; }
+  /* Telefon: tekst i dugmad ne staju u 16:9, pa okvir sme da poraste. */
+  .lecture-video--soon { aspect-ratio: auto; min-height: 210px; gap: 6px; padding: 22px 18px; }
+  .lecture-video--locked .lecture-video-play { width: 48px; height: 48px; }
+  .lecture-video--soon strong { margin-top: 6px; font-size: 17px; }
+  .lecture-video-actions { margin-top: 10px; }
+  .lecture-video-actions .btn { min-height: 44px; padding-inline: 16px; font-size: 14.5px; }
   .lecture-tasks li { grid-template-columns: 30px minmax(0, 1fr); gap: 10px 12px; align-items: start; }
   .lecture-task-number { width: 30px; height: 30px; font-size: 14px; }
   .lecture-tasks li p { padding-top: 4px; }

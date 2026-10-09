@@ -5,6 +5,13 @@
       "title": "Mala matura",
       "lead": "Snimci rešenih zadataka i završnih ispita iz prethodnih godina, poređani po oblastima i nivoima.",
       "audience": "učenik osmog razreda koji se sprema za završni ispit (malu maturu)",
+      "price_eur": 50,
+      "includes": [
+        "Svi snimci iz matematike i srpskog jezika",
+        "Osnovni, srednji i napredni nivo",
+        "Zadaci sa svakog snimka i AI asistent",
+        "Novi snimci do završnog ispita, bez doplate"
+      ],
       "subjects": [
         {
           "slug": "matematika",
@@ -181,6 +188,13 @@
       "title": "Velika matura",
       "lead": "Snimci rešenih zadataka sa prijemnih ispita iz prethodnih godina, poređani po oblastima.",
       "audience": "maturant koji se sprema za prijemni ispit iz matematike na fakultetu",
+      "price_eur": 50,
+      "includes": [
+        "Svi snimci iz matematike za prijemni",
+        "Algebra, trigonometrija, logaritmi, analitička geometrija",
+        "Zadaci sa svakog snimka i AI asistent",
+        "Novi snimci do prijemnog, bez doplate"
+      ],
       "subjects": [
         {
           "slug": "matematika",

@@ -1,22 +1,60 @@
 from datetime import datetime, timezone
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
 
+from app.api.prep import PurchaseOut, purchase_out
 from app.core.deps import get_current_student
 from app.db.session import get_db
 from app.models.booking import Booking
 from app.models.student import Student
 from app.schemas.auth import StudentMe
 from app.schemas.booking import BookingListResponse, BookingResponse, attachments_from_booking
+from app.services.prep_catalog import load_catalog
 
 router = APIRouter(prefix="/student", tags=["Student"])
+
+
+class PrepAccessItem(BaseModel):
+    """Jedna priprema iz kataloga: plaćena ili ne, sa računom ako jeste."""
+    slug: str
+    title: str
+    price_eur: int
+    lecture_count: int
+    video_count: int
+    purchased: bool
+    purchase: Optional[PurchaseOut] = None
+
+
+class PrepAccessList(BaseModel):
+    items: List[PrepAccessItem]
 
 
 @router.get("/me", response_model=StudentMe)
 def student_me(current_student: Student = Depends(get_current_student)):
     """Profil prijavljenog učenika."""
     return current_student
+
+
+@router.get("/prep", response_model=PrepAccessList)
+def student_prep_access(current_student: Student = Depends(get_current_student)):
+    """Pripreme (mala i velika matura) sa stanjem pristupa za prijavljenog učenika."""
+    purchases = {purchase.exam_slug: purchase for purchase in current_student.prep_purchases}
+    items = []
+    for exam in load_catalog().exams:
+        purchase = purchases.get(exam.slug)
+        items.append(PrepAccessItem(
+            slug=exam.slug,
+            title=exam.title,
+            price_eur=exam.price_eur,
+            lecture_count=len(exam.lectures),
+            video_count=sum(1 for lecture in exam.lectures if lecture.has_video),
+            purchased=purchase is not None,
+            purchase=purchase_out(purchase) if purchase else None,
+        ))
+    return PrepAccessList(items=items)
 
 
 def _booking_to_response(booking: Booking) -> BookingResponse:
