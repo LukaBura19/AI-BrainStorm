@@ -6,10 +6,12 @@ import Alert from "../components/Alert";
 import Reveal from "../components/Reveal";
 import Spinner from "../components/Spinner";
 import AnimatedTabs from "../components/ui/AnimatedTabs";
+import QrCode from "../components/QrCode";
 import { plural } from "../utils/plural";
 import "./PrepPage.css";
 
 const TITLES = { "mala-matura": "Mala matura", "velika-matura": "Velika matura" };
+const SUBTITLES = { "mala-matura": "Pripreme za prijemni za srednju školu", "velika-matura": "Pripreme za prijemni za fakultet" };
 const SUBJECT_ICONS = { matematika: Calculator, "srpski-jezik": BookOpen };
 const LEVELS = { "osnovni-nivo": 1, "srednji-nivo": 2, "napredni-nivo": 3 };
 
@@ -40,8 +42,9 @@ function LectureCard({ exam, subjectSlug, lecture, purchased }) {
   );
 }
 
-/** Zeleni panel ponude dok pristup nije plaćen: cena, šta se dobija i kupovina. */
+/** Zeleni panel ponude dok pristup nije plaćen: cena, šta se dobija i kupovina (i QR kod za plaćanje sa telefona). */
 function OfferPanel({ exam, access, lectureCount }) {
+  const checkoutPath = `/${exam}/kupovina`;
   return (
     <aside className="prep-offer" aria-labelledby="prep-offer-title">
       <h2 id="prep-offer-title">Otključaj sve snimke</h2>
@@ -50,8 +53,12 @@ function OfferPanel({ exam, access, lectureCount }) {
         {access.includes.map((item) => <li key={item}><Check size={16} strokeWidth={2.4} aria-hidden="true" />{item}</li>)}
       </ul>
       <p className="prep-offer-count"><PlayCircle size={16} strokeWidth={1.9} aria-hidden="true" />{lectureCount} {plural(lectureCount, "snimak", "snimka", "snimaka")} sa zadacima</p>
-      <Link to={`/${exam}/kupovina`} className="btn btn-accent btn-lg prep-offer-btn">Kupi pristup <ArrowRight size={17} aria-hidden="true" /></Link>
+      <Link to={checkoutPath} className="btn btn-accent btn-lg prep-offer-btn">Kupi pristup <ArrowRight size={17} aria-hidden="true" /></Link>
       {!access.signed_in && <p className="prep-offer-login">Već si platio? <Link to={`/ucenik/prijava?dalje=/${exam}`}>Prijavi se</Link></p>}
+      <div className="prep-offer-qr">
+        <QrCode value={`${window.location.origin}${checkoutPath}`} label="QR kod koji otvara plaćanje pristupa na telefonu" />
+        <p><strong>Plati sa telefona</strong>Skeniraj kod kamerom i otvori formu za plaćanje.</p>
+      </div>
     </aside>
   );
 }
@@ -87,59 +94,64 @@ export default function PrepPage({ exam }) {
   const subject = subjects.find((item) => item.slug === requested) ?? subjects[0];
   const chooseSubject = (slug) => setParams(slug === subjects[0]?.slug ? {} : { predmet: slug }, { replace: true, preventScrollReset: true });
 
+  const showOffer = Boolean(access && !access.purchased);
+
+  // Ponuda stoji desno i prati skrolovanje, a snimci odmah ispod naslova; na telefonu ponuda ide posle naslova.
   return (
-    <div className="prep-page">
-      <header className={`prep-hero ${access && !access.purchased ? "has-offer" : ""}`}>
-        <div className="prep-hero-text">
-          <h1>{TITLES[exam]}</h1>
-          {data?.lead && <p>{data.lead}</p>}
-          <div className="prep-hero-actions">
-            {access?.purchased && <span className="prep-access-chip"><BadgeCheck size={18} strokeWidth={2} aria-hidden="true" /> Pristup aktivan</span>}
-            <Link to="/booking" className="btn btn-primary">Zakaži čas pripreme <ArrowRight size={16} aria-hidden="true" /></Link>
-            {data?.chat_available && <span className="prep-hero-note"><MessagesSquare size={18} strokeWidth={1.8} aria-hidden="true" /> Uz svaki snimak je asistent kome možeš da postaviš pitanje o zadacima.</span>}
-          </div>
+    <div className={`prep-page ${showOffer ? "has-offer" : ""}`}>
+      <header className="prep-hero">
+        <h1>{TITLES[exam]}</h1>
+        <p className="prep-hero-subtitle">{SUBTITLES[exam]}</p>
+        {data?.lead && <p className="prep-hero-lead">{data.lead}</p>}
+        <div className="prep-hero-actions">
+          {access?.purchased && <span className="prep-access-chip"><BadgeCheck size={18} strokeWidth={2} aria-hidden="true" /> Pristup aktivan</span>}
+          <Link to="/booking" className="btn btn-primary">Zakaži čas pripreme <ArrowRight size={16} aria-hidden="true" /></Link>
+          {data?.chat_available && <span className="prep-hero-note"><MessagesSquare size={18} strokeWidth={1.8} aria-hidden="true" /> Uz svaki snimak je asistent kome možeš da postaviš pitanje o zadacima.</span>}
         </div>
-        {access && !access.purchased && <OfferPanel exam={exam} access={access} lectureCount={lectureCount} />}
       </header>
 
-      {error && <Alert type="error">{error}</Alert>}
-      {!data && !error && <Spinner text="Učitavam snimke…" />}
+      {showOffer && <OfferPanel exam={exam} access={access} lectureCount={lectureCount} />}
 
-      {subject && (
-        <>
-          {subjects.length > 1 && (
-            <AnimatedTabs
-              id={`prep-${exam}`}
-              className="prep-tabs"
-              tabs={subjects.map((item) => ({ key: item.slug, label: item.name, icon: SUBJECT_ICONS[item.slug] }))}
-              active={subject.slug}
-              onChange={chooseSubject}
-            />
-          )}
+      <div className="prep-content">
+        {error && <Alert type="error">{error}</Alert>}
+        {!data && !error && <Spinner text="Učitavam snimke…" />}
 
-          <div className="prep-subject" key={subject.slug}>
-            {(subjects.length === 1 || subject.tagline) && (
-              <div className="prep-subject-head">
-                <h2>{subject.name}</h2>
-                {subject.tagline && <p>{subject.tagline}</p>}
-              </div>
+        {subject && (
+          <>
+            {subjects.length > 1 && (
+              <AnimatedTabs
+                id={`prep-${exam}`}
+                className="prep-tabs"
+                tabs={subjects.map((item) => ({ key: item.slug, label: item.name, icon: SUBJECT_ICONS[item.slug] }))}
+                active={subject.slug}
+                onChange={chooseSubject}
+              />
             )}
 
-            {subject.groups.map((group, index) => (
-              <Reveal as="section" key={group.slug} className="prep-group" delay={index * .06} aria-labelledby={`prep-group-${group.slug}`}>
-                <div className="prep-group-head">
-                  {LEVELS[group.slug] && <LevelMeter level={LEVELS[group.slug]} />}
-                  <h3 id={`prep-group-${group.slug}`}>{group.name}</h3>
-                  <span>{group.lectures.length} {plural(group.lectures.length, "snimak", "snimka", "snimaka")}</span>
+            <div className="prep-subject" key={subject.slug}>
+              {(subjects.length === 1 || subject.tagline) && (
+                <div className="prep-subject-head">
+                  <h2>{subject.name}</h2>
+                  {subject.tagline && <p>{subject.tagline}</p>}
                 </div>
-                <div className="prep-cards">
-                  {group.lectures.map((lecture) => <LectureCard key={lecture.slug} exam={exam} subjectSlug={subject.slug} lecture={lecture} purchased={Boolean(access?.purchased)} />)}
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </>
-      )}
+              )}
+
+              {subject.groups.map((group, index) => (
+                <Reveal as="section" key={group.slug} className="prep-group" delay={index * .06} aria-labelledby={`prep-group-${group.slug}`}>
+                  <div className="prep-group-head">
+                    {LEVELS[group.slug] && <LevelMeter level={LEVELS[group.slug]} />}
+                    <h3 id={`prep-group-${group.slug}`}>{group.name}</h3>
+                    <span>{group.lectures.length} {plural(group.lectures.length, "snimak", "snimka", "snimaka")}</span>
+                  </div>
+                  <div className="prep-cards">
+                    {group.lectures.map((lecture) => <LectureCard key={lecture.slug} exam={exam} subjectSlug={subject.slug} lecture={lecture} purchased={Boolean(access?.purchased)} />)}
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

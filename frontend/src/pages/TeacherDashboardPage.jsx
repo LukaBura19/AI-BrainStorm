@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  AlertTriangle, BookOpen, CalendarClock, CalendarDays, CalendarPlus, CalendarRange, ClipboardList, Clock3,
-  Inbox, ShieldCheck, X,
+  AlertTriangle, BookOpen, CalendarClock, CalendarDays, CalendarPlus, CalendarRange, ChevronDown, ClipboardList, Clock3,
+  Inbox, ShieldCheck, Trash2, X,
 } from "lucide-react";
 import api from "../services/api";
 import { endSession, getSession, isSignedInAs, switchRole } from "../services/session";
@@ -111,6 +111,7 @@ function AvailabilityTab({ availabilities, lessons, preset, onChanged }) {
   const [confirmId, setConfirmId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [listError, setListError] = useState("");
+  const [showExisting, setShowExisting] = useState(false);
 
   useEffect(() => {
     if (preset?.dates?.length) { setSelected(preset.dates); setResult(null); }
@@ -150,7 +151,7 @@ function AvailabilityTab({ availabilities, lessons, preset, onChanged }) {
     setAdding(false);
   };
 
-  const close = async (range) => {
+  const remove = async (range) => {
     setDeletingId(range.id);
     setListError("");
     try {
@@ -158,7 +159,7 @@ function AvailabilityTab({ availabilities, lessons, preset, onChanged }) {
       setConfirmId(null);
       await onChanged();
     } catch (err) {
-      setListError(err.message || "Termin nije zatvoren.");
+      setListError(err.message || "Termin nije uklonjen.");
     } finally {
       setDeletingId(null);
     }
@@ -166,7 +167,8 @@ function AvailabilityTab({ availabilities, lessons, preset, onChanged }) {
 
   const groups = groupByDay(sortByStart(availabilities));
 
-  return <div className="section-card">
+  // Kalendar i koraci su u uskoj koloni na sredini kartice; postojeći termini se otvaraju po potrebi.
+  return <div className="section-card avail-card">
     <div className="section-header">
       <h2 className="section-title">Dodaj slobodne termine</h2>
       <p className="section-desc">Izaberite jedan ili više dana i vreme. Učenici zakazuju časove samo unutar vaše dostupnosti.</p>
@@ -233,40 +235,46 @@ function AvailabilityTab({ availabilities, lessons, preset, onChanged }) {
       </Alert>)}
 
     <div className="avail-existing">
-      <h3 className="avail-existing-title">Vaši slobodni termini <span className="avail-count">{availabilities.length}</span></h3>
-      {listError && <Alert type="error" onClose={() => setListError("")}>{listError}</Alert>}
-      {groups.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon"><Inbox size={30} strokeWidth={1.5} aria-hidden="true" /></div>
-          <p>Nemate otvorenih termina. Dodajte dostupnost iznad.</p>
-        </div>
-      ) : groups.map((group) => (
-        <DayGroup key={group.key} label={group.label}>
-          <ul className="avail-blocks">
-            {group.items.map((range) => {
-              const booked = sortByStart(lessons.filter((lesson) => isConfirmed(lesson) && overlaps(lesson, range)));
-              return <li key={range.id} className="avail-block">
-                <div className="avail-block-row">
-                  <span className="avail-block-time">{rangeLabel(range)}</span>
-                  <span className="avail-block-booked">
-                    {booked.length ? <>Zakazano: {lessonsLabel(booked.length)} · {booked.map((lesson) => `${formatTimeLatn(lesson.start_time)} ${firstName(lesson.client_full_name)}`).join(", ")}</> : "Još nema zakazanih časova"}
-                  </span>
-                  {confirmId !== range.id && <button type="button" className="avail-block-close" onClick={() => setConfirmId(range.id)} aria-label={`Zatvori termin ${group.label}, ${rangeLabel(range)}`}><X size={15} aria-hidden="true" /> Zatvori</button>}
-                </div>
-                {confirmId === range.id && <InlineConfirm
-                  title={`Zatvoriti termin ${rangeLabel(range)}?`}
-                  description={booked.length ? `Već zakazani časovi (${booked.length}) ostaju i ne otkazuju se. Novi časovi se više ne mogu zakazati u ovom terminu.` : "Učenici više neće moći da zakažu čas u ovom terminu."}
-                  confirmLabel="Zatvori termin"
-                  cancelLabel="Odustani"
-                  busy={deletingId === range.id}
-                  onConfirm={() => close(range)}
-                  onCancel={() => setConfirmId(null)}
-                />}
-              </li>;
-            })}
-          </ul>
-        </DayGroup>
-      ))}
+      <button type="button" className={`filter-chip avail-toggle ${showExisting ? "active" : ""}`} aria-expanded={showExisting} aria-controls="avail-existing-list" onClick={() => setShowExisting((open) => !open)}>
+        <CalendarRange size={16} aria-hidden="true" /> Vaši slobodni termini <em>{availabilities.length}</em>
+        <ChevronDown size={16} className="avail-toggle-chevron" aria-hidden="true" />
+      </button>
+      {showExisting && <div id="avail-existing-list" className="avail-existing-list">
+        <p className="avail-existing-hint">Periodi u kojima učenici mogu da zakažu čas kod vas. Uklonite period kada više niste dostupni; već zakazani časovi ostaju.</p>
+        {listError && <Alert type="error" onClose={() => setListError("")}>{listError}</Alert>}
+        {groups.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon"><Inbox size={30} strokeWidth={1.5} aria-hidden="true" /></div>
+            <p>Nemate otvorenih termina. Dodajte dostupnost iznad.</p>
+          </div>
+        ) : groups.map((group) => (
+          <DayGroup key={group.key} label={group.label}>
+            <ul className="avail-blocks">
+              {group.items.map((range) => {
+                const booked = sortByStart(lessons.filter((lesson) => isConfirmed(lesson) && overlaps(lesson, range)));
+                return <li key={range.id} className="avail-block">
+                  <div className="avail-block-row">
+                    <span className="avail-block-time">{rangeLabel(range)}</span>
+                    <span className="avail-block-booked">
+                      {booked.length ? <>Zakazano: {lessonsLabel(booked.length)} · {booked.map((lesson) => `${formatTimeLatn(lesson.start_time)} ${firstName(lesson.client_full_name)}`).join(", ")}</> : "Još nema zakazanih časova"}
+                    </span>
+                    {confirmId !== range.id && <button type="button" className="avail-block-close" onClick={() => setConfirmId(range.id)} aria-label={`Ukloni slobodan termin ${group.label}, ${rangeLabel(range)}`}><Trash2 size={15} aria-hidden="true" /> Ukloni termin</button>}
+                  </div>
+                  {confirmId === range.id && <InlineConfirm
+                    title={`Ukloniti slobodan termin ${rangeLabel(range)}?`}
+                    description={booked.length ? `Učenici više neće moći da zakažu nove časove u tom periodu. Već zakazani časovi (${booked.length}) ostaju i ne otkazuju se.` : "Učenici više neće moći da zakažu čas u tom periodu."}
+                    confirmLabel="Ukloni termin"
+                    cancelLabel="Odustani"
+                    busy={deletingId === range.id}
+                    onConfirm={() => remove(range)}
+                    onCancel={() => setConfirmId(null)}
+                  />}
+                </li>;
+              })}
+            </ul>
+          </DayGroup>
+        ))}
+      </div>}
     </div>
   </div>;
 }

@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+const API_URL = process.env.E2E_API_URL || "http://127.0.0.1:8002";
+
 const ANSWER = "Krenimo redom.\n\n1. Nova cena je **110%** stare cene.\n2. Zato je 1,1 · x = 1320.\n3. Delimo sa 1,1: x = **1200 dinara**.";
 const streamOf = (text) => [...text.match(/.{1,10}/gs).map((chunk) => ({ type: "delta", text: chunk })), { type: "done", stop_reason: "end_turn" }];
 
@@ -22,10 +24,19 @@ async function mockAssistant(page, { available = true, reply = streamOf(ANSWER) 
   return sent;
 }
 
-test("mala matura: srpski i matematika po nivoima, snimak sa asistentom", async ({ page }) => {
+/** Seed nalog matura@brainstorm.com ima plaćene obe pripreme: tek tada snimak šalje tekst zadataka i pušta asistenta. */
+async function signInAsPaidStudent(page, request) {
+  const login = await request.post(`${API_URL}/auth/student/login`, { data: { email: "matura@brainstorm.com", password: "matura123" } });
+  expect(login.ok()).toBeTruthy();
+  const { access_token: token } = await login.json();
+  await page.addInitScript((value) => { localStorage.setItem("token", value); localStorage.setItem("role", "student"); }, token);
+}
+
+test("mala matura: srpski i matematika po nivoima, snimak sa asistentom", async ({ page, request }) => {
   const sent = await mockAssistant(page);
   await page.goto("/mala-matura");
   await expect(page.getByRole("heading", { level: 1, name: "Mala matura" })).toBeVisible();
+  await expect(page.getByText("Pripreme za prijemni za srednju školu")).toBeVisible();
   await expect(page.getByText(/rešenih zadataka .* iz prethodnih godina/)).toBeVisible();
   await expect(page.getByText(/kombinovan/i)).toHaveCount(0);
   for (const level of ["Osnovni nivo", "Srednji nivo", "Napredni nivo"]) {
@@ -41,7 +52,16 @@ test("mala matura: srpski i matematika po nivoima, snimak sa asistentom", async 
   await expect(page).toHaveURL(/\/mala-matura\/matematika\/procenti$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Procenti u svakodnevnim zadacima");
   await expect(page.getByText("Snimak stiže uskoro")).toBeVisible();
-  await expect(page.locator(".lecture-tasks li")).toHaveCount(3);
+
+  // Bez uplate: broj zadataka bez teksta, asistent zaključan.
+  await expect(page.locator(".lecture-tasks--locked li")).toHaveCount(3);
+  await expect(page.locator(".lecture-tasks li p")).toHaveCount(0);
+  await expect(page.getByText(/Asistent je deo plaćenog pristupa/)).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Tvoje pitanje" })).toBeDisabled();
+
+  await signInAsPaidStudent(page, request);
+  await page.reload();
+  await expect(page.locator(".lecture-tasks li p")).toHaveCount(3);
 
   // "Pitaj" puts the question into the chat; the answer is streamed in and rendered as a list.
   await page.getByRole("button", { name: "Pitaj asistenta o 3. zadatku" }).click();
@@ -71,9 +91,10 @@ test("mala matura: srpski i matematika po nivoima, snimak sa asistentom", async 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Linearne jednačine i nejednačine");
 });
 
-test("velika matura: matematika po oblastima", async ({ page }) => {
+test("velika matura: matematika po oblastima", async ({ page, request }) => {
   await page.goto("/velika-matura");
   await expect(page.getByRole("heading", { level: 1, name: "Velika matura" })).toBeVisible();
+  await expect(page.getByText("Pripreme za prijemni za fakultet")).toBeVisible();
   await expect(page.getByText("PMF, ETF, FON, Mašinski, Građevinski, Ekonomski")).toBeVisible();
   for (const topic of ["Algebra", "Trigonometrija", "Logaritmi"]) {
     await expect(page.getByRole("heading", { name: topic, exact: true })).toBeVisible();
@@ -81,10 +102,15 @@ test("velika matura: matematika po oblastima", async ({ page }) => {
   await expect(page.locator(".prep-tabs")).toHaveCount(0);
   await page.getByRole("link", { name: /Logaritmi i logaritamske jednačine/ }).click();
   await expect(page).toHaveURL(/\/velika-matura\/matematika\/logaritamske-jednacine$/);
+  await expect(page.locator(".lecture-tasks--locked")).toBeVisible();
+  await expect(page.locator(".lecture-tasks")).not.toContainText("log₃ (x − 1) = 2");
+  await signInAsPaidStudent(page, request);
+  await page.reload();
   await expect(page.locator(".lecture-tasks")).toContainText("log₃ (x − 1) = 2");
 });
 
-test("asistent: isključen bez ključa, greške i odbijen odgovor", async ({ page }) => {
+test("asistent: isključen bez ključa, greške i odbijen odgovor", async ({ page, request }) => {
+  await signInAsPaidStudent(page, request);
   await mockAssistant(page, { available: false });
   await page.goto("/velika-matura/matematika/kvadratna-jednacina");
   await expect(page.getByText("Asistent još nije uključen. Do tada zadatke možeš da prođeš sa profesorom na času.")).toBeVisible();

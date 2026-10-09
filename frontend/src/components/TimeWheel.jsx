@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { formatTimeLatn } from "../utils/srLatnDates";
 import "./TimeWheel.css";
 
@@ -108,10 +107,6 @@ export default function TimeWheel({ items, selected, onSelect, reducedMotion }) 
           <span className="booking-slot-end"><small>Završetak</small><strong>{formatTimeLatn(item.slot.end_time)}</strong></span>
         </button>;
       })}
-    </div>
-    <div className="time-wheel-arrows">
-      <button type="button" onClick={() => step(-1)} aria-label="Ranije vreme"><ChevronUp size={18} aria-hidden="true" /></button>
-      <button type="button" onClick={() => step(1)} aria-label="Kasnije vreme"><ChevronDown size={18} aria-hidden="true" /></button>
     </div>
   </div>;
 }

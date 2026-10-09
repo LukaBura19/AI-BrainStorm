@@ -97,7 +97,7 @@ test("kompletan javni tok: Luka, prilog, tri MailHog test poruke i otkazivanje",
   const bookingResponse = page.waitForResponse((response) => response.url().includes("/public/bookings") && response.request().method() === "POST");
   await page.getByRole("button", { name: /Potvrdi rezervaciju/i }).click();
 
-  await expect(page.getByRole("heading", { name: /Vidimo se na času/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Vidimo se!" })).toBeVisible();
   expect((await (await bookingResponse).json()).notification_delivery).toEqual({ sent: 0, captured: 3, failed: 0, total: 3, status: "captured" });
   await expect(page.getByText(/slanje email potvrda još nije podešeno/i)).toBeVisible();
   await expect(page.getByText(/Potvrda i link za otkazivanje poslati/i)).toHaveCount(0);
@@ -152,7 +152,7 @@ test("alternativni tok: grupni čas uživo od 90 minuta dobija učionicu", async
   await page.getByRole("button", { name: /Pregledaj/i }).click();
   await page.getByRole("button", { name: /Potvrdi rezervaciju/i }).click();
 
-  await expect(page.getByRole("heading", { name: /Vidimo se na času/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Vidimo se!" })).toBeVisible();
   await expect(page.getByText("Uživo · Grupni")).toBeVisible();
   await expect(page.getByText("Učionica 1")).toBeVisible();
 

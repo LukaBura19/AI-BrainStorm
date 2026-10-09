@@ -5,6 +5,7 @@ import api from "../services/api";
 import Alert from "../components/Alert";
 import Spinner from "../components/Spinner";
 import LectureChat from "../components/LectureChat";
+import { plural } from "../utils/plural";
 import "./LecturePage.css";
 
 /** Zaštićen snimak: server izda kratkotrajnu propusnicu, a DRM plejer dešifruje video tek u uređaju. */
@@ -65,7 +66,7 @@ function LectureVideo({ lecture, exam, subjectSlug, lectureSlug }) {
     <div className="lecture-video lecture-video--soon">
       <span className="lecture-video-play" aria-hidden="true"><Play size={26} fill="currentColor" /></span>
       <strong>Snimak stiže uskoro</strong>
-      <p>{lecture.chat_available ? "Zadaci su već ovde, a asistent može odmah da ti pomogne oko njih." : "Zadaci su već ovde, pa možeš da kreneš od njih."}</p>
+      <p>{!access.purchased ? "Zadaci sa ovog snimka otključavaju se uz plaćen pristup." : lecture.chat_available ? "Zadaci su već ovde, a asistent može odmah da ti pomogne oko njih." : "Zadaci su već ovde, pa možeš da kreneš od njih."}</p>
       {!access.purchased && access.price_eur && <Link to={buyTo} className="lecture-video-offer">Pristup svim snimcima · {access.price_eur} € <ArrowRight size={15} aria-hidden="true" /></Link>}
     </div>
   );
@@ -90,6 +91,7 @@ export default function LecturePage({ exam }) {
   }, [exam, subjectSlug, lectureSlug]);
 
   const backTo = `/${exam}${subjectSlug ? `?predmet=${subjectSlug}` : ""}`;
+  const purchased = Boolean(lecture?.access?.purchased);
 
   if (error) {
     return (
@@ -125,8 +127,25 @@ export default function LecturePage({ exam }) {
         <div className="lecture-area lecture-area--video"><LectureVideo lecture={lecture} exam={exam} subjectSlug={subjectSlug} lectureSlug={lectureSlug} /></div>
 
         <aside className="lecture-area lecture-area--chat" ref={chatBoxRef} aria-label="Asistent">
-          <LectureChat key={`${exam}/${subjectSlug}/${lectureSlug}`} ref={chatRef} exam={exam} subject={subjectSlug} lecture={lectureSlug} available={lecture.chat_available} />
+          <LectureChat key={`${exam}/${subjectSlug}/${lectureSlug}`} ref={chatRef} exam={exam} subject={subjectSlug} lecture={lectureSlug}
+            available={lecture.chat_available && purchased} locked={lecture.chat_available && !purchased} />
         </aside>
+
+        {/* Bez uplate server ne šalje tekst zadataka, samo njihov broj: prazni redovi pokazuju šta se otključava. */}
+        {!purchased && lecture.task_count > 0 && (
+          <section className="lecture-area lecture-area--tasks lecture-tasks lecture-tasks--locked" aria-labelledby="lecture-tasks-title">
+            <h2 id="lecture-tasks-title">Zadaci sa snimka <span className="lecture-tasks-count">{lecture.task_count} {plural(lecture.task_count, "zadatak", "zadatka", "zadataka")}</span></h2>
+            <ol aria-hidden="true">
+              {Array.from({ length: lecture.task_count }, (_, index) => (
+                <li key={index}><span className="lecture-task-number">{index + 1}</span><span className="lecture-task-hidden" /></li>
+              ))}
+            </ol>
+            <p className="lecture-tasks-lock">
+              <Lock size={16} strokeWidth={2.2} aria-hidden="true" />
+              <span>Zadaci se otključavaju uz plaćen pristup, zajedno sa snimkom i asistentom. <Link to={`/${exam}/kupovina`}>Otključaj za {lecture.access?.price_eur} €</Link></span>
+            </p>
+          </section>
+        )}
 
         {lecture.tasks.length > 0 && (
           <section className="lecture-area lecture-area--tasks lecture-tasks" aria-labelledby="lecture-tasks-title">

@@ -165,7 +165,7 @@ function Message({ message, onRetry }) {
  * Razgovor sa asistentom uz snimak. Odgovor se ispisuje dok stiže; razgovor ostaje sačuvan
  * dok je kartica pregledača otvorena (sessionStorage), posebno za svaki snimak.
  */
-const LectureChat = forwardRef(function LectureChat({ exam, subject, lecture, available: availableAtLoad }, ref) {
+const LectureChat = forwardRef(function LectureChat({ exam, subject, lecture, available: availableAtLoad, locked = false }, ref) {
   const storageKey = `brainstorm-chat:${exam}/${subject}/${lecture}`;
   const [messages, setMessages] = useState(() => loadConversation(storageKey));
   const [input, setInput] = useState("");
@@ -304,7 +304,7 @@ const LectureChat = forwardRef(function LectureChat({ exam, subject, lecture, av
     followRef.current = log.scrollHeight - log.scrollTop - log.clientHeight < 48;
   };
 
-  const status = !available ? "Uskoro dostupan" : streaming ? "Piše odgovor…" : "Pomaže oko zadataka sa ovog snimka";
+  const status = !available ? (locked ? "Uz plaćen pristup" : "Uskoro dostupan") : streaming ? "Piše odgovor…" : "Pomaže oko zadataka sa ovog snimka";
 
   return (
     <section className="lecture-chat" aria-labelledby="lecture-chat-title">
@@ -334,7 +334,7 @@ const LectureChat = forwardRef(function LectureChat({ exam, subject, lecture, av
                 </div>
               </>
             ) : (
-              <p className="lecture-chat-off">Asistent još nije uključen. Do tada zadatke možeš da prođeš sa profesorom na času.</p>
+              <p className="lecture-chat-off">{locked ? "Asistent je deo plaćenog pristupa. Kad otključaš snimke, pitaj ga o svakom zadatku." : "Asistent još nije uključen. Do tada zadatke možeš da prođeš sa profesorom na času."}</p>
             )}
           </div>
         ) : (
@@ -352,7 +352,7 @@ const LectureChat = forwardRef(function LectureChat({ exam, subject, lecture, av
           maxLength={MAX_INPUT}
           onChange={(event) => setInput(event.target.value)}
           onKeyDown={onKeyDown}
-          placeholder={available ? "Napiši pitanje o zadatku…" : "Asistent još nije uključen"}
+          placeholder={available ? "Napiši pitanje o zadatku…" : locked ? "Otključava se uz plaćen pristup" : "Asistent još nije uključen"}
           disabled={!available}
         />
         {streaming ? (

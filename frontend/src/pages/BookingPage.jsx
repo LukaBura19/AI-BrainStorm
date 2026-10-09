@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Atom, BookOpen, Brain, Calculator, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, CodeXml, FileText, FlaskConical, GraduationCap, Languages, Mail, MapPin, Paperclip, PenLine, RefreshCw, School, UserRound, Users, Video } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Atom, BookOpen, Brain, Calculator, CalendarDays, CalendarPlus, CalendarX2, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, CodeXml, FileText, FlaskConical, GraduationCap, House, Languages, Mail, MapPin, Paperclip, PenLine, RefreshCw, School, UserRound, Users, Video } from "lucide-react";
 import Alert from "../components/Alert";
 import Spinner from "../components/Spinner";
 import api from "../services/api";
@@ -447,9 +447,9 @@ function BookingPage() {
               <span className="booking-success-icon" aria-hidden="true">
                 <svg viewBox="0 0 52 52"><circle className="success-ring" cx="26" cy="26" r="24" /><path className="success-tick" d="M15 27l7 7 15-16" /></svg>
               </span>
-              <span className="booking-success-status"><Check size={14} aria-hidden="true" /> Rezervacija #{bookingResult.id} je potvrđena</span>
+              <span className="booking-success-status"><Check size={14} aria-hidden="true" /> Rezervacija je potvrđena</span>
             </div>
-            <h1 id="success-title" tabIndex={-1}><TypewriterText text="Vidimo se na času!" /></h1>
+            <h1 id="success-title" tabIndex={-1}><TypewriterText text="Vidimo se!" /></h1>
             {mailStatus === "sent" ? (
               <p className="booking-success-lead">Potvrda i link za otkazivanje poslati su na <strong>{bookingResult.client_email}</strong>.</p>
             ) : mailStatus === "partial" ? (
@@ -459,13 +459,6 @@ function BookingPage() {
             ) : mailStatus === "captured" ? (
               <p className="booking-success-lead booking-mail-warning">Čas je potvrđen, ali slanje email potvrda još nije podešeno. Sačuvajte link za otkazivanje.</p>
             ) : <p className="booking-success-lead">Čas je potvrđen. Sačuvajte detalje rezervacije.</p>}
-            <div className="booking-success-actions">
-              <button type="button" className="btn btn-primary" onClick={resetBooking}>Zakaži još jedan čas</button>
-              {student
-                ? <Link className="btn btn-secondary" to="/ucenik/panel">Moji časovi</Link>
-                : bookingResult.client_cancel_token && <Link className="btn btn-secondary" to={`/cancel/${bookingResult.client_cancel_token}`}>Otvori link za otkazivanje</Link>}
-              <Link className="btn btn-secondary" to="/">Vrati se na početnu</Link>
-            </div>
             <p className="booking-cancel-note">Besplatno otkazivanje moguće je najkasnije 24 sata pre časa.</p>
           </div>
 
@@ -491,6 +484,15 @@ function BookingPage() {
               {bookingResult.attachments?.length > 0 && <div className="booking-contact-wide"><span><FileText size={15} aria-hidden="true" /> Priloženi materijali</span><ul>{bookingResult.attachments.map((attachment) => <li key={attachment.id}>{attachment.original_name}</li>)}</ul></div>}
             </div>
           </motion.div>
+
+          {/* One even row under the hero and the ticket, so the actions read as a set. */}
+          <div className="booking-success-actions">
+            <button type="button" className="btn btn-primary" onClick={resetBooking}><CalendarPlus size={17} aria-hidden="true" /> Zakaži još jedan čas</button>
+            {student
+              ? <Link className="btn btn-secondary" to="/ucenik/panel"><ClipboardList size={17} aria-hidden="true" /> Moji časovi</Link>
+              : bookingResult.client_cancel_token && <Link className="btn btn-secondary" to={`/cancel/${bookingResult.client_cancel_token}`}><CalendarX2 size={17} aria-hidden="true" /> Otvori link za otkazivanje</Link>}
+            <Link className="btn btn-secondary" to="/"><House size={17} aria-hidden="true" /> Vrati se na početnu stranu</Link>
+          </div>
         </section>
       </div>
     );
@@ -617,9 +619,7 @@ function BookingPage() {
         ) : <div className="booking-time-wheel">
           <TimeWheel items={wheelItems} selected={selectedSlot} onSelect={setSelectedSlot} reducedMotion={reducedMotion} />
           <div className="booking-time-side" aria-live="polite">
-            {selectedSlot ? <strong className="booking-time-readout">{slotLabel}</strong> : <strong className="booking-time-readout is-empty">--:--</strong>}
-            {selectedSlot && <p>{`${longDate(selectedDate)} · ${selectedDuration} minuta`}</p>}
-            <div className="booking-time-keys" aria-hidden="true"><span>↑ ranije</span><span>↓ kasnije</span></div>
+            {selectedSlot && <><strong className="booking-time-readout">{slotLabel}</strong><p>{`${longDate(selectedDate)} · ${selectedDuration} minuta`}</p></>}
             <div className="booking-time-daybar" aria-hidden="true">
               {wheelItems.filter((item) => !item.slot).map((item) => <i key={item.minute} className="is-taken" style={{ "--from": (item.minute - WORK_START) / (WORK_END - WORK_START), "--to": (item.minute + SLOT_STEP_MINUTES - WORK_START) / (WORK_END - WORK_START) }} />)}
               {selectedSlot && <i className="is-picked" style={{ "--from": (minutesOfDay(selectedSlot.start_time) - WORK_START) / (WORK_END - WORK_START), "--to": (minutesOfDay(selectedSlot.end_time) - WORK_START) / (WORK_END - WORK_START) }} />}

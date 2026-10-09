@@ -224,8 +224,8 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 375, height: 812
     await expect(summary).toHaveCount(0);
     await expect(page.locator(".booking-review")).toContainText("Luka Bura");
     await page.getByRole("button", { name: "Potvrdi rezervaciju" }).click();
-    await expect(page.getByRole("heading", { name: "Vidimo se na času!" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Vidimo se na času!" })).toBeInViewport();
+    await expect(page.getByRole("heading", { name: "Vidimo se!" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Vidimo se!" })).toBeInViewport();
     await expect(page.locator(".booking-success-contact")).toContainText("Ana Jovanović");
     await expect(page.locator(".booking-success-contact")).toContainText("zadatak.pdf");
     await expect(page.locator(".booking-success-ticket")).toContainText("60 minuta");

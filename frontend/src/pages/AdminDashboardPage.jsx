@@ -140,7 +140,7 @@ function AdminDashboardPage() {
           { key: "teachers", icon: GraduationCap, label: "Profesori", count: pending.length || undefined },
           { key: "students", icon: Users, label: "Učenici" },
           { key: "subjects", icon: BookOpen, label: "Predmeti" },
-          { key: "applications", icon: Briefcase, label: "Prijave" },
+          { key: "applications", icon: Briefcase, label: "Prijave za posao" },
         ]}
       />
 

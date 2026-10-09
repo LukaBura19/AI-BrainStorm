@@ -50,6 +50,15 @@
 .lecture-tasks li p { color: var(--ink); font-size: 15.5px; line-height: 1.55; }
 .lecture-tasks li button { min-height: 40px; display: inline-flex; align-items: center; gap: 6px; padding: 0 15px; border: 1px solid var(--color-border-strong); border-radius: 999px; background: var(--paper); color: var(--forest); cursor: pointer; font: 600 13.5px/1 var(--font-family); white-space: nowrap; transition: border-color .2s, background .2s; }
 .lecture-tasks li button:hover { border-color: var(--forest); background: var(--forest-tint); }
+/* Zaključani zadaci: broj zadataka i prazne trake umesto teksta. */
+.lecture-tasks-count { margin-left: 8px; padding: 3px 10px; border-radius: 999px; background: var(--forest-soft); color: var(--forest); font: 650 13px/1.4 var(--font-family); letter-spacing: 0; vertical-align: middle; }
+.lecture-tasks--locked li { grid-template-columns: 34px minmax(0, 1fr); padding: 12px 0; }
+.lecture-tasks--locked .lecture-task-number { background: var(--paper-deep); color: var(--color-text-muted); }
+.lecture-task-hidden { height: 12px; max-width: 78%; border-radius: 6px; background: repeating-linear-gradient(90deg, var(--paper-deep) 0 46px, transparent 46px 54px); }
+.lecture-tasks--locked li:nth-child(even) .lecture-task-hidden { max-width: 58%; }
+.lecture-tasks-lock { display: flex; align-items: flex-start; gap: 10px; margin-top: 8px; padding: 12px 14px; border-radius: 14px; background: var(--terra-soft); color: var(--ink); font-size: 14.5px; line-height: 1.5; }
+.lecture-tasks-lock svg { flex-shrink: 0; margin-top: 3px; color: var(--terra-hover); }
+.lecture-tasks-lock a { color: var(--terra-hover); font-weight: 650; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
 
 /* ---- Prethodni / sledeći ---- */
 .lecture-pager { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }

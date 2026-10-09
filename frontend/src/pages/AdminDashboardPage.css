@@ -109,10 +109,11 @@
 /* ---- New teacher form and subject pickers ---- */
 .admin-dashboard .new-teacher-form { margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); border: 1px solid var(--color-border); border-radius: 16px; background: var(--paper); animation: adminFadeIn .2s ease; }
 .admin-dashboard .new-teacher-form .input { background: var(--card); }
-.admin-dashboard .teacher-subject-picker { min-width: 0; margin: var(--spacing-md) 0 0; padding: var(--spacing-md); border: 1px solid var(--color-border); border-radius: 12px; background: var(--card); }
+/* Naslov stoji iznad okvira kao i ostale oznake polja (plutajući legend ne seče ivicu fieldset-a). */
+.admin-dashboard .teacher-subject-picker { min-width: 0; margin: var(--spacing-md) 0 0; padding: 0; border: 0; }
 .item-editor .teacher-subject-picker { margin-top: 0; }
-.admin-dashboard .teacher-subject-picker legend { padding-inline: .3rem; color: var(--ink); font-size: var(--font-size-sm); font-weight: 600; }
-.admin-dashboard .subject-check-grid { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .6rem; }
+.admin-dashboard .teacher-subject-picker legend { float: left; width: 100%; margin-bottom: .42rem; padding: 0; color: var(--color-text-primary); font-size: var(--font-size-sm); font-weight: 550; }
+.admin-dashboard .subject-check-grid { clear: both; display: flex; flex-wrap: wrap; gap: .45rem; padding: 12px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--card); }
 .admin-dashboard .subject-check-grid label { position: relative; min-height: 36px; display: inline-flex; align-items: center; padding: .42rem .8rem; border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--card); color: var(--color-text-secondary); cursor: pointer; font-size: var(--font-size-xs); font-weight: 600; transition: background .2s, border-color .2s, color .2s; }
 .admin-dashboard .subject-check-grid label:hover { border-color: var(--color-border-strong); background: var(--paper); }
 .admin-dashboard .subject-check-grid label.selected { border-color: var(--forest); background: var(--forest-soft); color: var(--forest); }

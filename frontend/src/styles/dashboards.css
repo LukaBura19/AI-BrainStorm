@@ -96,10 +96,12 @@
 /* =====================================================================
    Day groups and lesson rows — shared by the teacher and admin panels.
    ===================================================================== */
-.day-group + .day-group { margin-top: 20px; }
-.day-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 8px; }
-.day-heading h3 { color: var(--ink); font: 600 17px/1.3 var(--font-display); letter-spacing: -.01em; }
-.day-heading .day-count { color: var(--color-text-muted); font-size: 13px; font-weight: 500; }
+/* Svaki dan je posebna kartica (krem podloga, beli časovi), pa se dani lako razlikuju na prvi pogled. */
+.day-group { padding: 14px 16px 16px; border: 1px solid var(--color-border); border-radius: 18px; background: var(--paper); }
+.day-group + .day-group { margin-top: 14px; }
+.day-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0 2px 12px; padding-bottom: 10px; border-bottom: 1px solid var(--color-border); }
+.day-heading h3 { color: var(--ink); font: 600 18px/1.3 var(--font-display); letter-spacing: -.01em; }
+.day-heading .day-count { padding: 2px 10px; border: 1px solid var(--color-border); border-radius: 999px; background: var(--card); color: var(--color-text-secondary); font-size: 12.5px; font-weight: 600; }
 .day-heading .day-aside { margin-left: auto; color: var(--color-text-muted); font-size: 13px; }
 .day-empty { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; padding: 10px 14px; border: 1px dashed var(--color-border-strong); border-radius: 12px; color: var(--color-text-muted); font-size: 13.5px; }
 
@@ -153,4 +155,5 @@
   .lesson-row-panel { padding: 0 12px 14px; }
   .lesson-actions .btn { flex: 1 1 auto; }
   .day-heading .day-aside { margin-left: 0; flex-basis: 100%; }
+  .day-group { padding: 12px; border-radius: 16px; }
 }
