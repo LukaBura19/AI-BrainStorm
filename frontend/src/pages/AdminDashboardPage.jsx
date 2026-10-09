@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, CalendarCheck, CalendarDays, CalendarRange, ClipboardList, GraduationCap, Presentation, UserCheck, Users } from "lucide-react";
+import { BookOpen, Briefcase, CalendarCheck, CalendarDays, CalendarRange, ClipboardList, GraduationCap, Presentation, UserCheck, Users } from "lucide-react";
 import api from "../services/api";
 import { endSession, getSession, isSignedInAs, switchRole } from "../services/session";
 import useNow from "../hooks/useNow";
@@ -13,6 +13,7 @@ import BookingsTab from "./admin/BookingsTab";
 import TeachersTab from "./admin/TeachersTab";
 import StudentsTab from "./admin/StudentsTab";
 import SubjectsTab from "./admin/SubjectsTab";
+import ApplicationsTab from "./admin/ApplicationsTab";
 import { isOnline, pluralLatn } from "../utils/bookings";
 import { dayKeyLatn, formatDayKeyShortLatn, todayKeyLatn, weekKeys } from "../utils/srLatnDates";
 import "./AdminDashboardPage.css";
@@ -139,6 +140,7 @@ function AdminDashboardPage() {
           { key: "teachers", icon: GraduationCap, label: "Profesori", count: pending.length || undefined },
           { key: "students", icon: Users, label: "Učenici" },
           { key: "subjects", icon: BookOpen, label: "Predmeti" },
+          { key: "applications", icon: Briefcase, label: "Prijave" },
         ]}
       />
 
@@ -150,6 +152,7 @@ function AdminDashboardPage() {
         onShowLessons={(teacher) => showLessons({ status: "upcoming", filters: { teacherId: String(teacher.id) } })} />}
       {tab === "students" && <StudentsTab onNotice={notify} onShowLessons={(student) => showLessons({ status: "all", search: student.email })} />}
       {tab === "subjects" && <SubjectsTab subjects={subjects} teachers={teachers} onChanged={async () => { await Promise.all([loadSubjects(), loadTeachers()]); }} onNotice={notify} />}
+      {tab === "applications" && <ApplicationsTab />}
     </div>
   );
 }

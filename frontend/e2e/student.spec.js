@@ -28,7 +28,7 @@ test("učenik pravi nalog, zakazuje čas i vidi ga u svom panelu", async ({ page
   await page.getByRole("button", { name: "Nastavi" }).click();
   await page.getByRole("button", { name: /Online/ }).click();
   await page.getByRole("button", { name: "Nastavi" }).click();
-  await page.locator(".booking-date-card").nth(12).click();
+  await page.locator(".booking-date-card:not(.is-full)").last().click();
   await page.getByRole("button", { name: "Nastavi" }).click();
   await page.locator(".booking-slot-card").nth(3).click();
   await page.getByRole("button", { name: "Nastavi" }).click();

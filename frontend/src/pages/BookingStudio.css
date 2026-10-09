@@ -278,6 +278,9 @@
 .booking-success-hero { display: grid; justify-items: start; gap: 14px; }
 .booking-success-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: var(--forest-soft); color: var(--forest); font-size: 12.5px; font-weight: 650; }
 .booking-success-icon { width: 84px; height: 84px; }
+.booking-success-mark { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+.booking-success-mark .booking-success-status { animation: success-badge-in .5s cubic-bezier(.34, 1.56, .64, 1) 1s both; }
+@keyframes success-badge-in { from { opacity: 0; transform: translateX(-14px) scale(.85); } }
 .booking-success-icon svg { width: 100%; height: 100%; overflow: visible; }
 .success-ring { fill: var(--forest-soft); stroke: var(--forest); stroke-width: 2.5; stroke-dasharray: 151; stroke-dashoffset: 151; transform: rotate(-90deg); transform-origin: center; animation: success-draw .8s cubic-bezier(.65, 0, .45, 1) .15s forwards; }
 .success-tick { fill: none; stroke: var(--forest); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: success-draw .45s cubic-bezier(.65, 0, .45, 1) .85s forwards; }

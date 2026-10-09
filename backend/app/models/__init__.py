@@ -10,6 +10,7 @@ from app.models.teacher_availability import TeacherAvailability
 from app.models.booking import Booking
 from app.models.booking_attachment import BookingAttachment
 from app.models.prep_purchase import PrepPurchase
+from app.models.job_application import JobApplication
 
 __all__ = [
     "Subject",
@@ -21,4 +22,5 @@ __all__ = [
     "Booking",
     "BookingAttachment",
     "PrepPurchase",
+    "JobApplication",
 ]
