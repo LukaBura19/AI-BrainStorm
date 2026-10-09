@@ -3,807 +3,161 @@
    Contested selectors use `.admin-dashboard.dash-page` so they win over
    the shared dashboards.css, which is loaded after page stylesheets.
    ===================================================================== */
-
-.admin-dashboard {
-  width: min(1320px, 100%);
-  margin: 0 auto;
-  padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem);
-  min-width: 0;
-  color: var(--ink);
-}
-
-/* ==================================== */
-/*  Header (legacy markup)               */
-/* ==================================== */
-.admin-dashboard .dashboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-2xl);
-  gap: var(--spacing-md);
-}
-
-.admin-dashboard .page-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.9rem, 4vw, 3rem);
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-}
-
-/* ==================================== */
-/*  Tabs (AnimatedTabs container)        */
-/* ==================================== */
-.admin-dashboard.dash-page .admin-tabs {
-  display: flex;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0 0 18px;
-  padding: 5px;
-  gap: 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  background: var(--card);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: none;
-}
-
-.admin-dashboard .admin-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-/* ==================================== */
-/*  Section card                         */
-/* ==================================== */
-.admin-dashboard.dash-page .admin-section {
-  position: relative;
-  overflow: visible;
-  background: var(--card);
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  padding: clamp(1.1rem, 3vw, 2rem);
-  margin-bottom: var(--spacing-xl);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: none;
-}
-
-.admin-dashboard .section-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
-}
-
-.admin-dashboard.dash-page .section-title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 2vw, 1.75rem);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-
-/* ==================================== */
-/*  Filters                              */
-/* ==================================== */
-.admin-dashboard .bookings-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-}
-
-.admin-dashboard.dash-page .filter-chip {
-  min-height: 36px;
-  padding: 0.35rem 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--card);
-  color: var(--color-text-secondary);
-  font-family: var(--font-family);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: none;
-  transform: none;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-
-.admin-dashboard.dash-page .filter-chip:hover {
-  transform: none;
-  border-color: var(--forest);
-  color: var(--forest);
-  background: var(--forest-tint);
-}
-
-.admin-dashboard.dash-page .filter-chip.active {
-  background: var(--forest);
-  border-color: var(--forest);
-  color: var(--card);
-  box-shadow: none;
-}
-
-.admin-dashboard .filter-chip:focus-visible {
-  outline: 2px solid var(--forest);
-  outline-offset: 2px;
-}
-
-/* ==================================== */
-/*  Table                                */
-/* ==================================== */
-.admin-dashboard.dash-page .admin-table-wrap {
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  background: var(--card);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-}
-
-.admin-dashboard .admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-  color: var(--ink);
-}
-
-.admin-dashboard .admin-table th {
-  text-align: left;
-  padding: 0.8rem var(--spacing-md);
-  background: var(--paper);
-  color: var(--color-text-muted);
-  font-size: 0.68rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.admin-dashboard .admin-table td {
-  padding: 0.85rem var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
-  vertical-align: middle;
-}
-
-.admin-dashboard .admin-table tr:last-child td {
-  border-bottom: none;
-}
-
-.admin-dashboard.dash-page .admin-table tbody tr:hover td {
-  background: var(--forest-tint);
-}
-
-.admin-dashboard.dash-page .admin-table tbody tr:hover td:first-child {
-  box-shadow: inset 3px 0 0 var(--forest);
-}
-
-.admin-dashboard .row-cancelled td {
-  color: var(--color-text-muted);
-}
-
-.admin-dashboard .row-cancelled td > :not(.badge) {
-  opacity: 0.8;
-}
-
-.admin-dashboard .td-id {
-  font-weight: 700;
-  color: var(--terra);
-  font-size: var(--font-size-xs);
-  font-variant-numeric: tabular-nums;
-}
-
-.admin-dashboard .td-sub {
-  font-size: 0.72rem;
-  color: var(--color-text-muted);
-}
-
-.admin-dashboard .attachment-cell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  max-width: 220px;
-}
-
-.admin-dashboard .btn-action-attach {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  justify-content: flex-start;
-  text-align: left;
-  font-size: var(--font-size-xs);
-  color: var(--forest);
-  background: var(--forest-tint);
-  border-color: var(--forest-soft);
-}
-
-.admin-dashboard .btn-action-attach:hover:not(:disabled) {
-  background: var(--forest-soft);
-  border-color: var(--forest);
-}
-
-/* ==================================== */
-/*  Inline form (subjects)               */
-/* ==================================== */
-.admin-dashboard .inline-form {
-  display: flex;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-md);
-  background: var(--paper);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-}
-
-.admin-dashboard .inline-form .input {
-  flex: 1;
-  max-width: 420px;
-  background: var(--card);
-}
-
-/* ==================================== */
-/*  Items list (subjects, teachers)      */
-/* ==================================== */
-.admin-dashboard .items-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.admin-dashboard .item-row {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--card);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  transition: background 0.2s, border-color 0.2s;
-}
-
-.admin-dashboard .item-row:hover {
-  background: var(--forest-tint);
-  border-color: var(--color-border-strong);
-}
-
-.admin-dashboard .item-inactive {
-  background: var(--paper);
-}
-
-.admin-dashboard .item-inactive .item-name,
-.admin-dashboard .item-inactive .item-sub,
-.admin-dashboard .item-inactive .teacher-subject-tags {
-  opacity: 0.6;
-}
-
-.admin-dashboard .item-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.admin-dashboard .item-name {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex: 1;
-  min-width: 0;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.admin-dashboard .item-sub {
-  margin-top: 2px;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  overflow-wrap: anywhere;
-}
-
-.admin-dashboard .status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.admin-dashboard .status-dot.active {
-  background: var(--color-success);
-  box-shadow: 0 0 0 3px var(--forest-soft);
-}
-
-.admin-dashboard .status-dot.inactive {
-  background: var(--color-error);
-  box-shadow: 0 0 0 3px var(--terra-soft);
-}
-
-.admin-dashboard .item-badges,
-.admin-dashboard .item-actions {
-  display: flex;
-  gap: var(--spacing-xs);
-  flex-shrink: 0;
-}
-
-/* Badges: calm forest / terra pills instead of saturated status colors. */
-.admin-dashboard .badge {
-  border-radius: var(--radius-full);
-  font-weight: 600;
-}
-
-.admin-dashboard .badge-success {
-  background: var(--forest-soft);
-  color: var(--forest);
-}
-
-.admin-dashboard .badge-error {
-  background: #f8e4df;
-  color: var(--color-error);
-}
-
-.admin-dashboard .badge-warning {
-  background: var(--terra-soft);
-  color: var(--terra-hover);
-}
-
-/* ==================================== */
-/*  Action buttons                       */
-/* ==================================== */
-.admin-dashboard .btn-action {
-  min-height: 32px;
-  padding: 0.3rem 0.8rem;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  background: var(--card);
-  color: var(--ink);
-  font-family: var(--font-family);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-
-.admin-dashboard .btn-action:hover:not(:disabled) {
-  border-color: var(--color-border-strong);
-  background: var(--paper);
-}
-
-.admin-dashboard .btn-action:focus-visible {
-  outline: 2px solid var(--forest);
-  outline-offset: 2px;
+.admin-dashboard { width: min(1320px, 100%); margin: 0 auto; padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem); min-width: 0; color: var(--ink); }
+
+/* ---- Section card ---- */
+.admin-dashboard.dash-page .admin-section { position: relative; overflow: visible; margin-bottom: var(--spacing-xl); padding: clamp(1.1rem, 3vw, 2rem); border: 1px solid var(--color-border); border-radius: 20px; background: var(--card); box-shadow: var(--shadow-sm); }
+.admin-dashboard .section-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+.admin-dashboard.dash-page .section-title { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: clamp(1.4rem, 2vw, 1.75rem); font-weight: 500; letter-spacing: -0.02em; }
+.admin-dashboard .section-sub { margin-top: 2px; color: var(--color-text-secondary); font-size: 14px; }
+.admin-dashboard .section-note { margin-top: var(--spacing-lg); color: var(--color-text-muted); font-size: 13px; }
+.admin-dashboard .pending-alert { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.admin-dashboard .text-button { color: inherit; }
+.admin-dashboard .alert-warning .text-button { color: var(--terra-hover); }
+
+/* ---- Chips ---- */
+.admin-dashboard .bookings-filter { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+.admin-dashboard.dash-page .filter-chip { min-height: 38px; display: inline-flex; align-items: center; gap: 6px; padding: 0.35rem 1rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-full); background: var(--card); color: var(--color-text-secondary); font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 600; cursor: pointer; box-shadow: none; transition: background .2s, border-color .2s, color .2s; }
+.admin-dashboard.dash-page .filter-chip:hover { border-color: var(--forest); background: var(--forest-tint); color: var(--forest); }
+.admin-dashboard.dash-page .filter-chip.active { border-color: var(--forest); background: var(--forest); color: #fff; }
+
+/* ---- Day board: učionica 1, učionica 2, online ---- */
+.day-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.day-nav-arrow { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid var(--color-border-strong); border-radius: 50%; background: var(--card); color: var(--ink); cursor: pointer; }
+.day-nav-arrow:hover { border-color: var(--forest); color: var(--forest); background: var(--forest-tint); }
+.admin-dashboard .input-date { width: auto; min-height: 40px; padding-block: 6px; color-scheme: light; }
+.board-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.board-column { min-width: 0; padding: 12px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--paper); }
+.board-column header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; margin: 2px 4px 10px; }
+.board-column h3 { color: var(--forest); font: 600 16px/1.3 var(--font-display); }
+.board-column.is-online h3 { color: var(--terra-hover); }
+.board-column header span { color: var(--color-text-muted); font-size: 12.5px; font-weight: 600; }
+.board-empty { padding: 18px 10px; border: 1px dashed var(--color-border-strong); border-radius: 12px; color: var(--color-text-muted); font-size: 13.5px; text-align: center; }
+
+/* ---- Bookings filters ---- */
+.filter-bar { display: grid; grid-template-columns: minmax(220px, 1.6fr) repeat(5, minmax(130px, 1fr)); gap: 10px 12px; margin-bottom: 10px; padding: 14px; border: 1px solid var(--color-border); border-radius: 14px; background: var(--paper); }
+.filter-field { min-width: 0; }
+.filter-field .form-label { margin-bottom: 4px; color: var(--color-text-muted); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.filter-field :is(.input, .select) { min-height: 42px; padding-block: 8px; background: var(--card); }
+.filter-search { position: relative; display: block; }
+.filter-search svg { position: absolute; top: 50%; left: 12px; color: var(--color-text-muted); transform: translateY(-50%); pointer-events: none; }
+.filter-search .input { padding-left: 36px; }
+.filter-field--inline { width: min(320px, 100%); }
+.filter-quick { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: var(--spacing-lg); }
+.list-more { display: flex; justify-content: center; margin-top: 18px; }
+
+/* ---- Reassign form inside a lesson ---- */
+.reassign-form { margin-top: 12px; padding: 14px 16px; border: 1px solid var(--color-border); border-radius: 14px; background: var(--card); box-shadow: var(--shadow-sm); }
+.reassign-title { margin-bottom: 10px; color: var(--ink); font-size: 14.5px; font-weight: 650; }
+.reassign-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0 12px; }
+.reassign-grid .form-group { margin-bottom: 12px; }
+.reassign-grid :is(.input, .select) { min-height: 42px; padding-block: 8px; }
+.reassign-duration { min-width: 0; border: 0; }
+.reassign-chips { display: flex; gap: 6px; }
+.admin-dashboard.dash-page .reassign-chips .filter-chip { padding-inline: 12px; }
+.reassign-free { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--color-text-secondary); font-size: 13px; }
+.reassign-free > span:first-child { margin-right: 4px; }
+.time-pill { min-height: 32px; padding: 0 10px; border: 1px solid var(--color-border); border-radius: 999px; background: var(--forest-tint); color: var(--forest); cursor: pointer; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.time-pill:hover { border-color: var(--forest); }
+.time-pill.is-on { border-color: var(--forest); background: var(--forest); color: #fff; }
+.reassign-hint { margin-top: 10px; color: var(--color-text-muted); font-size: 12.5px; }
+
+/* ---- Inline forms (subjects) ---- */
+.admin-dashboard .inline-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px var(--spacing-md); margin-bottom: var(--spacing-lg); padding: var(--spacing-md); border: 1px solid var(--color-border); border-radius: 14px; background: var(--paper); }
+.admin-dashboard .inline-form .form-label { margin: 0; }
+.admin-dashboard .inline-form .input { flex: 1; max-width: 420px; background: var(--card); }
+.subject-rename { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.subject-rename .form-label { margin: 0; }
+.subject-rename .input { flex: 1; min-width: 180px; max-width: 360px; min-height: 42px; padding-block: 8px; }
+
+/* ---- Items list (teachers, students, subjects) ---- */
+.items-heading { margin: 4px 0 10px; color: var(--color-text-muted); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.items-heading + .items-list { margin-bottom: 22px; }
+.admin-dashboard .items-list { display: flex; flex-direction: column; gap: var(--spacing-sm); list-style: none; }
+.admin-dashboard .item-row { padding: var(--spacing-md) var(--spacing-lg); border: 1px solid var(--color-border); border-radius: 14px; background: var(--card); transition: background .2s, border-color .2s; }
+.admin-dashboard .item-row:hover { border-color: var(--color-border-strong); }
+.admin-dashboard .item-main { display: flex; align-items: center; gap: var(--spacing-lg); }
+.admin-dashboard .item-inactive { background: var(--paper); }
+.admin-dashboard .item-inactive :is(.item-name, .item-sub, .teacher-subject-tags) { opacity: .62; }
+.admin-dashboard .item-info { flex: 1; min-width: 0; }
+.admin-dashboard .item-name { display: flex; align-items: center; gap: var(--spacing-sm); min-width: 0; color: var(--ink); font-weight: 600; }
+.admin-dashboard .item-sub { margin-top: 2px; color: var(--color-text-muted); font-size: var(--font-size-xs); overflow-wrap: anywhere; }
+.admin-dashboard .item-sub--strong { color: var(--color-text-secondary); font-size: 13px; }
+.admin-dashboard .status-dot { width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; }
+.admin-dashboard .status-dot.active { background: var(--color-success); box-shadow: 0 0 0 3px var(--forest-soft); }
+.admin-dashboard .status-dot.inactive { background: var(--color-error); box-shadow: 0 0 0 3px var(--terra-soft); }
+.admin-dashboard .item-badges, .admin-dashboard .item-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); flex-shrink: 0; }
+.admin-dashboard .item-actions { justify-content: flex-end; }
+.admin-dashboard .item-row > .alert, .admin-dashboard .item-row > .inline-confirm { margin: 12px 0 0; }
+.item-editor { margin-top: 12px; padding: 14px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--paper); }
+.item-editor .form-group { margin-bottom: 10px; }
+.item-editor .input { background: var(--card); }
+.item-editor-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+
+/* ---- Badges: calm forest / terra pills ---- */
+.admin-dashboard .badge { border-radius: var(--radius-full); font-weight: 600; }
+
+/* ---- Action buttons ---- */
+.admin-dashboard .btn-action { min-height: 34px; display: inline-flex; align-items: center; gap: 5px; padding: 0.3rem 0.8rem; border: 1px solid var(--color-border); border-radius: 10px; background: var(--card); color: var(--ink); cursor: pointer; font-family: var(--font-family); font-size: var(--font-size-xs); font-weight: 600; white-space: nowrap; transition: background .2s, border-color .2s, color .2s; }
+.admin-dashboard .btn-action:hover:not(:disabled) { border-color: var(--color-border-strong); background: var(--paper); }
+.admin-dashboard .btn-action:disabled { cursor: not-allowed; opacity: .5; }
+.admin-dashboard .btn-action-success { border-color: var(--forest-soft); background: var(--forest-tint); color: var(--forest); }
+.admin-dashboard .btn-action-success:hover:not(:disabled) { border-color: var(--forest); background: var(--forest-soft); }
+.admin-dashboard .btn-action-warning { border-color: var(--terra-soft); background: var(--card); color: var(--terra-hover); }
+.admin-dashboard .btn-action-warning:hover:not(:disabled) { border-color: var(--terra); background: var(--terra-soft); }
+
+/* ---- New teacher form and subject pickers ---- */
+.admin-dashboard .new-teacher-form { margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); border: 1px solid var(--color-border); border-radius: 16px; background: var(--paper); animation: adminFadeIn .2s ease; }
+.admin-dashboard .new-teacher-form .input { background: var(--card); }
+.admin-dashboard .teacher-subject-picker { min-width: 0; margin: var(--spacing-md) 0 0; padding: var(--spacing-md); border: 1px solid var(--color-border); border-radius: 12px; background: var(--card); }
+.item-editor .teacher-subject-picker { margin-top: 0; }
+.admin-dashboard .teacher-subject-picker legend { padding-inline: .3rem; color: var(--ink); font-size: var(--font-size-sm); font-weight: 600; }
+.admin-dashboard .subject-check-grid { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .6rem; }
+.admin-dashboard .subject-check-grid label { position: relative; min-height: 36px; display: inline-flex; align-items: center; padding: .42rem .8rem; border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--card); color: var(--color-text-secondary); cursor: pointer; font-size: var(--font-size-xs); font-weight: 600; transition: background .2s, border-color .2s, color .2s; }
+.admin-dashboard .subject-check-grid label:hover { border-color: var(--color-border-strong); background: var(--paper); }
+.admin-dashboard .subject-check-grid label.selected { border-color: var(--forest); background: var(--forest-soft); color: var(--forest); }
+.admin-dashboard .subject-check-grid label:has(input:focus-visible) { outline: 2px solid var(--forest); outline-offset: 3px; }
+.admin-dashboard .subject-check-grid input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.admin-dashboard .teacher-subject-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
+.admin-dashboard .teacher-subject-tags span { padding: .2rem .55rem; border-radius: var(--radius-full); background: var(--forest-soft); color: var(--forest); font-size: .7rem; font-weight: 600; }
+.admin-dashboard .teacher-subject-tags em { color: var(--terra-hover); font-size: var(--font-size-xs); font-style: normal; }
+@keyframes adminFadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.admin-dashboard .form-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--spacing-md); }
+.admin-dashboard .form-row--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.admin-dashboard .form-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); margin-top: var(--spacing-md); }
+.admin-dashboard .checkbox-label { display: flex; align-items: center; gap: var(--spacing-sm); color: var(--color-text-secondary); cursor: pointer; font-size: var(--font-size-sm); font-weight: 500; }
+.admin-dashboard .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--forest); cursor: pointer; }
+
+/* ---- Empty state ---- */
+.admin-dashboard .empty-state { padding: var(--spacing-2xl) var(--spacing-lg); color: var(--color-text-muted); text-align: center; }
+
+/* Keep primary actions flat forest inside the admin panel. */
+.admin-dashboard.dash-page .btn-primary { background: var(--forest); background-image: none; color: #fff; box-shadow: var(--shadow-sm); }
+.admin-dashboard.dash-page .btn-primary:hover:not(:disabled) { background: var(--forest-hover); }
+.admin-dashboard.dash-page .btn-primary::before { content: none; }
+
+/* ---- Responsive ---- */
+@media (max-width: 1100px) {
+  .filter-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .filter-field--search { grid-column: 1 / -1; }
+}
+@media (max-width: 900px) {
+  .board-grid { grid-template-columns: minmax(0, 1fr); }
 }
-
-.admin-dashboard .btn-action:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.admin-dashboard .btn-action-success {
-  color: var(--forest);
-  background: var(--forest-tint);
-  border-color: var(--forest-soft);
-}
-
-.admin-dashboard .btn-action-success:hover:not(:disabled) {
-  background: var(--forest-soft);
-  border-color: var(--forest);
-}
-
-.admin-dashboard .btn-action-warning {
-  color: var(--terra-hover);
-  background: var(--card);
-  border-color: var(--terra-soft);
-}
-
-.admin-dashboard .btn-action-warning:hover:not(:disabled) {
-  background: var(--terra-soft);
-  border-color: var(--terra);
-}
-
-.admin-dashboard .btn-action-danger {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  min-height: 32px;
-  padding: 0;
-  border-radius: 10px;
-  color: var(--color-error);
-  background: #fbefec;
-  border-color: #f0d2cb;
-}
-
-.admin-dashboard .btn-action-danger:hover:not(:disabled) {
-  background: #f8e4df;
-  border-color: var(--color-error);
-}
-
-/* ==================================== */
-/*  New teacher form                     */
-/* ==================================== */
-.admin-dashboard .new-teacher-form {
-  margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  background: var(--paper);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  animation: adminFadeIn 0.2s ease;
-}
-
-.admin-dashboard .new-teacher-form .input {
-  background: var(--card);
-}
-
-.admin-dashboard .form-label {
-  color: var(--ink);
-}
-
-.admin-dashboard .teacher-subject-picker {
-  margin: var(--spacing-md) 0 0;
-  padding: var(--spacing-md);
-  min-width: 0;
-  background: var(--card);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-}
-
-.admin-dashboard .teacher-subject-picker legend,
-.admin-dashboard .teacher-subject-editor > strong {
-  padding-inline: 0.3rem;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.admin-dashboard .subject-check-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 0.6rem;
-}
-
-.admin-dashboard .subject-check-grid label {
-  position: relative;
-  padding: 0.42rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--card);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-
-.admin-dashboard .subject-check-grid label:hover {
-  border-color: var(--color-border-strong);
-  background: var(--paper);
-}
-
-.admin-dashboard .subject-check-grid label.selected {
-  border-color: var(--forest);
-  background: var(--forest-soft);
-  color: var(--forest);
-}
-
-.admin-dashboard .subject-check-grid label:has(input:focus-visible) {
-  outline: 2px solid var(--forest);
-  outline-offset: 3px;
-}
-
-.admin-dashboard .subject-check-grid input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
-.admin-dashboard .teacher-subject-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: 0.5rem;
-}
-
-.admin-dashboard .teacher-subject-tags span {
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-full);
-  background: var(--forest-soft);
-  color: var(--forest);
-  font-size: 0.68rem;
-  font-weight: 600;
-}
-
-.admin-dashboard .teacher-subject-tags em {
-  color: var(--terra-hover);
-  font-size: var(--font-size-xs);
-  font-style: normal;
-}
-
-.admin-dashboard .teacher-subject-editor {
-  margin-top: 0.8rem;
-  padding: 0.9rem;
-  background: var(--paper);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-}
-
-.admin-dashboard .teacher-subject-editor-actions {
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.7rem;
-}
-
-@keyframes adminFadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.admin-dashboard .form-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--spacing-md);
-}
-
-.admin-dashboard .form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-}
-
-.admin-dashboard .checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-}
-
-.admin-dashboard .checkbox-label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--forest);
-  cursor: pointer;
-}
-
-/* ==================================== */
-/*  Classroom schedule                   */
-/* ==================================== */
-.admin-dashboard .classroom-date-pick {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.admin-dashboard .input-date {
-  max-width: 200px;
-  color-scheme: light;
-}
-
-.admin-dashboard .classrooms-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-lg);
-}
-
-.admin-dashboard .classroom-card {
-  overflow: hidden;
-  background: var(--card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  box-shadow: var(--shadow-sm);
-}
-
-.admin-dashboard .classroom-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--paper);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.admin-dashboard .classroom-card-header h3 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: var(--forest);
-}
-
-.admin-dashboard .classroom-stats {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-.admin-dashboard .stat-sep {
-  margin: 0 var(--spacing-xs);
-}
-
-.admin-dashboard .classroom-empty {
-  padding: var(--spacing-xl);
-  text-align: center;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-.admin-dashboard .classroom-slots {
-  display: flex;
-  flex-direction: column;
-}
-
-.admin-dashboard .classroom-slot {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: 0.75rem var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.admin-dashboard .classroom-slot:last-child {
-  border-bottom: none;
-}
-
-.admin-dashboard .slot-time {
-  min-width: 110px;
-  flex-shrink: 0;
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  color: var(--forest);
-  font-variant-numeric: tabular-nums;
-}
-
-.admin-dashboard .slot-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-  min-width: 0;
-  font-size: var(--font-size-sm);
-  color: var(--ink);
-}
-
-.admin-dashboard .slot-teacher {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-}
-
-.admin-dashboard .slot-client {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-.admin-dashboard .slot-duration {
-  flex-shrink: 0;
-  padding: 0.15rem 0.55rem;
-  border-radius: var(--radius-full);
-  background: var(--paper-deep);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
-
-/* ==================================== */
-/*  Empty state                          */
-/* ==================================== */
-.admin-dashboard .empty-state {
-  padding: var(--spacing-2xl) var(--spacing-lg);
-  text-align: center;
-  color: var(--color-text-muted);
-}
-
-.admin-dashboard.dash-page .empty-state-icon {
-  display: grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto var(--spacing-md);
-  border-radius: 16px;
-  background: var(--paper-deep);
-  color: var(--forest);
-  opacity: 1;
-  animation: none;
-}
-
-/* ==================================== */
-/*  Responsive                           */
-/* ==================================== */
 @media (max-width: 768px) {
-  .admin-dashboard .dashboard-header {
-    flex-direction: column;
-  }
-
-  .admin-dashboard .section-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .admin-dashboard .inline-form {
-    flex-direction: column;
-  }
-
-  .admin-dashboard .inline-form .input {
-    max-width: 100%;
-  }
-
-  .admin-dashboard .form-row,
-  .admin-dashboard .classrooms-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .admin-dashboard .item-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-  }
-
-  .admin-dashboard .item-badges,
-  .admin-dashboard .item-actions {
-    flex-wrap: wrap;
-  }
+  .admin-dashboard .section-top { align-items: flex-start; flex-direction: column; }
+  .admin-dashboard .form-row, .admin-dashboard .form-row--two { grid-template-columns: minmax(0, 1fr); }
+  .admin-dashboard .item-main { flex-direction: column; align-items: flex-start; gap: var(--spacing-sm); }
+  .admin-dashboard .item-actions { justify-content: flex-start; }
+  .filter-field--inline { width: 100%; }
 }
-
 @media (max-width: 640px) {
-  .admin-dashboard.dash-page .admin-section {
-    padding: var(--spacing-md);
-    border-radius: 16px;
-  }
-
-  .admin-dashboard .form-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .admin-dashboard .admin-table th,
-  .admin-dashboard .admin-table td {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: var(--font-size-xs);
-  }
-
-  .admin-dashboard .admin-table th {
-    padding-block: 0.6rem;
-    font-size: 0.62rem;
-  }
-
-  .admin-dashboard .classroom-slot {
-    flex-wrap: wrap;
-    padding-inline: var(--spacing-md);
-    gap: var(--spacing-sm);
-  }
-
-  .admin-dashboard .slot-time {
-    min-width: 0;
-  }
-}
-
-/* Keep primary actions flat forest inside the admin panel, independent of
-   any shared button effects (sweep/glow) layered on top of .btn-primary. */
-.admin-dashboard.dash-page .btn-primary {
-  background: var(--forest);
-  background-image: none;
-  color: #fff;
-  box-shadow: var(--shadow-sm);
-}
-
-.admin-dashboard.dash-page .btn-primary:hover:not(:disabled) {
-  background: var(--forest-hover);
-  box-shadow: var(--shadow-sm);
-}
-
-.admin-dashboard.dash-page .btn-primary::before {
-  content: none;
+  .admin-dashboard.dash-page .admin-section { padding: var(--spacing-md); border-radius: 16px; }
+  .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px; }
+  .filter-bar .filter-field:nth-child(-n + 4) { grid-column: 1 / -1; }
+  .admin-dashboard .form-actions { flex-direction: column; align-items: stretch; }
+  .day-nav { width: 100%; }
+  .day-nav .input-date { flex: 1; }
+  .admin-dashboard .bookings-filter { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-dashboard.dash-page .bookings-filter .filter-chip { justify-content: center; padding-inline: 10px; }
 }

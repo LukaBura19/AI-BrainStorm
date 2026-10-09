@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import Alert from "../components/Alert";
 import Spinner from "../components/Spinner";
 import api from "../services/api";
+import { isSignedInAs } from "../services/session";
 import { formatTimeLatn, formatTimestampDateLatn } from "../utils/srLatnDates";
 import "./CancelBookingPage.css";
 
@@ -71,7 +72,10 @@ function CancelBookingPage() {
     return <div className="cancel-page"><section className="cancel-card cancel-card--center">
       <span className="cancel-status-icon">✓</span><p className="cancel-eyebrow">Rezervacija #{result.booking_id}</p><h1>Čas je otkazan.</h1>
       <p>Termin je ponovo oslobođen. {mailMessage}</p>
-      <Link to="/booking" className="btn btn-primary">Zakaži drugi termin</Link>
+      <div className="cancel-done-actions">
+        <Link to="/booking" className="btn btn-primary">Zakaži drugi termin</Link>
+        {isSignedInAs("student") && <Link to="/ucenik/panel" className="btn btn-secondary">Nazad na moje časove</Link>}
+      </div>
     </section></div>;
   }
 

@@ -342,6 +342,40 @@ def send_cancellation_notification(
     )
 
 
+def send_booking_change_notification(
+    booking_data: dict,
+    client_email: str,
+    teacher_email: str,
+    admin_email: str,
+    previous_teacher_email: Optional[str] = None,
+    cancel_url: Optional[str] = None,
+) -> dict:
+    """
+    Obaveštava klijenta, profesora i admina da je čas premešten (drugi termin i/ili profesor).
+    Ako je čas prebačen drugom profesoru, prethodni profesor dobija poruku da čas više nije njegov.
+    """
+    recipients = [
+        {"email": client_email, "role": "client"},
+        {"email": teacher_email, "role": "teacher"},
+        {"email": admin_email, "role": "admin"},
+    ]
+    if previous_teacher_email and previous_teacher_email.lower() != teacher_email.lower():
+        recipients.append({"email": previous_teacher_email, "role": "previous_teacher"})
+    return send_emails_to_multiple(
+        recipients,
+        subject_fn=lambda recipient: (
+            f"Čas više nije u vašem rasporedu — {booking_data['subject_name']}"
+            if recipient["role"] == "previous_teacher"
+            else f"Izmena termina — {booking_data['subject_name']}"
+        ),
+        html_fn=lambda recipient: _build_change_html(
+            booking_data,
+            role=recipient["role"],
+            cancel_url=cancel_url if recipient["role"] == "client" else None,
+        ),
+    )
+
+
 def send_late_cancellation_notice(
     client_email: str,
     booking_data: dict,
@@ -512,6 +546,47 @@ def _build_cancellation_html(
     <p style="color:#4f5751; margin:0 0 8px; font-size:15px;">Rezervacija je otkazana od strane {by_label}.</p>
     {reason_html}
     {_booking_details_html(data, role=role)}
+    """
+    return _base_html(content)
+
+
+def _build_change_html(data: dict, role: str, cancel_url: Optional[str] = None) -> str:
+    """HTML obaveštenje o premeštenom času (novi termin i/ili novi profesor)."""
+    if role == "previous_teacher":
+        title = "Čas je prebačen drugom profesoru"
+        intro = (
+            f"Administracija je čas sa učenikom {html.escape(str(data.get('client_full_name', '')))} "
+            f"prebacila profesoru {html.escape(str(data.get('teacher_name', '')))}. Termin više nije u vašem rasporedu."
+        )
+        details_role = "teacher"
+    elif role == "client":
+        title = "Vaš čas je premešten"
+        intro = "Administracija je izmenila vaš čas. Ovo su novi detalji."
+        details_role = "client"
+    elif role == "teacher":
+        title = "Izmena časa u vašem rasporedu"
+        intro = "Čas vam je dodeljen ili mu je promenjen termin. Ovo su novi detalji."
+        details_role = "teacher"
+    else:
+        title = "Čas je premešten"
+        intro = "Rezervacija je izmenjena iz admin panela."
+        details_role = "admin"
+
+    cancel_section = ""
+    if cancel_url:
+        safe_cancel_url = html.escape(cancel_url, quote=True)
+        cancel_section = f"""
+        <p style="color:#7c817a; font-size:13px; margin-top:16px;">
+            Ako vam novi termin ne odgovara, čas možete otkazati najkasnije 24 sata pre početka:
+            <a href="{safe_cancel_url}" style="color:#1f4d3a; font-weight:700;">otkaži čas</a>.
+        </p>
+        """
+
+    content = f"""
+    <h2 style="color:#1f4d3a; margin:0 0 4px; font-size:20px;">{title}</h2>
+    <p style="color:#4f5751; margin:0 0 8px; font-size:15px;">{intro}</p>
+    {_booking_details_html(data, role=details_role)}
+    {cancel_section}
     """
     return _base_html(content)
 

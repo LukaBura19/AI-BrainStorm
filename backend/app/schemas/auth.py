@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -11,12 +12,15 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=1, max_length=128)
 
 
+StudentCategory = Literal["osnovna", "srednja", "faks", "drugo"]
+
+
 class StudentRegisterRequest(BaseModel):
     """Samostalna registracija učenika."""
     full_name: str = Field(..., min_length=2, max_length=255)
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=128)
-    category: Optional[Literal["osnovna", "srednja", "faks", "drugo"]] = None
+    category: Optional[StudentCategory] = None
 
     @field_validator("full_name")
     @classmethod
@@ -33,6 +37,9 @@ class Token(BaseModel):
     """Schema za JWT token response."""
     access_token: str
     token_type: str = "bearer"
+    # Ista osoba može biti i profesor i admin (isti email i lozinka u obe tabele).
+    # Tada prijava vraća i token za drugu ulogu, pa panel nudi prebacivanje bez nove prijave.
+    linked_tokens: dict[str, str] = Field(default_factory=dict)
 
 
 class AdminMe(BaseModel):
@@ -73,3 +80,41 @@ class StudentMe(BaseModel):
     category: Optional[str] = None
 
     model_config = {"from_attributes": True}
+
+
+class StudentUpdate(BaseModel):
+    """Učenik menja ime ili nivo obrazovanja. Poslata polja se menjaju, ostala ostaju."""
+    full_name: Optional[str] = Field(None, min_length=2, max_length=255)
+    category: Optional[StudentCategory] = None
+
+    @field_validator("full_name")
+    @classmethod
+    def strip_name(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        value = " ".join(value.split())
+        if len(value) < 2:
+            raise ValueError("Ime i prezime mora imati najmanje 2 karaktera.")
+        return value
+
+
+class StudentAdminResponse(BaseModel):
+    """Učenički nalog u admin pregledu, sa brojem časova vezanih za nalog."""
+    id: int
+    full_name: str
+    email: str
+    category: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+    bookings_total: int
+    bookings_upcoming: int
+
+
+class StudentAdminListResponse(BaseModel):
+    items: list[StudentAdminResponse]
+    total: int
+
+
+class StudentAdminUpdate(BaseModel):
+    """Admin aktivira ili deaktivira učenički nalog."""
+    is_active: bool

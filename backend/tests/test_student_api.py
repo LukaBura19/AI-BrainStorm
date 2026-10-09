@@ -86,3 +86,31 @@ class TestStudentBookings:
     def test_invalid_token_still_allows_guest_booking(self, client, teacher, subject, teacher_subject_link, availability):
         resp = book(client, subject, teacher, 9, headers={"Authorization": "Bearer nevazeci"})
         assert resp.status_code == 201
+
+
+class TestStudentProfileUpdate:
+    def test_student_changes_level_and_name(self, client):
+        token = register(client).json()["access_token"]
+        resp = client.patch("/student/me", json={"category": "faks", "full_name": "  Ana   Jovanović "}, headers=auth(token))
+        assert resp.status_code == 200
+        assert resp.json()["category"] == "faks"
+        assert resp.json()["full_name"] == "Ana Jovanović"
+        assert client.get("/student/me", headers=auth(token)).json()["category"] == "faks"
+
+    def test_partial_update_keeps_other_fields_and_null_clears_level(self, client):
+        token = register(client).json()["access_token"]
+        assert client.patch("/student/me", json={"full_name": "Ana Nova"}, headers=auth(token)).json()["category"] == "srednja"
+        cleared = client.patch("/student/me", json={"category": None}, headers=auth(token))
+        assert cleared.status_code == 200
+        assert cleared.json()["category"] is None
+        assert cleared.json()["full_name"] == "Ana Nova"
+
+    def test_invalid_level_and_short_name_are_rejected(self, client):
+        token = register(client).json()["access_token"]
+        assert client.patch("/student/me", json={"category": "vrtic"}, headers=auth(token)).status_code == 422
+        assert client.patch("/student/me", json={"full_name": " A "}, headers=auth(token)).status_code == 422
+
+    def test_update_requires_student_token(self, client, teacher):
+        assert client.patch("/student/me", json={"category": "faks"}).status_code == 401
+        login = client.post("/auth/teacher/login", json={"email": teacher.email, "password": "test123"})
+        assert client.patch("/student/me", json={"category": "faks"}, headers=auth(login.json()["access_token"])).status_code == 401

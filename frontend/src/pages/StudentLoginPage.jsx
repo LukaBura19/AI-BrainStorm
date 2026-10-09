@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import api from "../services/api";
+import { getSession, isSignedInAs, ROLE_LABEL, startSession } from "../services/session";
 import Alert from "../components/Alert";
 import RoleIcon from "../components/RoleIcon";
 import "./StudentLoginPage.css";
@@ -35,6 +36,17 @@ export default function StudentLoginPage() {
   const shownMode = useRef(mode);
   // After signing in from the booking flow, go back there instead of the panel.
   const next = params.get("dalje") === "zakazivanje" ? "/booking" : "/ucenik/panel";
+  const otherRole = getSession()?.role;
+  const notice = params.get("razlog") === "istekla"
+    ? "Sesija je istekla. Prijavi se ponovo."
+    : otherRole && otherRole !== "student"
+      ? `Na ovom uređaju je otvoren nalog (${ROLE_LABEL[otherRole].toLowerCase()}). Prijavom kao učenik taj nalog se zatvara.`
+      : "";
+
+  // Already signed in as a student: skip the form.
+  useEffect(() => {
+    if (isSignedInAs("student")) navigate(next, { replace: true });
+  }, [navigate, next]);
 
   const switchTo = (nextMode) => {
     if (nextMode === mode) return;
@@ -63,8 +75,7 @@ export default function StudentLoginPage() {
       const data = registering
         ? await api.post("/auth/student/register", { full_name: fullName.trim(), email, password, category: category || null })
         : await api.post("/auth/student/login", { email, password });
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("role", "student");
+      startSession("student", data);
       navigate(next);
     } catch (err) {
       setError(err.message || "Greška pri prijavi.");
@@ -73,7 +84,7 @@ export default function StudentLoginPage() {
     }
   };
 
-  const errorBox = error && <Alert type="error" onClose={() => setError("")}>{error}</Alert>;
+  const errorBox = error ? <Alert type="error" onClose={() => setError("")}>{error}</Alert> : notice && <Alert type="info">{notice}</Alert>;
 
   return (
     <div className="student-auth-page">

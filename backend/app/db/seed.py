@@ -8,6 +8,7 @@ Kreira:
   - admin naloge
   - predmete
   - profesore (odobrene, sa predmetima)
+  - jedan test učenički nalog
 """
 
 from sqlalchemy.orm import Session
@@ -15,6 +16,7 @@ from app.db.session import SessionLocal
 from app.core.config import settings
 from app.core.security import hash_password
 from app.models.admin import Admin
+from app.models.student import Student
 from app.models.subject import Subject
 from app.models.teacher import Teacher
 from app.models.teacher_subject import TeacherSubject
@@ -122,6 +124,34 @@ SEED_TEACHERS = [
         "subjects": ["Hemija"],
     },
 ]
+
+
+# ---- Test učenik (učenici se inače sami registruju) ----
+SEED_STUDENTS = [
+    {
+        "full_name": "Mina Petrović",
+        "email": "mina.petrovic@example.rs",
+        "password": "ucenik123",
+        "category": "srednja",
+    },
+]
+
+
+def seed_students(db: Session) -> None:
+    """Kreira test učenički nalog ako ne postoji."""
+    for s_data in SEED_STUDENTS:
+        if db.query(Student).filter(Student.email == s_data["email"]).first():
+            print(f"  [skip] Učenik '{s_data['full_name']}' ({s_data['email']}) vec postoji.")
+            continue
+        db.add(Student(
+            full_name=s_data["full_name"],
+            email=s_data["email"],
+            password_hash=hash_password(s_data["password"]),
+            category=s_data["category"],
+            is_active=True,
+        ))
+        db.commit()
+        print(f"  [ok] Učenik kreiran: {s_data['full_name']} ({s_data['email']})")
 
 
 def seed_admins(db: Session) -> None:
@@ -237,6 +267,9 @@ def run_seed() -> None:
 
         print("\n--- Profesori ---")
         seed_teachers(db)
+
+        print("\n--- Učenici ---")
+        seed_students(db)
 
         print("\n" + "=" * 50)
         print("Seed zavrsen!")

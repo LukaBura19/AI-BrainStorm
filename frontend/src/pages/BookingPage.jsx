@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Atom, BookOpen, Brain, Calculator, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, CodeXml, FileText, FlaskConical, GraduationCap, Languages, Mail, MapPin, Paperclip, PenLine, RefreshCw, School, UserRound, Users, Video } from "lucide-react";
 import Alert from "../components/Alert";
 import Spinner from "../components/Spinner";
 import api from "../services/api";
+import { getSession, isSignedInAs } from "../services/session";
 import JourneyProgress from "../components/JourneyProgress";
 import LiveTicket from "../components/LiveTicket";
 import ScienceCard from "../components/ScienceCard";
@@ -55,6 +56,7 @@ const MAX_ATTACHMENTS = 10;
 const ATTACHMENT_EXT_RE = /\.(pdf|png|jpg|jpeg|webp)$/i;
 const ATTACHMENT_MIME_OK = new Set(["application/pdf", "image/png", "image/jpeg", "image/webp"]);
 
+const isFeaturedTeacher = (teacher) => teacher.full_name?.trim().toLocaleLowerCase("sr-Latn") === "luka bura";
 const deliveryLabel = (value) => DELIVERY_OPTIONS.find((option) => option.value === value)?.title || value;
 const sessionLabel = (value) => SESSION_OPTIONS.find((option) => option.value === value)?.title || value;
 const categoryLabel = (value) => CATEGORIES.find((option) => option.value === value)?.label || value;
@@ -156,12 +158,16 @@ function BookingPage() {
   const sortedSlots = useMemo(() => [...slots].sort((a, b) => new Date(a.start_time) - new Date(b.start_time)), [slots]);
 
   // The current public design features Luka; keep real IDs and subject eligibility from the API.
-  const displayedTeachers = teachers.filter((teacher) => teacher.full_name?.trim().toLocaleLowerCase("sr-Latn") === "luka bura");
+  const displayedTeachers = teachers.filter(isFeaturedTeacher);
+
+  // "Zakaži ponovo" iz učeničkog panela: /booking?predmet=<id>&profesor=<id> preskače već poznate korake.
+  const [searchParams] = useSearchParams();
+  const prefill = useRef({ subject: Number(searchParams.get("predmet")) || null, teacher: Number(searchParams.get("profesor")) || null });
 
   // A signed-in student gets their name, email and level filled in; the lesson is linked to their account.
   const [student, setStudent] = useState(null);
   useEffect(() => {
-    if (localStorage.getItem("role") !== "student" || !localStorage.getItem("token")) return undefined;
+    if (!isSignedInAs("student")) return undefined;
     const controller = new AbortController();
     api.get("/student/me", { signal: controller.signal })
       .then((me) => {
@@ -200,6 +206,17 @@ function BookingPage() {
   }, [loadSubjects]);
 
   useEffect(() => {
+    const wanted = prefill.current.subject;
+    if (!wanted || subjectsLoading) return;
+    prefill.current.subject = null;
+    const subject = subjects.find((item) => item.id === wanted);
+    if (!subject) { prefill.current.teacher = null; return; }
+    setSelectedSubject(subject);
+    // Without a teacher to preselect, continue on the teacher step.
+    if (!prefill.current.teacher) { setDirection(1); setStep(2); }
+  }, [subjects, subjectsLoading]);
+
+  useEffect(() => {
     if (!selectedSubject) {
       setTeachers([]);
       return undefined;
@@ -209,7 +226,18 @@ function BookingPage() {
     setTeachers([]);
     setError("");
     api.get(`/public/teachers?subject_id=${selectedSubject.id}`, { signal: controller.signal })
-      .then((data) => setTeachers(data.items || []))
+      .then((data) => {
+        const items = data.items || [];
+        setTeachers(items);
+        const wanted = prefill.current.teacher;
+        if (!wanted) return;
+        prefill.current.teacher = null;
+        const teacher = items.find((item) => item.id === wanted && isFeaturedTeacher(item));
+        if (teacher) setSelectedTeacher(teacher);
+        else setError("Profesor sa prethodnog časa trenutno ne predaje ovaj predmet. Izaberi profesora.");
+        setDirection(1);
+        setStep(teacher ? 3 : 2);
+      })
       .catch((requestError) => {
         if (!controller.signal.aborted) setError(requestError.message);
       })
@@ -430,7 +458,9 @@ function BookingPage() {
             ) : <p className="booking-success-lead">Čas je potvrđen. Sačuvajte detalje rezervacije.</p>}
             <div className="booking-success-actions">
               <button type="button" className="btn btn-primary" onClick={resetBooking}>Zakaži još jedan čas</button>
-              {bookingResult.client_cancel_token && <Link className="btn btn-secondary" to={`/cancel/${bookingResult.client_cancel_token}`}>Otvori link za otkazivanje</Link>}
+              {student
+                ? <Link className="btn btn-secondary" to="/ucenik/panel">Moji časovi</Link>
+                : bookingResult.client_cancel_token && <Link className="btn btn-secondary" to={`/cancel/${bookingResult.client_cancel_token}`}>Otvori link za otkazivanje</Link>}
             </div>
             <p className="booking-cancel-note">Besplatno otkazivanje moguće je najkasnije 24 sata pre časa.</p>
           </div>
@@ -480,6 +510,7 @@ function BookingPage() {
             }}><span className="booking-subject-glyph"><SubjectIcon name={subject.name} /></span><strong>{subject.name}</strong>{selected && <CheckMark />}</ScienceCard>;
           })}
         </div>}
+        {!getSession() && <p className="booking-student-note booking-signin-hint"><UserRound size={16} aria-hidden="true" /> Imaš učenički nalog? <Link to="/ucenik/prijava?dalje=zakazivanje">Prijavi se</Link> pre zakazivanja i čas će biti u tvom panelu.</p>}
         <StepActions onNext={goNext} nextDisabled={!selectedSubject} />
       </>;
 

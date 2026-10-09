@@ -78,3 +78,6 @@
   .brand-logo--header .brand-logo-name { display: none; }
   .app-nav-link { padding-inline: 7px; font-size: 14px; }
 }
+
+/* Role switch entries are buttons that must look exactly like the link items. */
+button.app-login-panel-item { width: 100%; border: 0; background: none; cursor: pointer; font: inherit; text-align: left; }

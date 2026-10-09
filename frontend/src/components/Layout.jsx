@@ -9,6 +9,13 @@ import {
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import BrandLogo from "./BrandLogo";
 import RoleIcon from "./RoleIcon";
+import { endSession, getSession, ROLE_HOME, ROLE_LOGIN, switchRole } from "../services/session";
+
+const ROLE_ITEMS = [
+  { role: "student", title: "Učenik", iconClass: "app-login-panel-icon--student", open: "Moji časovi", signIn: "Prijavi se ili napravi nalog" },
+  { role: "teacher", title: "Profesor", iconClass: "", open: "Otvori svoj panel", signIn: "Prijavi se" },
+  { role: "admin", title: "Administrator", iconClass: "app-login-panel-icon--blue", open: "Otvori kontrolni panel", signIn: "Prijavi se" },
+];
 
 // Pages that paint their own background (home video, booking studio, panels).
 const SELF_BACKGROUND_ROUTES = new Set(["/", "/booking", "/teacher/dashboard", "/admin/dashboard"]);
@@ -92,18 +99,20 @@ function Layout() {
     };
   }, []);
 
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const teacherLoggedIn = Boolean(token && role === "teacher");
-  const adminLoggedIn = Boolean(token && role === "admin");
-  const studentLoggedIn = Boolean(token && role === "student");
-  const loggedIn = teacherLoggedIn || adminLoggedIn || studentLoggedIn;
+  const session = getSession();
+  const role = session?.role;
+  const linked = session?.linked || {};
+  const loggedIn = Boolean(session);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    endSession();
     setLoginOpen(false);
     navigate("/");
+  };
+
+  const handleSwitch = (targetRole) => {
+    setLoginOpen(false);
+    if (switchRole(targetRole)) navigate(ROLE_HOME[targetRole]);
   };
 
   return (
@@ -246,51 +255,19 @@ function Layout() {
                     transition={{ duration: 0.18 }}
                   >
                     <p className="app-login-panel-title">Pristup sistemu</p>
-                    <Link
-                      to={studentLoggedIn ? "/ucenik/panel" : "/ucenik/prijava"}
-                      className="app-login-panel-item"
-                      role="menuitem"
-                    >
-                      <span className="app-login-panel-icon app-login-panel-icon--student"><RoleIcon role="student" /></span>
-                      <span>
-                        <strong>Učenik</strong>
-                        <small>
-                          {studentLoggedIn ? "Moji časovi" : "Prijavi se ili napravi nalog"}
-                        </small>
-                      </span>
-                    </Link>
-                    <Link
-                      to={
-                        teacherLoggedIn
-                          ? "/teacher/dashboard"
-                          : "/teacher/login"
+                    {ROLE_ITEMS.map((item) => {
+                      const body = <>
+                        <span className={`app-login-panel-icon ${item.iconClass}`}><RoleIcon role={item.role} /></span>
+                        <span>
+                          <strong>{item.title}</strong>
+                          <small>{role === item.role ? item.open : linked[item.role] ? "Prebaci se bez nove prijave" : item.signIn}</small>
+                        </span>
+                      </>;
+                      if (role !== item.role && linked[item.role]) {
+                        return <button key={item.role} type="button" className="app-login-panel-item" role="menuitem" onClick={() => handleSwitch(item.role)}>{body}</button>;
                       }
-                      className="app-login-panel-item"
-                      role="menuitem"
-                    >
-                      <span className="app-login-panel-icon"><RoleIcon role="teacher" /></span>
-                      <span>
-                        <strong>Profesor</strong>
-                        <small>
-                          {teacherLoggedIn ? "Otvori svoj panel" : "Prijavi se"}
-                        </small>
-                      </span>
-                    </Link>
-                    <Link
-                      to={adminLoggedIn ? "/admin/dashboard" : "/admin/login"}
-                      className="app-login-panel-item"
-                      role="menuitem"
-                    >
-                      <span className="app-login-panel-icon app-login-panel-icon--blue"><RoleIcon role="admin" /></span>
-                      <span>
-                        <strong>Administrator</strong>
-                        <small>
-                          {adminLoggedIn
-                            ? "Otvori kontrolni panel"
-                            : "Prijavi se"}
-                        </small>
-                      </span>
-                    </Link>
+                      return <Link key={item.role} to={role === item.role ? ROLE_HOME[item.role] : ROLE_LOGIN[item.role]} className="app-login-panel-item" role="menuitem">{body}</Link>;
+                    })}
                     {loggedIn && (
                       <button
                         type="button"

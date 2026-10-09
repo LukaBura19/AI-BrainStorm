@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { isSignedInAs, startSession, switchRole } from "../services/session";
 import Alert from "../components/Alert";
 import RoleIcon from "../components/RoleIcon";
 import "./TeacherLoginPage.css";
@@ -12,6 +13,11 @@ function TeacherLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Već prijavljen u ovoj ulozi, ili ima vezani token (profesor koji je i admin): pravo u panel.
+  useEffect(() => {
+    if (isSignedInAs("teacher") || switchRole("teacher")) navigate("/teacher/dashboard", { replace: true });
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -19,8 +25,7 @@ function TeacherLoginPage() {
 
     try {
       const data = await api.post("/auth/teacher/login", { email, password });
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("role", "teacher");
+      startSession("teacher", data);
       navigate("/teacher/dashboard");
     } catch (err) {
       setError(err.message || "Greška pri prijavi.");

@@ -36,3 +36,5 @@
 .cancel-back:hover { color: var(--forest); }
 @media (max-width:560px) { .cancel-ticket { grid-template-columns: 1fr; } .cancel-ticket-date { min-height: 120px; } .cancel-confirm>div { display: grid; } .cancel-confirm .btn { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .cancel-card { animation: none; } }
+
+.cancel-done-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }

@@ -7,7 +7,7 @@ from app.core.deps import get_current_student
 from app.db.session import get_db
 from app.models.booking import Booking
 from app.models.student import Student
-from app.schemas.auth import StudentMe
+from app.schemas.auth import StudentMe, StudentUpdate
 from app.schemas.booking import BookingListResponse, BookingResponse, attachments_from_booking
 
 router = APIRouter(prefix="/student", tags=["Student"])
@@ -16,6 +16,23 @@ router = APIRouter(prefix="/student", tags=["Student"])
 @router.get("/me", response_model=StudentMe)
 def student_me(current_student: Student = Depends(get_current_student)):
     """Profil prijavljenog učenika."""
+    return current_student
+
+
+@router.patch("/me", response_model=StudentMe)
+def update_student_me(
+    payload: StudentUpdate,
+    current_student: Student = Depends(get_current_student),
+    db: Session = Depends(get_db),
+):
+    """Učenik menja svoje ime ili nivo obrazovanja (nivo bira pripreme i popunjava zakazivanje)."""
+    changes = payload.model_dump(exclude_unset=True)
+    if changes.get("full_name"):
+        current_student.full_name = changes["full_name"]
+    if "category" in changes:
+        current_student.category = changes["category"]
+    db.commit()
+    db.refresh(current_student)
     return current_student
 
 

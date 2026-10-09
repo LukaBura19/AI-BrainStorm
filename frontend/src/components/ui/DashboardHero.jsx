@@ -13,17 +13,23 @@ function greeting() {
 
 const today = () => new Intl.DateTimeFormat("sr-Latn-RS", { timeZone: "Europe/Belgrade", weekday: "long", day: "numeric", month: "long" }).format(new Date());
 
-/** Shared welcome banner for the teacher and admin panels, with live stat tiles. */
-export default function DashboardHero({ name, role, onLogout, stats = [], aside }) {
+/**
+ * Shared welcome banner for the student, teacher and admin panels, with live stat tiles.
+ * `title` replaces the default "Dobrodošli, {name}" heading; `actions` renders before the sign-out button.
+ */
+export default function DashboardHero({ name, role, onLogout, stats = [], aside, title, actions }) {
   return <section className="dash-hero" data-spotlight>
     <div className="dash-hero-main">
       <TeacherAvatar name={name} />
       <div className="dash-hero-copy">
         <p className="dash-hero-eyebrow"><span>{role}</span>{greeting()} · {today()}</p>
-        <h1 className="page-title">Dobrodošli, <span className="fx-gradient-text">{name}</span></h1>
+        <h1 className="page-title">{title ?? <>Dobrodošli, <span className="fx-gradient-text">{name}</span></>}</h1>
         {aside}
       </div>
-      <button type="button" className="btn btn-secondary btn-sm dash-hero-logout" onClick={onLogout}><LogOut size={15} aria-hidden="true" /> Odjavi se</button>
+      <div className="dash-hero-actions">
+        {actions}
+        <button type="button" className="btn btn-secondary btn-sm dash-hero-logout" onClick={onLogout}><LogOut size={15} aria-hidden="true" /> Odjavi se</button>
+      </div>
     </div>
     {stats.length > 0 && <div className="dash-stats">
       {stats.map(({ label, value, icon: Icon, hint, tone = "pink" }, index) => (
