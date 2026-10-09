@@ -111,6 +111,80 @@ export function formatTimestampDateLatn(isoStr, short = false) {
   return `${WEEKDAYS_LONG[parts.weekdayIndex]}, ${parts.day}. ${MONTHS_LONG[parts.month - 1]} ${parts.year}.`;
 }
 
+/** "YYYY-MM-DD" dana u kalendaru centra za dati trenutak. */
+export function dayKeyLatn(isoStr) {
+  const parts = timestampParts(isoStr);
+  return parts ? `${parts.year}-${pad2(parts.month)}-${pad2(parts.day)}` : "";
+}
+
+export function todayKeyLatn(baseDate = new Date()) {
+  const { year, month, day } = centerCalendarParts(baseDate);
+  return `${year}-${pad2(month)}-${pad2(day)}`;
+}
+
+/** Naslov dana u agendi: "Danas, sreda 8. oktobar", "Sutra, četvrtak 9. oktobar", "Petak, 10. oktobar" (godina samo ako nije tekuća). */
+export function formatDayHeadingLatn(isoStr, baseDate = new Date()) {
+  const parts = timestampParts(isoStr);
+  if (!parts) return "";
+  const key = dayKeyLatn(isoStr);
+  const today = centerCalendarParts(baseDate);
+  const todayUtc = Date.UTC(today.year, today.month - 1, today.day, 12);
+  const dayUtc = Date.UTC(parts.year, parts.month - 1, parts.day, 12);
+  const diffDays = Math.round((dayUtc - todayUtc) / 864e5);
+  const dayMonth = `${WEEKDAYS_LONG[parts.weekdayIndex]} ${parts.day}. ${MONTHS_LONG[parts.month - 1]}`;
+  if (diffDays === 0) return `Danas, ${dayMonth}`;
+  if (diffDays === 1) return `Sutra, ${dayMonth}`;
+  if (diffDays === -1) return `Juče, ${dayMonth}`;
+  if (!key) return "";
+  const weekday = WEEKDAYS_LONG[parts.weekdayIndex];
+  const label = `${weekday[0].toUpperCase()}${weekday.slice(1)}, ${parts.day}. ${MONTHS_LONG[parts.month - 1]}`;
+  return parts.year === today.year ? label : `${label} ${parts.year}.`;
+}
+
+/** "YYYY-MM-DD" pomeren za `days` kalendarskih dana. */
+export function shiftDayKey(key, days) {
+  const date = parseDateOnly(key);
+  if (!date) return "";
+  date.setUTCDate(date.getUTCDate() + days);
+  return `${date.getUTCFullYear()}-${pad2(date.getUTCMonth() + 1)}-${pad2(date.getUTCDate())}`;
+}
+
+/** Broj kalendarskih dana od `fromKey` do `toKey` ("YYYY-MM-DD"). */
+export function daysBetweenKeys(fromKey, toKey) {
+  const from = parseDateOnly(fromKey);
+  const to = parseDateOnly(toKey);
+  return from && to ? Math.round((to - from) / 864e5) : NaN;
+}
+
+/** Ponedeljak i nedelja nedelje kojoj pripada dan: { from, to }. */
+export function weekKeys(key = todayKeyLatn()) {
+  const date = parseDateOnly(key);
+  if (!date) return { from: "", to: "" };
+  const monday = shiftDayKey(key, -((date.getUTCDay() + 6) % 7));
+  return { from: monday, to: shiftDayKey(monday, 6) };
+}
+
+/** "pon 13. okt" za dan "YYYY-MM-DD". */
+export function formatDayKeyShortLatn(key) {
+  const date = parseDateOnly(key);
+  return date ? formatDatePickerLabel(date) : "";
+}
+
+/** Naslov dana za "YYYY-MM-DD": "Danas, sreda 8. oktobar" / "petak, 10. oktobar 2026." */
+export function formatDayKeyHeadingLatn(key, baseDate = new Date()) {
+  return parseDateOnly(key) ? formatDayHeadingLatn(`${key}T12:00:00Z`, baseDate) : "";
+}
+
+/** Vremena "HH:MM" na svakih `step` minuta, od `from` do `to` uključivo. */
+export function timeOptions(from = "08:00", to = "21:30", step = 30) {
+  const toMinutes = (value) => { const [h, m] = value.split(":").map(Number); return h * 60 + m; };
+  const items = [];
+  for (let minute = toMinutes(from); minute <= toMinutes(to); minute += step) {
+    items.push(`${pad2(Math.floor(minute / 60))}:${pad2(minute % 60)}`);
+  }
+  return items;
+}
+
 export function formatTimeLatn(isoStr) {
   const parts = timestampParts(isoStr);
   return parts ? `${parts.hour}:${parts.minute}` : "";

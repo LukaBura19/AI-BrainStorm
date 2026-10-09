@@ -14,16 +14,18 @@ from app.db.session import get_db
 from app.models.admin import Admin
 from app.models.booking import Booking
 from app.models.booking_attachment import BookingAttachment
+from app.models.student import Student
 from app.models.subject import Subject
 from app.models.teacher import Teacher
 from app.models.teacher_availability import TeacherAvailability
 from app.models.teacher_subject import TeacherSubject
-from app.schemas.auth import AdminMe
+from app.schemas.auth import AdminMe, StudentAdminListResponse, StudentAdminResponse, StudentAdminUpdate
 from app.schemas.booking import (
     BookingCancelResponse,
     BookingListResponse,
     BookingReassign,
     BookingResponse,
+    NotificationDelivery,
     attachments_from_booking,
 )
 from app.schemas.classroom import ClassroomDaySchedule, ClassroomScheduleResponse, ClassroomSlot
@@ -45,7 +47,11 @@ from app.schemas.teacher import (
 )
 from app.services.attachment_service import resolve_attachment_path
 from app.services.classroom_service import assign_classroom
-from app.services.email_service import booking_to_email_data, send_cancellation_notification
+from app.services.email_service import (
+    booking_to_email_data,
+    send_booking_change_notification,
+    send_cancellation_notification,
+)
 from app.utils.datetime_utils import local_day_bounds_utc, to_app_timezone
 
 logger = logging.getLogger("brainstorm.admin")
@@ -598,6 +604,8 @@ def reassign_booking(
             detail="Samo potvrđene rezervacije se mogu prebaciti.",
         )
 
+    previous_teacher_email = booking.teacher.email if booking.teacher else None
+
     # Odredi nove vrednosti (koristi postojeće ako nije prosleđeno)
     new_teacher_id = payload.teacher_id if payload.teacher_id is not None else booking.teacher_id
     new_subject_id = payload.subject_id if payload.subject_id is not None else booking.subject_id
@@ -742,7 +750,24 @@ def reassign_booking(
         f"NovaUčionica={booking.classroom_number}"
     )
 
-    return _booking_to_response(booking)
+    # Klijent, (novi) profesor i admin saznaju za novi termin; prethodni profesor da čas više nije njegov.
+    notification_delivery = None
+    try:
+        notification_delivery = send_booking_change_notification(
+            booking_data=booking_to_email_data(booking),
+            client_email=booking.client_email,
+            teacher_email=teacher.email,
+            admin_email=settings.ADMIN_EMAIL,
+            previous_teacher_email=previous_teacher_email,
+            cancel_url=f"{settings.FRONTEND_URL}/cancel/{booking.client_cancel_token}",
+        )
+    except Exception:
+        logger.exception("Neočekivana greška pri slanju obaveštenja o izmeni za booking ID=%s", booking.id)
+        notification_delivery = {"sent": 0, "failed": 3, "total": 3, "status": "failed"}
+
+    response = _booking_to_response(booking)
+    response.notification_delivery = NotificationDelivery(**notification_delivery)
+    return response
 
 
 @router.patch("/bookings/{booking_id}/cancel", response_model=BookingCancelResponse)
@@ -812,6 +837,67 @@ def cancel_booking_by_admin(
         status=booking.status,
         notification_delivery=notification_delivery,
     )
+
+
+# =============================================
+#  Admin — Učenički nalozi
+# =============================================
+
+def _student_to_admin_response(student: Student, now: datetime) -> StudentAdminResponse:
+    bookings = student.bookings or []
+    return StudentAdminResponse(
+        id=student.id,
+        full_name=student.full_name,
+        email=student.email,
+        category=student.category,
+        is_active=student.is_active,
+        created_at=student.created_at,
+        bookings_total=len(bookings),
+        bookings_upcoming=sum(
+            1 for b in bookings
+            if b.status == "confirmed" and normalize_aware(b.start_time) >= now
+        ),
+    )
+
+
+def normalize_aware(value: datetime) -> datetime:
+    """SQLite/stari redovi mogu vratiti naivno vreme; tretiramo ga kao UTC."""
+    return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+
+
+@router.get("/students", response_model=StudentAdminListResponse)
+def list_students(
+    db: Session = Depends(get_db),
+    _current_admin: Admin = Depends(get_current_admin),
+):
+    """
+    Svi učenički nalozi, najnoviji prvi, sa brojem časova zakazanih dok je učenik bio prijavljen.
+    Samo za admina.
+    """
+    now = datetime.now(timezone.utc)
+    students = db.query(Student).order_by(Student.created_at.desc(), Student.id.desc()).all()
+    items = [_student_to_admin_response(student, now) for student in students]
+    return StudentAdminListResponse(items=items, total=len(items))
+
+
+@router.patch("/students/{student_id}", response_model=StudentAdminResponse)
+def update_student(
+    student_id: int,
+    payload: StudentAdminUpdate,
+    db: Session = Depends(get_db),
+    _current_admin: Admin = Depends(get_current_admin),
+):
+    """Aktivira ili deaktivira učenički nalog (deaktiviran nalog ne može da se prijavi). Samo za admina."""
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Učenik nije pronađen.",
+        )
+    student.is_active = payload.is_active
+    db.commit()
+    db.refresh(student)
+    return _student_to_admin_response(student, datetime.now(timezone.utc))
 
 
 # =============================================

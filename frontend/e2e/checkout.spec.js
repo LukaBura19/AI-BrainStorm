@@ -106,11 +106,13 @@ test("gost plaća malu maturu: nalog se pravi sam, snimci se otključavaju samo 
   await page.goto("/velika-matura");
   await expect(page.getByRole("complementary", { name: "Otključaj sve snimke" })).toBeVisible();
   await page.goto("/ucenik/panel");
-  const preps = page.locator(".student-prep");
+  const preps = page.locator(".student-prep-card");
   await expect(preps).toHaveCount(2);
   await expect(preps.nth(0)).toContainText("Pristup aktivan");
   await expect(preps.nth(0)).toContainText(receiptNumber);
-  await expect(preps.nth(1).getByRole("link", { name: /Kupi pristup/ })).toHaveAttribute("href", "/velika-matura/kupovina");
+  await expect(preps.nth(0)).toHaveAttribute("href", "/mala-matura");
+  await expect(preps.nth(1)).toContainText("Kupi pristup · 50 €");
+  await expect(preps.nth(1)).toHaveAttribute("href", "/velika-matura/kupovina");
 });
 
 test("zaključan snimak nudi kupovinu i prijavu koja vraća na isti snimak", async ({ page }) => {

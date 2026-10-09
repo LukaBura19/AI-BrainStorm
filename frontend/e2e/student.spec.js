@@ -16,7 +16,7 @@ test("učenik pravi nalog, zakazuje čas i vidi ga u svom panelu", async ({ page
   await page.locator("#student-password").fill("lozinka123");
   await page.locator("#student-category").selectOption("srednja");
   await page.getByRole("button", { name: "Napravi nalog" }).click();
-  await expect(page.getByRole("heading", { name: /Dobrodošli, E2E Učenik/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Zdravo, E2E/ })).toBeVisible();
   await expect(page.getByText("Još nemaš zakazanih časova.")).toBeVisible();
 
   await page.goto("/booking");
@@ -41,10 +41,23 @@ test("učenik pravi nalog, zakazuje čas i vidi ga u svom panelu", async ({ page
   await page.getByRole("button", { name: "Potvrdi rezervaciju" }).click();
   await expect(page.getByRole("heading", { name: "Vidimo se na času!" })).toBeVisible({ timeout: 15_000 });
 
-  await page.goto("/ucenik/panel");
-  await expect(page.locator(".student-lesson")).toHaveCount(1);
-  await expect(page.locator(".student-lesson")).toContainText("Matematika");
-  await expect(page.getByRole("link", { name: "Otkaži čas" })).toBeVisible();
+  await page.getByRole("link", { name: "Moji časovi" }).click();
+  await expect(page).toHaveURL(/\/ucenik\/panel$/);
+  const lesson = page.locator(".student-lesson");
+  await expect(lesson).toHaveCount(1);
+  await expect(lesson).toContainText("Matematika");
+  await expect(lesson).toContainText("Tvoj sledeći čas");
+  await expect(lesson).toContainText("Besplatno otkazivanje do");
+
+  // Otkazivanje iz panela: potvrda u kartici, razlog, pa čas prelazi u "Otkazani".
+  await lesson.getByRole("button", { name: "Otkaži čas" }).click();
+  await lesson.getByPlaceholder(/Razlog/).fill("E2E: otkazujem iz panela");
+  await lesson.getByRole("button", { name: "Da, otkaži" }).click();
+  await expect(page.getByText(/Čas je otkazan\./)).toBeVisible();
+  await expect(page.getByText("Još nemaš zakazanih časova.")).toBeVisible();
+  await page.locator(".animated-tab", { hasText: "Otkazani" }).click();
+  await expect(page.locator(".student-lesson")).toContainText("Otkazano na tvoj zahtev");
+  await expect(page.locator(".student-lesson")).toContainText("E2E: otkazujem iz panela");
 
   await page.getByRole("button", { name: "Odjavi se" }).click();
   await expect(page).toHaveURL(/\/ucenik\/prijava$/);

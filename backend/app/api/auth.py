@@ -13,6 +13,26 @@ from app.schemas.auth import LoginRequest, StudentRegisterRequest, Token
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
+def _linked_admin_token(db: Session, email: str, password: str) -> dict[str, str]:
+    """Token za admin ulogu ako isti email i lozinka postoje i među adminima."""
+    admin = db.query(Admin).filter(func.lower(Admin.email) == email.lower(), Admin.is_active == True).first()  # noqa: E712
+    if admin and verify_password(password, admin.password_hash):
+        return {"admin": create_access_token(data={"sub": str(admin.id), "role": "admin", "email": admin.email})}
+    return {}
+
+
+def _linked_teacher_token(db: Session, email: str, password: str) -> dict[str, str]:
+    """Token za profesorsku ulogu ako isti email i lozinka postoje i među odobrenim profesorima."""
+    teacher = (
+        db.query(Teacher)
+        .filter(func.lower(Teacher.email) == email.lower(), Teacher.is_active == True, Teacher.is_approved == True)  # noqa: E712
+        .first()
+    )
+    if teacher and verify_password(password, teacher.password_hash):
+        return {"teacher": create_access_token(data={"sub": str(teacher.id), "role": "teacher", "email": teacher.email})}
+    return {}
+
+
 @router.post("/admin/login", response_model=Token)
 def admin_login(payload: LoginRequest, db: Session = Depends(get_db)):
     """
@@ -37,7 +57,7 @@ def admin_login(payload: LoginRequest, db: Session = Depends(get_db)):
         data={"sub": str(admin.id), "role": "admin", "email": admin.email}
     )
 
-    return Token(access_token=access_token)
+    return Token(access_token=access_token, linked_tokens=_linked_teacher_token(db, admin.email, payload.password))
 
 
 @router.post("/teacher/login", response_model=Token)
@@ -71,7 +91,7 @@ def teacher_login(payload: LoginRequest, db: Session = Depends(get_db)):
         data={"sub": str(teacher.id), "role": "teacher", "email": teacher.email}
     )
 
-    return Token(access_token=access_token)
+    return Token(access_token=access_token, linked_tokens=_linked_admin_token(db, teacher.email, payload.password))
 
 
 @router.post("/student/register", response_model=Token, status_code=status.HTTP_201_CREATED)

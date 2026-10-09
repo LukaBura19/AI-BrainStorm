@@ -168,12 +168,13 @@ test("Luka i admin mogu da pristupe svojim panelima", async ({ page }) => {
   await page.locator("#password").fill("profesor123");
   await page.getByRole("button", { name: /Otvori moj panel/i }).click();
   await expect(page.getByRole("heading", { name: /Dobrodošli, Luka Bura/i })).toBeVisible();
-  await expect(page.getByText("Vaši slobodni termini")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Raspored za narednih 7 dana" })).toBeVisible();
 
-  await page.getByRole("button", { name: /Moje rezervacije/i }).click();
-  await page.getByRole("button", { name: "Otkazane" }).click();
-  const teacherBooking = page.locator(".booking-card").filter({ hasText: "zadatak.pdf" }).first();
-  await expect(teacherBooking).toContainText("E2E BrainStorm Klijent");
+  await page.locator(".animated-tab", { hasText: "Svi časovi" }).click();
+  await page.getByRole("button", { name: "Otkazani" }).click();
+  const teacherBooking = page.locator(".lesson-row").filter({ hasText: "E2E BrainStorm Klijent" }).first();
+  await teacherBooking.locator(".lesson-row-head").click();
+  await expect(teacherBooking).toContainText("e2e.booking@brainstorm.rs");
   const teacherDownload = page.waitForEvent("download");
   await teacherBooking.getByRole("button", { name: /zadatak\.pdf/i }).click();
   expect((await teacherDownload).suggestedFilename()).toBe("zadatak.pdf");
@@ -184,14 +185,16 @@ test("Luka i admin mogu da pristupe svojim panelima", async ({ page }) => {
   await page.locator("#admin-password").fill("admin123");
   await page.getByRole("button", { name: /Otvori kontrolni panel/i }).click();
   await expect(page.getByRole("heading", { name: /Dobrodošli, Admin BrainStorm/i })).toBeVisible();
+  await page.locator(".animated-tab", { hasText: "Rezervacije" }).click();
   await page.getByRole("button", { name: "Otkazane" }).click();
-  const adminBooking = page.locator("tbody tr").filter({ hasText: "zadatak.pdf" }).first();
+  const adminBooking = page.locator(".lesson-row").filter({ hasText: "E2E BrainStorm Klijent" }).first();
+  await adminBooking.locator(".lesson-row-head").click();
   await expect(adminBooking).toContainText("e2e.booking@brainstorm.rs");
   const adminDownload = page.waitForEvent("download");
   await adminBooking.getByRole("button", { name: /zadatak\.pdf/i }).click();
   expect((await adminDownload).suggestedFilename()).toBe("zadatak.pdf");
-  await page.getByRole("button", { name: /Profesori/i }).click();
-  await expect(page.getByText("Luka Bura")).toBeVisible();
+  await page.locator(".animated-tab", { hasText: "Profesori" }).click();
+  await expect(page.locator(".item-name", { hasText: "Luka Bura" })).toBeVisible();
   await expect(page.getByText("Matematika").first()).toBeVisible();
   await page.getByRole("button", { name: /Novi profesor/i }).click();
   await expect(page.locator("#new-teacher-name")).toHaveAttribute("type", "text");

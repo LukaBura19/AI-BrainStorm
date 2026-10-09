@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BadgeCheck, Check, Lock, PlayCircle, Receipt, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import api from "../services/api";
+import { endSession, isSignedInAs, startSession } from "../services/session";
 import Alert from "../components/Alert";
 import Spinner from "../components/Spinner";
 import JourneyProgress from "../components/JourneyProgress";
@@ -127,9 +128,9 @@ export default function CheckoutPage({ exam }) {
         if (prep.access.signed_in) {
           const student = await api.get("/student/me").catch(() => null);
           if (active) setMe(student);
-        } else if (localStorage.getItem("role") === "student") {
+        } else if (isSignedInAs("student")) {
           // Istekao učenički token: skloni ga, kupovina ide kao za novog učenika.
-          localStorage.removeItem("token"); localStorage.removeItem("role");
+          endSession();
         }
         if (active) { setData(prep); setOwned(prep.access.purchased); }
       })
@@ -183,8 +184,7 @@ export default function CheckoutPage({ exam }) {
   };
 
   const signOut = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    endSession();
     refreshHeader();
     setReload((n) => n + 1);
   };
@@ -224,8 +224,7 @@ export default function CheckoutPage({ exam }) {
     setPaying(true);
     try {
       const paid = await api.post(`/public/prep/${exam}/checkout`, body);
-      localStorage.setItem("token", paid.access_token);
-      localStorage.setItem("role", "student");
+      startSession("student", paid);
       setResult(paid);
       setCard(EMPTY_CARD); // podaci kartice ne ostaju u memoriji posle plaćanja
       refreshHeader();

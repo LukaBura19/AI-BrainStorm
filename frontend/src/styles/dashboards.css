@@ -74,11 +74,6 @@
   font-weight: 600;
 }
 
-/* ---- Admin table ---- */
-.dash-page .admin-table-wrap { border: 1px solid var(--color-border); border-radius: 16px; background: var(--card); }
-.dash-page .admin-table tr:hover td { background: var(--forest-tint); }
-.dash-page .admin-table tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--forest); }
-
 @media (max-width: 640px) {
   .dash-page .dashboard-tabs { width: 100%; }
   .dash-page .dashboard-tabs .animated-tab { flex: 1 1 0; justify-content: center; gap: 6px; padding: 0 8px; font-size: 13px; }
@@ -92,19 +87,70 @@
   .dash-page *, .dash-page *::before, .dash-page *::after { animation: none !important; }
 }
 
-/* ---- Phones: four admin tabs as a 2×2 grid, bookings as cards instead of a wide table ---- */
+/* ---- Phones: admin tabs wrap into as many columns as fit ---- */
 @media (max-width: 640px) {
-  .dash-page .admin-tabs.animated-tabs { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
-  .dash-page .admin-tabs .animated-tab { justify-content: center; padding: 0 10px; font-size: 14px; }
+  .dash-page .admin-tabs.animated-tabs { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); }
+  .dash-page .admin-tabs .animated-tab { justify-content: center; gap: 6px; padding: 0 8px; font-size: 13.5px; }
+}
 
-  .admin-dashboard.dash-page .admin-table-wrap { overflow: visible; border: 0; background: none; }
-  .admin-dashboard.dash-page .admin-table, .admin-dashboard.dash-page .admin-table tbody, .admin-dashboard.dash-page .admin-table tr, .admin-dashboard.dash-page .admin-table td { display: block; width: 100%; }
-  .admin-dashboard.dash-page .admin-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .admin-dashboard.dash-page .admin-table tbody { display: grid; gap: 12px; }
-  .admin-dashboard.dash-page .admin-table tr { padding: 14px 16px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--card); box-shadow: var(--shadow-sm); }
-  .admin-dashboard.dash-page .admin-table td { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; padding: 7px 0; border: 0; border-top: 1px solid var(--paper-deep); overflow-wrap: anywhere; }
-  .admin-dashboard.dash-page .admin-table td:first-child { border-top: 0; }
-  .admin-dashboard.dash-page .admin-table td::before { content: attr(data-label); color: var(--color-text-muted); font-size: 12.5px; font-weight: 500; }
-  .admin-dashboard.dash-page .admin-table tr:hover td { background: none; box-shadow: none; }
-  .admin-dashboard.dash-page .admin-table td[data-label="Akcije"]:empty { display: none; }
+/* =====================================================================
+   Day groups and lesson rows — shared by the teacher and admin panels.
+   ===================================================================== */
+.day-group + .day-group { margin-top: 20px; }
+.day-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 8px; }
+.day-heading h3 { color: var(--ink); font: 600 17px/1.3 var(--font-display); letter-spacing: -.01em; }
+.day-heading .day-count { color: var(--color-text-muted); font-size: 13px; font-weight: 500; }
+.day-heading .day-aside { margin-left: auto; color: var(--color-text-muted); font-size: 13px; }
+.day-empty { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; padding: 10px 14px; border: 1px dashed var(--color-border-strong); border-radius: 12px; color: var(--color-text-muted); font-size: 13.5px; }
+
+.lesson-list { display: grid; gap: 8px; list-style: none; }
+.lesson-row { border: 1px solid var(--color-border); border-left: 3px solid var(--color-border-strong); border-radius: 14px; background: var(--card); transition: border-color .2s, box-shadow .2s, background-color .2s; }
+.lesson-row:hover { border-color: var(--color-border-strong); box-shadow: var(--shadow-sm); }
+.lesson-row.is-upcoming { border-left-color: var(--forest); }
+.lesson-row.is-in_progress { border-left-color: var(--forest); background: var(--forest-tint); }
+.lesson-row.is-held .lesson-row-head { opacity: .72; }
+.lesson-row.is-cancelled { background: var(--paper); }
+.lesson-row.is-cancelled .lesson-row-time { color: var(--color-text-muted); text-decoration: line-through; }
+.lesson-row.is-open { box-shadow: var(--shadow-md); }
+.lesson-row-head { width: 100%; min-height: 58px; display: grid; grid-template-columns: 116px minmax(0, 1fr) auto; grid-template-areas: "time main side"; align-items: center; gap: 6px 14px; padding: 11px 14px; border: 0; border-radius: inherit; background: none; color: inherit; cursor: pointer; font: inherit; text-align: left; }
+.lesson-row-time { grid-area: time; color: var(--ink); font: 600 15px/1.2 var(--font-display); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lesson-row-main { grid-area: main; min-width: 0; }
+.lesson-row-main strong { display: block; overflow: hidden; color: var(--ink); font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.lesson-row-meta { display: flex; flex-wrap: wrap; gap: 2px 0; margin-top: 2px; color: var(--color-text-secondary); font-size: 13px; }
+.lesson-row-meta > span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.lesson-row-meta > span + span::before { content: "·"; margin: 0 7px; color: var(--color-text-muted); }
+.lesson-row-meta .lesson-note-preview { display: inline-block; max-width: 34ch; overflow: hidden; color: var(--color-text-muted); font-style: italic; text-overflow: ellipsis; white-space: nowrap; }
+.lesson-row-side { grid-area: side; display: flex; align-items: center; gap: 8px; }
+.lesson-row-chevron { color: var(--color-text-muted); transition: transform .2s; }
+.lesson-row.is-open .lesson-row-chevron { transform: rotate(180deg); }
+.lesson-row-panel { padding: 2px 16px 16px 144px; animation: lesson-panel-in .18s ease; }
+@keyframes lesson-panel-in { from { opacity: 0; translate: 0 -4px; } to { opacity: 1; translate: 0 0; } }
+
+.lesson-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 22px; padding: 12px 14px; border-radius: 12px; background: var(--paper); }
+.lesson-facts .is-wide { grid-column: 1 / -1; }
+.lesson-facts dt { color: var(--color-text-muted); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.lesson-facts dd { color: var(--ink); font-size: 14px; overflow-wrap: anywhere; white-space: pre-line; }
+.lesson-facts a { color: var(--forest); font-weight: 600; }
+.lesson-attachments { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.lesson-attachments .btn { gap: 6px; }
+.lesson-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.lesson-actions .btn { gap: 6px; }
+.lesson-deadline { display: flex; align-items: flex-start; gap: 7px; margin-top: 12px; padding: 9px 12px; border-radius: 12px; background: var(--terra-soft); color: var(--terra-hover); font-size: 13.5px; }
+.lesson-deadline svg { flex-shrink: 0; margin-top: 2px; }
+.dash-page .lesson-row .btn-danger:hover:not(:disabled) { border-color: var(--color-error); background: rgba(179, 65, 46, .12); color: var(--color-error); }
+
+/* Filter chips with a count, shared by the lesson filters. */
+.dash-page .filter-chip em { margin-left: 6px; font-style: normal; font-weight: 700; opacity: .8; }
+
+/* Narrow columns (admin day board): time and status on top, details below. */
+.lesson-row--stacked .lesson-row-head { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "time side" "main main"; padding: 11px 12px; }
+.lesson-row--stacked .lesson-row-main strong { white-space: normal; }
+.lesson-row--stacked .lesson-row-panel { padding: 0 12px 14px; }
+
+@media (max-width: 640px) {
+  .lesson-row-head { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "time side" "main main"; padding: 11px 12px; }
+  .lesson-row-main strong { white-space: normal; }
+  .lesson-row-panel { padding: 0 12px 14px; }
+  .lesson-actions .btn { flex: 1 1 auto; }
+  .day-heading .day-aside { margin-left: 0; flex-basis: 100%; }
 }

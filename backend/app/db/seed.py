@@ -8,7 +8,7 @@ Kreira:
   - admin naloge
   - predmete
   - profesore (odobrene, sa predmetima)
-  - test učenika sa plaćenim pristupom snimcima za malu i veliku maturu
+  - test učenike; jedan ima plaćen pristup snimcima za malu i veliku maturu
 """
 
 from sqlalchemy.orm import Session
@@ -128,8 +128,14 @@ SEED_TEACHERS = [
 ]
 
 
-# ---- Učenici sa plaćenim pristupom snimcima (za probu dok se ubacuju videi) ----
+# ---- Test učenik (učenici se inače sami registruju) ----
 SEED_STUDENTS = [
+    {
+        "full_name": "Mina Petrović",
+        "email": "mina.petrovic@example.rs",
+        "password": "ucenik123",
+        "category": "srednja",
+    },
     {
         "full_name": "Test Matura",
         "email": "matura@brainstorm.com",
@@ -159,7 +165,7 @@ def seed_students(db: Session) -> None:
             db.refresh(student)
             print(f"  [ok] Učenik kreiran: {s_data['full_name']} ({s_data['email']})")
 
-        for exam_slug in s_data["prep"]:
+        for exam_slug in s_data.get("prep", []):
             exam = get_exam(exam_slug)
             if not exam:
                 print(f"  [!] Priprema '{exam_slug}' ne postoji u katalogu, preskačem.")
@@ -294,7 +300,7 @@ def run_seed() -> None:
         print("\n--- Profesori ---")
         seed_teachers(db)
 
-        print("\n--- Učenici sa plaćenim pristupom ---")
+        print("\n--- Učenici ---")
         seed_students(db)
 
         print("\n" + "=" * 50)

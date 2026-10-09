@@ -379,3 +379,6 @@
   .science-card { transform: none !important; }
   .success-ring, .success-tick { stroke-dashoffset: 0; }
 }
+
+/* Step 1 hint for visitors without an account session. */
+.booking-signin-hint { margin: 18px 0 0; }

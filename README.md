@@ -120,9 +120,30 @@ Test pristupi:
 | Uloga | Email | Lozinka |
 |-------|-------|---------|
 | Admin | `admin@brainstorm.com` | `admin123` |
-| Profesor Luka Bura | `lukabura89@gmail.com` | `profesor123` |
-| Učenik | napravi nalog na `/ucenik/prijava` → „Napravi nalog“ | min. 8 karaktera |
+| Profesor i admin Luka Bura | `lukabura89@gmail.com` | `profesor123` |
+| Učenik Mina Petrović (test) | `mina.petrovic@example.rs` | `ucenik123` |
+| Novi učenik | napravi nalog na `/ucenik/prijava` → „Napravi nalog“ | min. 8 karaktera |
 | Učenik sa plaćenom malom i velikom maturom | `matura@brainstorm.com` | `matura123` |
+
+Luka postoji i kao profesor i kao admin (isti email i lozinka u obe tabele). Prijava
+na bilo koji od ta dva panela vraća i token za drugu ulogu (`linked_tokens`), pa meni
+„Moj panel“ i dugme u zaglavlju panela nude prebacivanje profesor ⇄ admin bez nove
+prijave. Druge osobe sa jednom ulogom ne vide tu opciju.
+
+### Paneli po ulogama
+
+- **Učenik** (`/ucenik/panel`): istaknut sledeći čas (mesto, adresa, rok za
+  besplatno otkazivanje), tabovi Predstojeći / Održani / Otkazani, otkazivanje
+  sa razlogom direktno iz kartice, „Zakaži ponovo“ sa već izabranim predmetom i
+  profesorom, izmena imena i nivoa obrazovanja i prečice ka pripremama za maturu.
+- **Profesor** (`/teacher/dashboard`): raspored za narednih 7 dana po danima,
+  dostupnost za više dana odjednom (kalendar od 4 nedelje i prečice
+  prepodne/popodne/ceo dan) sa pregledom već zakazanih časova u svakom bloku,
+  svi časovi (predstojeći, održani, otkazani) i otkazivanje sa razlogom.
+- **Administrator** (`/admin/dashboard`): raspored dana po učionicama i online,
+  rezervacije sa filterima i pretragom, prebacivanje časa drugom profesoru ili u
+  drugi termin (svi dobijaju email „Izmena termina“), otkazivanje bez roka od 24h,
+  profesori (odobravanje, izmena, predmeti), učenički nalozi i predmeti.
 
 Učenici se sami registruju. Časovi zakazani dok je učenik prijavljen vezuju se za
 njegov nalog i vide se u panelu „Moji časovi“ (`/ucenik/panel`), sa linkom za

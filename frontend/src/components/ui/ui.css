@@ -105,7 +105,9 @@
   color: var(--forest);
   -webkit-text-fill-color: currentColor;
 }
-.dash-hero-logout { align-self: flex-start; gap: 8px; }
+.dash-hero-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; align-self: flex-start; }
+.dash-hero-actions .btn { gap: 8px; }
+.dash-hero-logout { gap: 8px; }
 .dash-hero-next {
   display: inline-flex;
   flex-wrap: wrap;
@@ -152,8 +154,18 @@
   .dash-hero .booking-teacher-avatar { width: 56px; }
   .dash-hero .teacher-avatar-disc { font-size: 20px; }
   .dash-hero-copy { order: 1; flex-basis: 100%; }
-  .dash-hero-logout { margin-left: auto; align-self: center; }
+  .dash-hero-actions { flex: 1 1 0; min-width: 0; margin-left: auto; align-self: center; }
   .dash-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .dash-stat { padding: 14px; }
   .dash-stat strong { font-size: 26px; }
 }
+
+/* ---- Inline confirm (replaces window.confirm / prompt) ---- */
+.inline-confirm { margin-top: 12px; padding: 14px 16px; border: 1px solid #efcfbd; border-radius: 14px; background: var(--terra-soft); animation: inline-confirm-in .2s ease; }
+.inline-confirm-title { color: var(--ink); font-size: 14.5px; font-weight: 650; }
+.inline-confirm-desc { margin-top: 3px; color: var(--color-text-secondary); font-size: 13.5px; }
+.inline-confirm-reason { min-height: 64px; margin-top: 10px; background: #fff; }
+.inline-confirm-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.inline-confirm .btn-danger:hover:not(:disabled) { border-color: var(--color-error); background: rgba(179, 65, 46, .12); color: var(--color-error); }
+@keyframes inline-confirm-in { from { opacity: 0; translate: 0 -4px; } to { opacity: 1; translate: 0 0; } }
+@media (max-width: 640px) { .inline-confirm-actions .btn { flex: 1 1 0; } }
