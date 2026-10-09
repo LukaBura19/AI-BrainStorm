@@ -26,9 +26,9 @@ import "./BookingStudio.css";
 
 const STEPS = ["Predmet", "Profesor", "Trajanje", "Vrsta časa", "Datum", "Termin", "Tvoji podaci", "Pregled"];
 const DURATIONS = [
-  { value: 45, title: "45 minuta", accent: "quick", tagline: "Brzi fokus", description: "Jedno konkretno pitanje ili zadatak", price: 1500 },
-  { value: 60, title: "60 minuta", accent: "standard", tagline: "Najčešći izbor", description: "Standardni čas, objašnjenje i vežba", price: 2000, popular: true },
-  { value: 90, title: "90 minuta", accent: "deep", tagline: "Dubinski rad", description: "Više oblasti ili intenzivna priprema", price: 2500 },
+  { value: 45, title: "45 minuta", accent: "quick", price: 1500 },
+  { value: 60, title: "60 minuta", accent: "standard", tagline: "Najčešći izbor", price: 2000, popular: true },
+  { value: 90, title: "90 minuta", accent: "deep", price: 2500 },
 ];
 const FACULTY_PRICE_90 = 3000;
 const DELIVERY_OPTIONS = [
@@ -414,10 +414,13 @@ function BookingPage() {
       <div ref={pageRef} className="booking-page studio booking-page--success">
         <section className="booking-success" aria-labelledby="success-title">
           <div className="booking-success-hero">
-            <span className="booking-success-icon" aria-hidden="true">
-              <svg viewBox="0 0 52 52"><circle className="success-ring" cx="26" cy="26" r="24" /><path className="success-tick" d="M15 27l7 7 15-16" /></svg>
-            </span>
-            <span className="booking-success-status"><Check size={14} aria-hidden="true" /> Rezervacija #{bookingResult.id} je potvrđena</span>
+            {/* The badge pops out beside the circle once the ring has finished drawing. */}
+            <div className="booking-success-mark">
+              <span className="booking-success-icon" aria-hidden="true">
+                <svg viewBox="0 0 52 52"><circle className="success-ring" cx="26" cy="26" r="24" /><path className="success-tick" d="M15 27l7 7 15-16" /></svg>
+              </span>
+              <span className="booking-success-status"><Check size={14} aria-hidden="true" /> Rezervacija #{bookingResult.id} je potvrđena</span>
+            </div>
             <h1 id="success-title" tabIndex={-1}><TypewriterText text="Vidimo se na času!" /></h1>
             {mailStatus === "sent" ? (
               <p className="booking-success-lead">Potvrda i link za otkazivanje poslati su na <strong>{bookingResult.client_email}</strong>.</p>
@@ -431,6 +434,7 @@ function BookingPage() {
             <div className="booking-success-actions">
               <button type="button" className="btn btn-primary" onClick={resetBooking}>Zakaži još jedan čas</button>
               {bookingResult.client_cancel_token && <Link className="btn btn-secondary" to={`/cancel/${bookingResult.client_cancel_token}`}>Otvori link za otkazivanje</Link>}
+              <Link className="btn btn-secondary" to="/">Vrati se na početnu</Link>
             </div>
             <p className="booking-cancel-note">Besplatno otkazivanje moguće je najkasnije 24 sata pre časa.</p>
           </div>
@@ -514,7 +518,6 @@ function BookingPage() {
               <span className="booking-duration-number">{duration.value}<small>min</small></span>
             </span>
             <strong>{duration.title}</strong>
-            <span className="booking-duration-description">{duration.popular ? duration.description : <><em>{duration.tagline}</em> · {duration.description}</>}</span>
             <span className="booking-duration-price">{formatRsd(duration.price)}</span>
             {selected && <CheckMark />}
           </ScienceCard>;
@@ -548,7 +551,7 @@ function BookingPage() {
       </>;
 
       case 5: return <>
-        {heading("Izaberi dan")}
+        {heading("Izaberi dan", `Danas je ${formatTimestampDateLatn(new Date().toISOString())}`)}
         <div className="booking-date-grid">{dateOptions.map((date, index) => {
           const selected = date.value === selectedDate;
           const free = dayAvailability[date.value];
@@ -558,7 +561,7 @@ function BookingPage() {
           return <ScienceCard key={date.value} type="button" className={`booking-date-card fx-rise ${selected ? "selected" : ""} ${weekend ? "is-weekend" : ""} ${full ? "is-full" : ""}`} style={{ "--i": index * .5 }} aria-pressed={selected}
             aria-label={`${date.weekdayLong}, ${date.day}. ${date.month}${loading ? "" : full ? ", nema slobodnih termina" : free ? `, ${slotCountLabel(free)}` : ""}`}
             onClick={(event) => { sparkBurst(event.currentTarget, event, { count: 8 }); setSelectedDate(date.value); setSelectedSlot(null); }}>
-            <span className="booking-date-weekday">{index === 0 ? "sutra" : date.weekday}</span>
+            <span className="booking-date-weekday">{date.weekday}</span>
             <strong>{date.day}</strong>
             <small>{date.month}</small>
             {full && <span className="booking-date-availability" aria-hidden="true">popunjeno</span>}
@@ -584,7 +587,7 @@ function BookingPage() {
           <TimeWheel items={wheelItems} selected={selectedSlot} onSelect={setSelectedSlot} reducedMotion={reducedMotion} />
           <div className="booking-time-side" aria-live="polite">
             {selectedSlot ? <strong className="booking-time-readout">{slotLabel}</strong> : <strong className="booking-time-readout is-empty">--:--</strong>}
-            <p>{selectedSlot ? `${longDate(selectedDate)} · ${selectedDuration} minuta` : "Okreni točkić mišem, prstom ili strelicama. Zauzeti termini su precrtani i preskaču se."}</p>
+            {selectedSlot && <p>{`${longDate(selectedDate)} · ${selectedDuration} minuta`}</p>}
             <div className="booking-time-keys" aria-hidden="true"><span>↑ ranije</span><span>↓ kasnije</span></div>
             <div className="booking-time-daybar" aria-hidden="true">
               {wheelItems.filter((item) => !item.slot).map((item) => <i key={item.minute} className="is-taken" style={{ "--from": (item.minute - WORK_START) / (WORK_END - WORK_START), "--to": (item.minute + SLOT_STEP_MINUTES - WORK_START) / (WORK_END - WORK_START) }} />)}

@@ -72,3 +72,100 @@
   .about-offer, .about-quote-link, .about-offer-links a svg { transition: none; }
 }
 .about-hero-copy > p + p { margin-top: 14px; }
+
+/* ---- Hero: osnovna → srednja → fakultet ---- */
+@property --lit { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --here { syntax: "<number>"; inherits: true; initial-value: 0; }
+.about-hero-side { min-width: 0; display: grid; gap: 22px; }
+.about-path { height: 220px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: 10px; padding: 0 6px; }
+.about-path-step { --lit: 0; --here: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; animation: 7s ease-in-out infinite; }
+.about-path-step--0 { animation-name: about-path-0; }
+.about-path-step--1 { animation-name: about-path-1; }
+.about-path-step--2 { animation-name: about-path-2; }
+.about-path-bar { width: 100%; border-radius: 14px 14px 6px 6px; background: color-mix(in srgb, var(--forest) calc(var(--lit) * 100%), var(--paper-deep)); transform: scaleY(calc(.55 + .45 * var(--lit))); transform-origin: bottom; }
+.about-path-step--0 .about-path-bar { height: 52px; }
+.about-path-step--1 .about-path-bar { height: 96px; }
+.about-path-step--2 .about-path-bar { height: 140px; }
+.about-path-label { color: color-mix(in srgb, var(--forest) calc(var(--lit) * 100%), var(--color-text-muted)); font-size: 13px; font-weight: 650; white-space: nowrap; }
+.about-path-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--terra); color: #fff; box-shadow: 0 6px 16px rgba(200, 100, 59, .3); opacity: var(--here); transform: translateY(calc((1 - var(--here)) * 14px)) scale(calc(.6 + .4 * var(--here))); }
+@keyframes about-path-0 { 0%, 4% { --lit: 0; --here: 0; } 12% { --lit: 1; --here: 1; } 26% { --here: 1; } 32% { --here: 0; } 88% { --lit: 1; } 100% { --lit: 0; --here: 0; } }
+@keyframes about-path-1 { 0%, 28% { --lit: 0; --here: 0; } 36% { --lit: 1; --here: 1; } 50% { --here: 1; } 56% { --here: 0; } 88% { --lit: 1; } 100% { --lit: 0; --here: 0; } }
+@keyframes about-path-2 { 0%, 52% { --lit: 0; --here: 0; } 60% { --lit: 1; --here: 1; } 88% { --lit: 1; --here: 1; } 96% { --here: 0; } 100% { --lit: 0; --here: 0; } }
+
+/* ---- Pridruži nam se ---- */
+.about-join { position: relative; isolation: isolate; display: grid; grid-template-columns: 34% minmax(0, 1fr); overflow: hidden; margin-top: clamp(64px, 8vw, 112px); border: 1px solid var(--color-border); border-radius: 28px; background: var(--card); box-shadow: var(--shadow-md); }
+.about-join-intro { position: relative; z-index: 3; overflow: hidden; padding: clamp(28px, 3.5vw, 44px); background: var(--forest); color: var(--paper); }
+.about-join-intro::after { content: ""; position: absolute; right: -70px; bottom: -70px; width: 220px; height: 220px; border: 1px solid rgba(247, 243, 236, .14); border-radius: 50%; box-shadow: 0 0 0 40px rgba(247, 243, 236, .04); }
+.about-join-intro > * { transition: opacity .3s ease, transform .35s ease; }
+.about-join-badge { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--paper); color: var(--forest); }
+.about-join h2 { margin-top: 22px; color: var(--paper); font: 650 clamp(28px, 2.8vw, 40px)/1.05 var(--font-display); letter-spacing: -.03em; }
+.about-join-intro > p { margin-top: 12px; color: rgba(247, 243, 236, .82); font-size: 17px; line-height: 1.55; }
+.about-join-steps { position: relative; z-index: 1; display: grid; gap: 16px; margin-top: 30px; list-style: none; }
+.about-join-steps li { display: flex; align-items: flex-start; gap: 12px; font-size: 15.5px; font-weight: 600; line-height: 1.4; }
+.about-join-steps span { width: 30px; height: 30px; flex-shrink: 0; display: grid; place-items: center; margin-top: -4px; border-radius: 50%; background: var(--terra); color: #fff; font: 650 14px/1 var(--font-display); }
+
+.about-join-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 14px; padding: clamp(24px, 3.2vw, 40px); }
+.join-field { position: relative; min-width: 0; }
+.join-field.wide, .about-join-drop, .about-join-error, .about-join-submit { grid-column: 1 / -1; }
+.join-control { width: 100%; min-height: 62px; padding: 27px 16px 9px; border: 1px solid var(--color-border-strong); border-radius: 14px; background: var(--paper); color: var(--ink); font: 500 15.5px/1.4 var(--font-family); appearance: none; transition: border-color .2s, background .2s, box-shadow .2s; }
+textarea.join-control { min-height: 116px; padding-top: 30px; resize: vertical; }
+select.join-control, button.join-control { padding-right: 44px; cursor: pointer; text-align: left; }
+.join-control:hover { border-color: var(--forest); }
+.join-control:focus, .join-control:focus-visible, .join-multi.open .join-control { outline: none; border-color: var(--forest); background: var(--card); box-shadow: 0 0 0 4px rgba(31, 77, 58, .1); }
+.join-field > label { position: absolute; top: 20px; left: 16px; right: 16px; display: flex; align-items: center; gap: 8px; overflow: hidden; color: var(--color-text-muted); font-size: 15px; font-weight: 500; white-space: nowrap; pointer-events: none; transform-origin: left top; transition: transform .2s ease, color .2s ease; }
+.join-field > label svg { flex-shrink: 0; color: var(--forest); }
+.join-field.filled > label, .join-field:focus-within > label, .join-multi.open > label { color: var(--forest); font-weight: 650; transform: translateY(-11px) scale(.8); }
+.join-select-arrow, button.join-control > svg { position: absolute; top: 22px; right: 16px; color: var(--color-text-muted); pointer-events: none; transition: transform .2s; }
+.join-multi.open button.join-control > svg { transform: rotate(180deg); }
+button.join-control > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 1.4em; }
+.join-multi-menu { position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; right: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; max-height: 280px; overflow-y: auto; padding: 8px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--card); box-shadow: var(--shadow-lg); animation: join-menu-in .18s ease both; }
+@keyframes join-menu-in { from { opacity: 0; transform: translateY(-6px); } }
+.join-multi-menu label { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 10px; border-radius: 10px; cursor: pointer; font-size: 14.5px; font-weight: 500; }
+.join-multi-menu label:hover, .join-multi-menu label:has(input:focus-visible) { background: var(--forest-tint); }
+.join-multi-menu input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.join-check { width: 18px; height: 18px; flex-shrink: 0; display: grid; place-items: center; border: 1.5px solid var(--color-border-strong); border-radius: 5px; color: #fff; }
+.join-multi-menu label.on .join-check { border-color: var(--forest); background: var(--forest); }
+
+.about-join-drop { position: relative; display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1.5px dashed var(--color-border-strong); border-radius: 16px; background: var(--paper); cursor: pointer; transition: border-color .2s, background .2s; }
+.about-join-drop:hover, .about-join-drop.is-over { border-color: var(--forest); background: var(--forest-tint); }
+.about-join-drop.has-file { border-style: solid; border-color: var(--forest); background: var(--forest-tint); }
+.about-join-drop:has(input:focus-visible) { outline: 2px solid var(--forest); outline-offset: 2px; }
+.about-join-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.about-join-drop-icon { width: 46px; height: 46px; flex-shrink: 0; display: grid; place-items: center; border-radius: 12px; background: var(--forest); color: #fff; }
+.about-join-drop > span:last-child { min-width: 0; display: grid; gap: 2px; }
+.about-join-drop strong { overflow: hidden; color: var(--ink); font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
+.about-join-drop small { color: var(--color-text-muted); font-size: 13px; }
+.about-join-error { color: var(--color-error); font-size: 14px; font-weight: 600; }
+.about-join-submit { justify-self: start; min-height: 52px; padding-inline: 26px; border-radius: 14px; }
+
+/* Sent: the green panel sweeps across the card, then the thank-you appears on it. */
+.about-join-cover { position: absolute; z-index: 2; inset: 0; background: var(--forest); visibility: hidden; }
+.about-join-thanks { position: absolute; z-index: 4; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 32px; color: var(--paper); text-align: center; opacity: 0; pointer-events: none; transform: translateY(14px); transition: opacity .5s ease .75s, transform .6s cubic-bezier(.16, 1, .3, 1) .75s; }
+.about-join.is-sent .about-join-cover { visibility: visible; animation: join-sweep .85s cubic-bezier(.76, 0, .24, 1) both; }
+.about-join.is-sent .about-join-intro > * { opacity: 0; transform: translateX(-24px); }
+.about-join-intro::after { transition: opacity .3s ease; }
+.about-join.is-sent .about-join-intro::after { opacity: 0; }
+.about-join.is-sent .about-join-thanks { opacity: 1; transform: none; }
+@keyframes join-sweep { from { clip-path: inset(0 66% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.about-join-thanks-icon { width: 76px; height: 76px; display: grid; place-items: center; border-radius: 50%; background: var(--paper); color: var(--forest); }
+.about-join-thanks h3 { margin-top: 8px; color: var(--paper); font: 650 clamp(28px, 3vw, 40px)/1.1 var(--font-display); letter-spacing: -.02em; }
+.about-join-thanks p { max-width: 42ch; color: rgba(247, 243, 236, .85); font-size: 17px; line-height: 1.55; }
+
+@media (max-width: 900px) {
+  .about-join { grid-template-columns: 1fr; }
+  @keyframes join-sweep { from { clip-path: inset(0 0 72% 0); } to { clip-path: inset(0 0 0 0); } }
+  .about-path { height: 190px; }
+}
+@media (max-width: 640px) {
+  .about-join-form, .join-multi-menu { grid-template-columns: minmax(0, 1fr); }
+  .about-join-submit { justify-self: stretch; }
+}
+@media (max-width: 520px) {
+  .about-path-label { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-path-step { animation: none; --lit: 1; }
+  .about-path-step--2 { --here: 1; }
+  .about-join.is-sent .about-join-cover { animation: none; }
+  .about-join-thanks, .about-join-intro > * { transition: none; }
+}

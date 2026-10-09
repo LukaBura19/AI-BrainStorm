@@ -807,3 +807,16 @@
 .admin-dashboard.dash-page .btn-primary::before {
   content: none;
 }
+
+/* Prijave za posao */
+.job-applications { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.job-application { display: grid; gap: 14px; padding: 20px; border: 1px solid var(--color-border); border-radius: 18px; background: var(--card); }
+.job-application header { display: flex; justify-content: space-between; gap: 12px; }
+.job-application h3 { font: 600 18px/1.2 var(--font-display); }
+.job-application header a { color: var(--forest); font-size: 14px; overflow-wrap: anywhere; }
+.job-application header span, .job-application time { color: var(--color-text-muted); font-size: 13px; white-space: nowrap; }
+.job-application dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin: 0; }
+.job-application dl .wide { grid-column: 1 / -1; }
+.job-application dt { color: var(--color-text-muted); font-size: 12px; }
+.job-application dd { margin: 2px 0 0; font-size: 14.5px; white-space: pre-line; }
+.job-application .btn { justify-self: start; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

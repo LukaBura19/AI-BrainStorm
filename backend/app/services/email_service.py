@@ -18,9 +18,11 @@ import ssl
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from datetime import datetime
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from app.core.config import settings
 from app.utils.datetime_utils import to_app_timezone
@@ -139,6 +141,7 @@ def send_email(
     subject: str,
     html_body: str,
     plain_body: Optional[str] = None,
+    attachments: Optional[List[Tuple[str, bytes, str]]] = None,
 ) -> bool:
     """
     Šalje email koristeći SMTP server konfigurisan u env.
@@ -173,7 +176,9 @@ def send_email(
         logger.error("Email nije poslat: MAIL_FROM nije validan")
         return False
 
-    msg = MIMEMultipart("alternative")
+    # Sa prilozima: "mixed" omotač nosi tekst (alternative) i fajlove (naziv, sadržaj, MIME tip).
+    body = MIMEMultipart("alternative")
+    msg = MIMEMultipart("mixed") if attachments else body
     msg["From"] = clean_from
     msg["To"] = ", ".join(recipients)
     msg["Subject"] = clean_subject
@@ -182,10 +187,19 @@ def send_email(
     if not plain_body:
         plain_body = re.sub(r"<[^>]+>", " ", html_body)
         plain_body = html.unescape(re.sub(r"\s+", " ", plain_body)).strip()
-    msg.attach(MIMEText(plain_body, "plain", "utf-8"))
+    body.attach(MIMEText(plain_body, "plain", "utf-8"))
 
     # HTML sadržaj
-    msg.attach(MIMEText(html_body, "html", "utf-8"))
+    body.attach(MIMEText(html_body, "html", "utf-8"))
+    if attachments:
+        msg.attach(body)
+        for filename, content, mime_type in attachments:
+            maintype, subtype = mime_type.split("/", 1)
+            part = MIMEBase(maintype, subtype)
+            part.set_payload(content)
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename=filename)
+            msg.attach(part)
 
     try:
         with smtp_connection() as server:

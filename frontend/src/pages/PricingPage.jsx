@@ -21,7 +21,7 @@ const SECTIONS = [
     title: "Fakultet",
     note: "Čas od 90 minuta",
     prices: [
-      { minutes: 90, amount: 3000, description: "Za zahtevnije oblasti, kolokvijume i ispite", tone: "#1f4d3a" },
+      { minutes: 90, amount: 3000, description: "Za kolokvijume i ispite", tone: "#1f4d3a" },
     ],
   },
 ];
