@@ -1,22 +1,29 @@
 """
-Testovi za pripreme (mala i velika matura): katalog snimaka, stranica snimka i AI asistent.
-Claude API se ne zove; lažni klijent glumi strim odgovora.
+Testovi za pripreme (mala i velika matura): katalog snimaka, stranica snimka, AI asistent i zaštićeni snimci.
+Claude API se ne zove (lažni klijent glumi strim odgovora), a VdoCipher glumi lažni HTTP server.
 """
 
+import functools
 import json
+import re
 from types import SimpleNamespace
 
 import anthropic
+import httpx
 import httpx2
 import pytest
 from pydantic import ValidationError
 
-from app.api.prep import chat_limiter
+from app.api import prep
+from app.api.prep import chat_limiter, playback_limiter
 from app.core.config import settings
-from app.services import chat_service
-from app.services.prep_catalog import PrepSubject
+from app.services import chat_service, video_drm
+from app.services.prep_catalog import PrepSubject, find_lecture
 
-CHAT_URL = "/public/prep/mala-matura/matematika/procenti/chat"
+LECTURE_URL = "/public/prep/mala-matura/matematika/procenti"
+CHAT_URL = LECTURE_URL + "/chat"
+PLAYBACK_URL = LECTURE_URL + "/playback"
+VIDEO_ID = "0123456789abcdef0123456789abcdef"
 ANTHROPIC_REQUEST = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
 
 
@@ -68,8 +75,10 @@ class FakeClient:
 @pytest.fixture(autouse=True)
 def fresh_limiter():
     chat_limiter.reset()
+    playback_limiter.reset()
     yield
     chat_limiter.reset()
+    playback_limiter.reset()
 
 
 @pytest.fixture()
@@ -84,6 +93,50 @@ def fake_claude(monkeypatch):
         return holder["client"]
 
     return install
+
+
+@pytest.fixture()
+def protected_lecture(monkeypatch):
+    """„Procenti“ dobijaju zaštićen snimak; ostali snimci ostaju kakvi su u katalogu."""
+    def with_drm(exam_slug, subject_slug, lecture_slug):
+        ctx = find_lecture(exam_slug, subject_slug, lecture_slug)
+        if ctx and ctx.lecture.slug == "procenti":
+            return ctx.model_copy(update={"lecture": ctx.lecture.model_copy(update={"vdocipher_id": VIDEO_ID})})
+        return ctx
+
+    monkeypatch.setattr(prep, "find_lecture", with_drm)
+
+
+@pytest.fixture()
+def fake_vdocipher(monkeypatch):
+    """Uključuje DRM sa lažnim VdoCipher serverom: `calls` su primljeni zahtevi, `status` odgovor koji vraća."""
+    monkeypatch.setattr(settings, "VDOCIPHER_API_SECRET", "test-secret")
+    fake = SimpleNamespace(calls=[], status=200)
+
+    def handler(request):
+        fake.calls.append(request)
+        if fake.status != 200:
+            return httpx.Response(fake.status, json={"message": "Forbidden"})
+        return httpx.Response(200, json={"otp": "otp-123", "playbackInfo": "info-abc=="})
+
+    real_client = httpx.AsyncClient
+    monkeypatch.setattr(httpx, "AsyncClient", functools.partial(real_client, transport=httpx.MockTransport(handler)))
+    return fake
+
+
+@pytest.fixture()
+def paid_student(client, db):
+    """Učenik sa plaćenom malom maturom; vraća Authorization zaglavlje."""
+    from app.models.prep_purchase import PrepPurchase
+
+    token = client.post("/auth/student/register", json={
+        "full_name": "Ana Učenik", "email": "ana@test.com", "password": "lozinka123", "category": "osnovna",
+    }).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    student_id = client.get("/student/me", headers=headers).json()["id"]
+    db.add(PrepPurchase(student_id=student_id, exam_slug="mala-matura", amount_eur=50, card_brand="Visa", card_last4="4242", transaction_id="test_drm"))
+    db.flush()
+    return headers
 
 
 def ask(client, messages=None):
@@ -237,3 +290,96 @@ class TestLectureChat:
     def test_chat_for_unknown_lecture_is_404(self, client, fake_claude):
         resp = client.post("/public/prep/mala-matura/matematika/nema-ga/chat", json={"messages": [{"role": "user", "content": "?"}]})
         assert resp.status_code == 404
+
+
+class TestProtectedVideo:
+    def test_lecture_detail_marks_protected_video_without_exposing_id(self, client, protected_lecture, paid_student):
+        resp = client.get(LECTURE_URL, headers=paid_student)
+        assert resp.json()["drm_protected"] is True
+        assert VIDEO_ID not in resp.text
+        other = client.get("/public/prep/mala-matura/matematika/razlomci-i-decimalni-brojevi", headers=paid_student).json()
+        assert other["drm_protected"] is False
+
+    def test_guest_sees_locked_video_not_the_player(self, client, protected_lecture):
+        data = client.get(LECTURE_URL).json()
+        assert data["has_video"] is True and data["drm_protected"] is False
+        assert data["access"]["purchased"] is False
+
+    def test_playback_requires_a_paid_student(self, client, protected_lecture, fake_vdocipher):
+        """Bez ove provere bi DRM plejer pustio snimak i onome ko nije platio."""
+        guest = client.post(PLAYBACK_URL)
+        assert guest.status_code == 401
+        token = client.post("/auth/student/register", json={"full_name": "Bez Uplate", "email": "bez@test.com", "password": "lozinka123"}).json()["access_token"]
+        unpaid = client.post(PLAYBACK_URL, headers={"Authorization": f"Bearer {token}"})
+        assert unpaid.status_code == 403
+        assert "Otključaj" in unpaid.json()["detail"]
+        assert fake_vdocipher.calls == []
+
+    def test_playback_is_off_without_api_secret(self, client, protected_lecture, paid_student):
+        resp = client.post(PLAYBACK_URL, headers=paid_student)
+        assert resp.status_code == 503
+        assert "nije dostupan" in resp.json()["detail"]
+
+    def test_paid_student_gets_player_src_with_name_watermark(self, client, protected_lecture, fake_vdocipher, paid_student):
+        resp = client.post(PLAYBACK_URL, headers=paid_student)
+        assert resp.status_code == 200
+        assert resp.json() == {"src": "https://player.vdocipher.com/v2/?otp=otp-123&playbackInfo=info-abc%3D%3D"}
+
+        [request] = fake_vdocipher.calls
+        assert request.method == "POST"
+        assert str(request.url) == f"https://dev.vdocipher.com/api/videos/{VIDEO_ID}/otp"
+        assert request.headers["Authorization"] == "Apisecret test-secret"
+        body = json.loads(request.content)
+        assert body["ttl"] == 300
+        assert body["whitelisthref"] == video_drm.allowed_site_pattern()
+        [mark] = json.loads(body["annotate"])  # VdoCipher traži annotate kao JSON string
+        assert mark["type"] == "rtext"
+        assert mark["text"] == "Ana Učenik · ana@test.com"
+
+    def test_player_works_only_on_our_domain(self, monkeypatch):
+        monkeypatch.setattr(settings, "FRONTEND_URL", "https://www.brainstorm.rs")
+        pattern = video_drm.allowed_site_pattern()
+        for ours in ("brainstorm.rs", "www.brainstorm.rs", "https://brainstorm.rs/mala-matura/matematika/procenti", "https://www.brainstorm.rs"):
+            assert re.search(pattern, ours), ours
+        for foreign in ("brainstorm.rs.napadac.com", "brainstormXrs", "lazni-brainstorm.rs", "app.brainstorm.rs", "https://napadac.com/?r=https://brainstorm.rs/"):
+            assert not re.search(pattern, foreign), foreign
+
+    def test_playback_refuses_when_site_has_no_domain(self, client, protected_lecture, fake_vdocipher, paid_student, monkeypatch):
+        # Bez domena propusnica bi radila na bilo kom sajtu, pa se snimak ne pušta.
+        monkeypatch.setattr(settings, "FRONTEND_URL", "brainstorm.rs")
+        assert client.post(PLAYBACK_URL, headers=paid_student).status_code == 502
+        assert fake_vdocipher.calls == []
+
+    def test_lecture_without_protected_video_is_404(self, client, protected_lecture, fake_vdocipher):
+        resp = client.post("/public/prep/mala-matura/matematika/razlomci-i-decimalni-brojevi/playback")
+        assert resp.status_code == 404
+        assert fake_vdocipher.calls == []
+
+    def test_vdocipher_failure_is_friendly_error(self, client, protected_lecture, fake_vdocipher, paid_student):
+        fake_vdocipher.status = 403
+        resp = client.post(PLAYBACK_URL, headers=paid_student)
+        assert resp.status_code == 502
+        assert "Pokušaj ponovo" in resp.json()["detail"]
+
+    def test_too_many_playback_requests_from_one_ip(self, client, protected_lecture, fake_vdocipher, paid_student, monkeypatch):
+        monkeypatch.setattr(prep, "PLAYBACK_RATE_LIMIT", 2)
+        assert client.post(PLAYBACK_URL, headers=paid_student).status_code == 200
+        assert client.post(PLAYBACK_URL, headers=paid_student).status_code == 200
+        resp = client.post(PLAYBACK_URL, headers=paid_student)
+        assert resp.status_code == 429
+        assert len(fake_vdocipher.calls) == 2
+
+    def test_protected_video_cannot_have_public_copy(self):
+        for public in ({"youtube_id": "dQw4w9WgXcQ"}, {"video_url": "https://example.com/snimak.mp4"}):
+            with pytest.raises(ValidationError):
+                PrepSubject.model_validate({
+                    "slug": "matematika", "name": "Matematika",
+                    "groups": [{"slug": "a", "name": "A", "lectures": [{"slug": "x", "title": "X", "vdocipher_id": VIDEO_ID, **public}]}],
+                })
+
+    def test_vdocipher_id_is_validated(self):
+        with pytest.raises(ValidationError):
+            PrepSubject.model_validate({
+                "slug": "matematika", "name": "Matematika",
+                "groups": [{"slug": "a", "name": "A", "lectures": [{"slug": "x", "title": "X", "vdocipher_id": "nije-id"}]}],
+            })

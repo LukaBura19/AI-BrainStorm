@@ -175,11 +175,57 @@ Novi snimak ili nova oblast dodaju se samo u JSON, bez izmene koda:
 ```
 
 `youtube_id` je deo YouTube linka posle `watch?v=` (11 znakova); umesto njega
-može `video_url` sa direktnim linkom na video fajl. Bez videa stranica prikazuje
-„Snimak stiže uskoro“. `slug` mora biti jedinstven u okviru predmeta. Rešenja
-(`solution`) se ne prikazuju na sajtu: dobija ih samo asistent, da bi proverio
-postupak učenika i davao tačne rezultate. Posle izmene JSON-a restartuj backend
-(`docker compose restart backend`).
+može `video_url` sa direktnim linkom na video fajl, a za snimke koje niko ne sme
+da kopira `vdocipher_id` (vidi [Zaštićeni snimci](#zaštićeni-snimci-drm-bez-preuzimanja-i-sa-crnim-ekranom-pri-snimanju)).
+Bez videa stranica prikazuje „Snimak stiže uskoro“. `slug` mora biti jedinstven
+u okviru predmeta. Rešenja (`solution`) se ne prikazuju na sajtu: dobija ih samo
+asistent, da bi proverio postupak učenika i davao tačne rezultate. Posle izmene
+JSON-a restartuj backend (`docker compose restart backend`).
+
+### Zaštićeni snimci (DRM): bez preuzimanja i sa crnim ekranom pri snimanju
+
+Snimak upisan kao `youtube_id` ili `video_url` može da se preuzme i snimi sa
+ekrana kao i svaki drugi video na internetu. Za snimke koje ne želiš da iko
+kopira koristi `vdocipher_id`: video se otprema na
+[VdoCipher](https://www.vdocipher.com) (DRM hosting za e-učenje), a na sajtu se
+pušta kroz Widevine/FairPlay DRM, istu zaštitu koju koristi Netflix. Fajl nikad
+ne stiže u pregledač u celini i dešifruje se tek u zaštićenom delu uređaja, pa
+ne može da se sačuva ni alatima za skidanje videa. Skrinšot i snimanje ekrana
+daju crn ekran tamo gde uređaj to podržava: Windows (Chrome, Edge, Firefox) na
+većini računara, Safari na Mac-u, iPhone-u i iPad-u (kad je na nalogu uključen
+FairPlay) i Android telefoni (VdoCipher to uključuje na nalogu na zahtev, piše se
+njihovoj podršci). Na Mac-u u Chrome-u i Firefox-u i na Linux-u crn ekran nije
+moguć, ni kod Netflixa. Telefon uperen u ekran uvek može da snimi sliku. Zato
+preko svakog snimka ide i vodeni žig: na promenljivom mestu slike ispisuje se ime
+i email prijavljenog učenika, pa se zna odakle je kopija snimljena telefonom ili
+drugim uređajem. Propusnicu za plejer dobija samo prijavljen učenik koji je platio
+tu pripremu; gost dobija 401, a učenik bez uplate 403.
+
+Podešavanje:
+
+1. Napravi nalog na VdoCipher-u (ima besplatnu probu, posle se plaća DRM plan).
+   Otpremi snimak u kontrolnoj tabli i prepiši njegov *Video ID* (32 znaka).
+2. U kontrolnoj tabli pod *Config → API Keys* klikni *Generate API Key* i upiši
+   ključ samo u lokalni `.env`:
+
+   ```dotenv
+   VDOCIPHER_API_SECRET=...
+   ```
+
+3. Snimku u `prep_lectures.json` dodaj `"vdocipher_id": "<Video ID>"` umesto
+   `youtube_id` i pokreni `docker compose up -d --no-deps --force-recreate backend`.
+
+Pri svakom otvaranju stranice backend svojim tajnim ključem traži od VdoCipher-a
+jednokratnu propusnicu (OTP) i pregledaču vraća samo adresu plejera, pa ključ
+nikad ne napušta server. Propusnica važi 5 minuta i plejer sa njom radi samo na
+domenu iz `FRONTEND_URL` (sa `www.` ili bez), zato `FRONTEND_URL` mora imati
+`https://` i domen. Bez domena se zaštićeni snimci ne puštaju, a u logu piše
+zašto. Jedna IP adresa može zatražiti najviše 120 propusnica u 10 minuta. Ako
+backend stoji iza reverse proxy-ja, upiši IP adresu proxy-ja u
+`FORWARDED_ALLOW_IPS`, inače svi posetioci izgledaju kao jedna adresa. Snimak
+ne sme imati i `vdocipher_id` i `youtube_id` ili `video_url`, jer bi se preko
+javnog linka mogao preuzeti; backend tada odbija katalog. Bez ključa zaštićeni
+snimci javljaju „Snimak trenutno nije dostupan“, a ostatak sajta radi.
 
 **Asistent** koristi Claude API. Ključ se pravi na
 [platform.claude.com](https://platform.claude.com) i upisuje samo u lokalni `.env`:
@@ -354,6 +400,8 @@ docker compose exec backend python -m app.db.seed
 | `CHAT_EFFORT` | `medium` | `low`/`medium`/`high`/`xhigh`/`max`: temeljnost naspram brzine i cene |
 | `CHAT_RATE_LIMIT` | `30` | Najviše poruka sa jedne IP adrese u prozoru |
 | `CHAT_RATE_WINDOW_SECONDS` | `600` | Dužina prozora za `CHAT_RATE_LIMIT` |
+| `VDOCIPHER_API_SECRET` | *(prazno)* | API ključ sa VdoCipher-a; bez njega zaštićeni snimci (`vdocipher_id`) nisu dostupni |
+| `FORWARDED_ALLOW_IPS` | `127.0.0.1` | IP adresa reverse proxy-ja kome backend veruje za pravu IP adresu posetioca |
 | `ADMIN_PASSWORD` | `admin123` | Seed admin lozinka |
 
 ### Email u produkciji

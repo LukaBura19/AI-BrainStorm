@@ -60,6 +60,11 @@ class Settings(BaseSettings):
     CHAT_RATE_LIMIT: int = 30
     CHAT_RATE_WINDOW_SECONDS: int = 600
 
+    # ---- Zaštićeni snimci (VdoCipher DRM) ----
+    # Tajni API ključ iz VdoCipher kontrolne table (Config → API Keys); nikad ne ide u pregledač.
+    # Bez ključa snimci sa vdocipher_id javljaju da trenutno nisu dostupni.
+    VDOCIPHER_API_SECRET: str = ""
+
     # ---- Admin seed ----
     ADMIN_EMAIL: str = "admin@brainstorm.com"
     ADMIN_PASSWORD: str = "admin123"

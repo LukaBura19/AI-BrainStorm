@@ -36,6 +36,9 @@
 .lecture-video-actions .lecture-video-login { border-color: rgba(247, 243, 236, .5); background: transparent; color: var(--paper); }
 .lecture-video-actions .lecture-video-login:hover { border-color: var(--paper); background: var(--paper); color: var(--forest); }
 .lecture-video-login:focus-visible, .lecture-video-actions .btn-accent:focus-visible { outline-color: var(--paper); }
+.lecture-video--soon .spinner-wrapper { position: relative; }
+.lecture-video--soon .spinner { border-color: rgba(247, 243, 236, .25); border-top-color: var(--paper); }
+.lecture-video--soon .spinner-text { color: rgba(247, 243, 236, .78); }
 
 /* ---- Zadaci ---- */
 .lecture-tasks { padding: clamp(18px, 2.2vw, 26px); border: 1px solid var(--color-border); border-radius: 22px; background: var(--card); }
