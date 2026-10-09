@@ -62,18 +62,22 @@ test("profesor: raspored, dostupnost za više dana i prelaz u admin panel bez no
   await expect(page.getByText("Izabrano: 2")).toBeVisible();
   await page.getByRole("button", { name: /Ceo dan/ }).click();
   await expect(page.getByText("2 dana · 08:00–20:00")).toBeVisible();
+  // Postojeći termini su sklopljeni dok se ne otvore.
   const blocks = page.locator(".avail-block");
+  await expect(blocks).toHaveCount(0);
+  await page.getByRole("button", { name: /Vaši slobodni termini/ }).click();
+  await expect(page.getByText(/Periodi u kojima učenici mogu da zakažu čas/)).toBeVisible();
   const before = await blocks.count();
   await page.getByRole("button", { name: "Dodaj dostupnost" }).click();
   await expect(page.getByText("Dostupnost 08:00–20:00 je dodata za 2 dana.")).toBeVisible();
   await expect(blocks).toHaveCount(before + 2);
 
-  // Vrati stanje: zatvori oba nova bloka (poslednja dva dana u listi).
+  // Vrati stanje: ukloni oba nova bloka (poslednja dva dana u listi).
   for (let index = 0; index < 2; index += 1) {
     const block = blocks.last();
     await expect(block).toContainText("08:00–20:00");
     await block.locator(".avail-block-close").click();
-    await block.getByRole("button", { name: "Zatvori termin", exact: true }).click();
+    await block.getByRole("button", { name: "Ukloni termin", exact: true }).click();
     await expect(blocks).toHaveCount(before + 1 - index);
   }
 

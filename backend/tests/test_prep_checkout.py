@@ -64,9 +64,10 @@ class TestLockedVideos:
         assert detail["access"] == {**detail["access"], "signed_in": True, "purchased": False}
         assert detail["youtube_id"] is None
 
-    def test_tasks_and_neighbours_stay_public(self, client, video_lecture):
+    def test_tasks_are_locked_but_neighbours_stay_public(self, client, video_lecture):
         detail = client.get(LECTURE_URL).json()
-        assert len(detail["tasks"]) == 3 and detail["next"]["slug"] == "linearne-jednacine"
+        assert detail["tasks"] == [] and detail["task_count"] == 3
+        assert detail["next"]["slug"] == "linearne-jednacine"
 
 
 class TestCheckout:
@@ -82,6 +83,7 @@ class TestCheckout:
 
         detail = client.get(LECTURE_URL, headers=headers).json()
         assert detail["youtube_id"] == VIDEO_ID and detail["access"]["purchased"] is True
+        assert len(detail["tasks"]) == 3
         exam = client.get(EXAM_URL, headers=headers).json()
         assert exam["access"]["purchased"] is True
         assert VIDEO_ID in client.get(EXAM_URL, headers=headers).text

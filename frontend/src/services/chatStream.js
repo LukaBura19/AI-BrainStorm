@@ -13,11 +13,13 @@ export class ChatError extends Error {
  * `onEvent` dobija događaje sa servera: delta, done, refusal ili error.
  */
 export async function streamLectureChat({ exam, subject, lecture, messages, signal, onEvent }) {
+  // Asistent je deo plaćenog pristupa, pa server mora da zna koji je učenik prijavljen.
+  const token = localStorage.getItem("token");
   let response;
   try {
     response = await fetch(`${API_URL}/public/prep/${exam}/${subject}/${lecture}/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ messages }),
       signal,
     });

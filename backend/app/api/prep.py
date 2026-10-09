@@ -107,7 +107,9 @@ class LectureDetail(BaseModel):
     # Snimak ide kroz DRM plejer: pregledač traži propusnicu na .../playback (ID snimka se ne objavljuje).
     drm_protected: bool = False
     duration_minutes: Optional[int] = None
+    # Tekst zadataka stiže samo uz plaćen pristup; task_count je uvek tu, da stranica pokaže šta se otključava.
     tasks: List[str]
+    task_count: int
     chat_available: bool
     access: AccessOut
     previous: Optional[LectureLink] = None
@@ -227,6 +229,14 @@ def purchase_out(purchase: PrepPurchase) -> PurchaseOut:
     )
 
 
+def _require_purchase(exam: PrepExam, student: Optional[Student], what: str) -> None:
+    """Snimak i asistent samo za učenika koji je platio ovu pripremu; inače bi zaobišli naplatu."""
+    if student is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Prijavi se na nalog sa kojim si platio pristup snimcima.")
+    if exam.slug not in purchased_exams(student):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"{what} je deo paketa {exam.title}. Otključaj ga kupovinom pristupa.")
+
+
 def _fail(status_code: int, code: str, message: str):
     """Greška sa kodom koji frontend može da prepozna (npr. da ponudi prijavu)."""
     raise HTTPException(status_code=status_code, detail={"code": code, "message": message})
@@ -291,7 +301,7 @@ def get_prep_exam(exam_slug: str, student: Optional[Student] = Depends(get_optio
 
 @router.get("/{exam_slug}/{subject_slug}/{lecture_slug}", response_model=LectureDetail)
 def get_prep_lecture(exam_slug: str, subject_slug: str, lecture_slug: str, student: Optional[Student] = Depends(get_optional_student)):
-    """Jedan snimak: zadaci i susedni snimci za sve; video samo za učenika sa plaćenim pristupom."""
+    """Jedan snimak: susedni snimci za sve; zadaci i video samo za učenika sa plaćenim pristupom."""
     ctx = _lecture_or_404(exam_slug, subject_slug, lecture_slug)
     ordered = [lecture for group in ctx.subject.groups for lecture in group.lectures]
     position = next(index for index, lecture in enumerate(ordered) if lecture.slug == ctx.lecture.slug)
@@ -311,7 +321,8 @@ def get_prep_lecture(exam_slug: str, subject_slug: str, lecture_slug: str, stude
         video_url=lecture.video_url if access.purchased else None,
         drm_protected=bool(lecture.vdocipher_id) and access.purchased,
         duration_minutes=lecture.duration_minutes,
-        tasks=[task.text for task in lecture.tasks],
+        tasks=[task.text for task in lecture.tasks] if access.purchased else [],
+        task_count=len(lecture.tasks),
         chat_available=chat_service.is_configured(),
         access=access,
         previous=LectureLink(slug=previous.slug, title=previous.title) if previous else None,
@@ -424,11 +435,7 @@ async def start_protected_playback(
     ctx = _lecture_or_404(exam_slug, subject_slug, lecture_slug)
     if not ctx.lecture.vdocipher_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ovaj snimak nema zaštićen video.")
-    # Propusnica samo za učenika koji je platio ovu pripremu; inače bi DRM plejer zaobišao naplatu.
-    if student is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Prijavi se na nalog sa kojim si platio pristup snimcima.")
-    if ctx.exam.slug not in purchased_exams(student):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Snimak je deo paketa {ctx.exam.title}. Otključaj ga kupovinom pristupa.")
+    _require_purchase(ctx.exam, student, "Snimak")
     if not video_drm.is_configured():
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Snimak trenutno nije dostupan. Pokušaj kasnije.")
 
@@ -448,14 +455,22 @@ async def start_protected_playback(
 
 
 @router.post("/{exam_slug}/{subject_slug}/{lecture_slug}/chat")
-async def chat_about_lecture(exam_slug: str, subject_slug: str, lecture_slug: str, payload: ChatRequest, request: Request):
+async def chat_about_lecture(
+    exam_slug: str,
+    subject_slug: str,
+    lecture_slug: str,
+    payload: ChatRequest,
+    request: Request,
+    student: Optional[Student] = Depends(get_optional_student),
+):
     """
-    Pitanje asistentu o zadacima sa snimka. Odgovor stiže kao text/event-stream:
-    svaka linija `data:` nosi JSON događaj (delta, done, refusal ili error).
+    Pitanje asistentu o zadacima sa snimka, samo uz plaćen pristup (asistent zna zadatke i rešenja).
+    Odgovor stiže kao text/event-stream: svaka linija `data:` nosi JSON događaj (delta, done, refusal ili error).
     """
     ctx = _lecture_or_404(exam_slug, subject_slug, lecture_slug)
     if not chat_service.is_configured():
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Asistent još nije podešen.")
+    _require_purchase(ctx.exam, student, "Asistent")
     _validate_conversation(payload.messages)
 
     client_ip = request.client.host if request.client else "unknown"

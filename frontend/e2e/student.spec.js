@@ -39,7 +39,7 @@ test("učenik pravi nalog, zakazuje čas i vidi ga u svom panelu", async ({ page
   await expect(page.getByText(/Zakazuješ sa naloga/)).toBeVisible();
   await page.getByRole("button", { name: "Pregledaj" }).click();
   await page.getByRole("button", { name: "Potvrdi rezervaciju" }).click();
-  await expect(page.getByRole("heading", { name: "Vidimo se na času!" })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: "Vidimo se!" })).toBeVisible({ timeout: 15_000 });
 
   await page.getByRole("link", { name: "Moji časovi" }).click();
   await expect(page).toHaveURL(/\/ucenik\/panel$/);

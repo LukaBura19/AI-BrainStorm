@@ -23,7 +23,11 @@
 .avail-presets { display: flex; flex-wrap: wrap; gap: 8px; }
 .avail-presets .filter-chip em { color: inherit; }
 
-.avail-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; max-width: 640px; }
+/* Dostupnost: naslov, kalendar i koraci u koloni na sredini kartice. */
+.avail-card > * { width: min(100%, 640px); margin-inline: auto; }
+.avail-card .section-header { text-align: center; }
+.avail-card .section-desc { margin-inline: auto; }
+.avail-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; max-width: 640px; margin-inline: auto; }
 .avail-calendar-head { padding-bottom: 2px; color: var(--color-text-muted); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
 .avail-calendar .date-chip { min-width: 0; padding: 8px 2px; }
 .avail-calendar .date-chip.is-weekend:not(.selected) { background: var(--paper); }
@@ -55,15 +59,19 @@
 .avail-failures { margin: 6px 0 0 18px; }
 
 /* ---- Existing availability, grouped by day ---- */
-.avail-existing { margin-top: var(--spacing-xl); padding-top: var(--spacing-xl); border-top: 1px solid var(--color-border); }
-.avail-existing-title { display: flex; align-items: center; gap: 10px; margin-bottom: var(--spacing-lg); color: var(--ink); font-family: var(--font-display); font-size: var(--font-size-lg); font-weight: 500; }
-.avail-count { min-width: 24px; padding: 2px 9px; border-radius: var(--radius-full); background: var(--forest-soft); color: var(--forest); font-family: var(--font-family); font-size: var(--font-size-xs); font-weight: 700; text-align: center; }
+/* Postojeći termini: dugme kao filter, lista se otvara na klik. */
+.avail-existing { display: grid; justify-items: center; margin-top: var(--spacing-xl); padding-top: var(--spacing-xl); border-top: 1px solid var(--color-border); }
+.teacher-dashboard .avail-toggle { display: inline-flex; align-items: center; gap: 8px; }
+.avail-toggle-chevron { transition: transform .2s; }
+.avail-toggle[aria-expanded="true"] .avail-toggle-chevron { transform: rotate(180deg); }
+.avail-existing-list { justify-self: stretch; margin-top: 18px; }
+.avail-existing-hint { margin-bottom: 14px; color: var(--color-text-secondary); font-size: 13.5px; line-height: 1.5; text-align: center; }
 .avail-blocks { display: grid; gap: 8px; list-style: none; }
 .avail-block { padding: 10px 12px 10px 16px; border: 1px solid var(--color-border); border-left: 3px solid var(--forest); border-radius: 12px; background: var(--card); }
 .avail-block-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
 .avail-block-time { min-width: 110px; color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
 .avail-block-booked { flex: 1; min-width: 0; color: var(--color-text-secondary); font-size: 13.5px; overflow-wrap: anywhere; }
-.avail-block-close { min-height: 34px; display: inline-flex; align-items: center; gap: 5px; padding: 0 12px; border: 1px solid rgba(179, 65, 46, .22); border-radius: 10px; background: rgba(179, 65, 46, .05); color: var(--color-error); cursor: pointer; font-size: 13px; font-weight: 600; }
+.avail-block-close { min-height: 34px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border: 1px solid rgba(179, 65, 46, .22); border-radius: 10px; background: rgba(179, 65, 46, .05); color: var(--color-error); cursor: pointer; font-size: 13px; font-weight: 600; white-space: nowrap; }
 .avail-block-close:hover { border-color: var(--color-error); background: rgba(179, 65, 46, .1); }
 
 /* ---- Empty state ---- */

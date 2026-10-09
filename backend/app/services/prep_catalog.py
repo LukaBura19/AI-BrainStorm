@@ -5,7 +5,7 @@ Sadržaj se drži u app/data/prep_lectures.json: ispit → predmet → oblast �
 Novi snimak se dodaje u JSON bez izmena u kodu: vdocipher_id za zaštićen snimak (DRM: ne može da se
 preuzme, snimanje ekrana daje crn ekran), youtube_id ili video_url za javan, nezaštićen snimak.
 Rešenja zadataka ne idu na stranicu; koristi ih samo asistent da bi proveravao rad učenika.
-Svaki ispit ima cenu pristupa (price_eur); video se šalje samo učeniku koji je platio.
+Svaki ispit ima cenu pristupa (price_eur); video, zadaci i asistent su samo za učenika koji je platio.
 """
 
 import json
