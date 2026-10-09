@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = "admin@brainstorm.com"
     ADMIN_PASSWORD: str = "admin123"
     ADMIN_FULL_NAME: str = "Admin BrainStorm"
+    # Javni server (Vercel): svi seed nalozi dobijaju ovu lozinku, jer su test lozinke iz repoa javne.
+    # Prazno = test lozinke iz app/db/seed.py (lokalni razvoj).
+    SEED_PASSWORD: str = ""
 
     @model_validator(mode="after")
     def validate_mail_transport(self):

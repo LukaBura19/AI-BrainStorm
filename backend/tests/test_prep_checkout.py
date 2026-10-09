@@ -5,7 +5,8 @@ zaključavanje videa bez uplate i test učenik iz seed-a.
 
 import pytest
 
-from app.db.seed import seed_students
+from app.core.config import settings
+from app.db.seed import seed_admins, seed_students
 from app.models.prep_purchase import PrepPurchase
 from app.models.student import Student
 from app.services import email_service, payment_service
@@ -176,6 +177,17 @@ class TestSeedStudents:
         items = client.get("/student/prep", headers=auth(login.json()["access_token"])).json()["items"]
         assert [(item["slug"], item["purchased"]) for item in items] == [("mala-matura", True), ("velika-matura", True)]
         assert db.query(PrepPurchase).count() == 2
+
+    def test_seed_password_replaces_public_test_passwords(self, client, db, monkeypatch):
+        """Na javnom serveru test lozinke iz repoa ne smeju da otvore admin panel."""
+        monkeypatch.setattr(settings, "SEED_PASSWORD", "serverska-lozinka-za-seed")
+        seed_admins(db)
+        seed_students(db)
+        admin = {"email": "lukabura89@gmail.com", "password": "serverska-lozinka-za-seed"}
+        assert client.post("/auth/admin/login", json=admin).status_code == 200
+        assert client.post("/auth/admin/login", json={**admin, "password": "profesor123"}).status_code == 401
+        student = {"email": "matura@brainstorm.com", "password": "serverska-lozinka-za-seed"}
+        assert client.post("/auth/student/login", json=student).status_code == 200
 
 
 class TestPaymentService:
