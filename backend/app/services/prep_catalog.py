@@ -2,7 +2,8 @@
 Katalog snimaka za pripreme (mala i velika matura).
 
 Sadržaj se drži u app/data/prep_lectures.json: ispit → predmet → oblast → snimak → zadaci.
-Novi snimak se dodaje u JSON (youtube_id ili video_url), bez izmena u kodu.
+Novi snimak se dodaje u JSON bez izmena u kodu: vdocipher_id za zaštićen snimak (DRM: ne može da se
+preuzme, snimanje ekrana daje crn ekran), youtube_id ili video_url za javan, nezaštićen snimak.
 Rešenja zadataka ne idu na stranicu; koristi ih samo asistent da bi proveravao rad učenika.
 """
 
@@ -17,6 +18,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 CATALOG_PATH = Path(__file__).resolve().parent.parent / "data" / "prep_lectures.json"
 SLUG_PATTERN = r"^[a-z0-9]+(?:-[a-z0-9]+)*$"
 YOUTUBE_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+VDOCIPHER_ID = re.compile(r"^[A-Za-z0-9]{32}$")
 
 
 class PrepTask(BaseModel):
@@ -30,6 +32,8 @@ class PrepLecture(BaseModel):
     summary: str = ""
     youtube_id: Optional[str] = None
     video_url: Optional[str] = None
+    # Video ID iz VdoCipher kontrolne table; snimak se tada pušta samo kroz DRM plejer.
+    vdocipher_id: Optional[str] = None
     duration_minutes: Optional[int] = Field(default=None, ge=1)
     tasks: List[PrepTask] = []
 
@@ -40,9 +44,23 @@ class PrepLecture(BaseModel):
             raise ValueError("youtube_id mora biti ID od 11 znakova (deo linka posle watch?v=)")
         return value or None
 
+    @field_validator("vdocipher_id")
+    @classmethod
+    def _vdocipher_id(cls, value: Optional[str]) -> Optional[str]:
+        if value and not VDOCIPHER_ID.match(value):
+            raise ValueError("vdocipher_id mora biti Video ID od 32 znaka iz VdoCipher kontrolne table")
+        return value or None
+
+    @model_validator(mode="after")
+    def _protected_video_has_no_public_copy(self):
+        # API vraća youtube_id i video_url, pa bi uz zaštićen snimak otkrili njegovu nezaštićenu kopiju.
+        if self.vdocipher_id and (self.youtube_id or self.video_url):
+            raise ValueError(f"Snimak '{self.slug}' ima vdocipher_id, pa ne sme imati i youtube_id ili video_url (preko njih bi mogao da se preuzme)")
+        return self
+
     @property
     def has_video(self) -> bool:
-        return bool(self.youtube_id or self.video_url)
+        return bool(self.vdocipher_id or self.youtube_id or self.video_url)
 
 
 class PrepGroup(BaseModel):

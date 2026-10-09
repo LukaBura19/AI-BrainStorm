@@ -7,7 +7,35 @@ import Spinner from "../components/Spinner";
 import LectureChat from "../components/LectureChat";
 import "./LecturePage.css";
 
+/** Zaštićen snimak: server izda kratkotrajnu propusnicu, a DRM plejer dešifruje video tek u uređaju. */
+function ProtectedVideo({ lecture }) {
+  const [src, setSrc] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    setSrc("");
+    setError("");
+    api.post(`/public/prep/${lecture.exam.slug}/${lecture.subject.slug}/${lecture.slug}/playback`, {})
+      .then((data) => { if (active) setSrc(data.src); })
+      .catch((err) => { if (active) setError(err.message); });
+    return () => { active = false; };
+  }, [lecture.exam.slug, lecture.subject.slug, lecture.slug]);
+
+  if (error) {
+    return (
+      <div className="lecture-video lecture-video--soon" role="alert">
+        <strong>Snimak se nije pokrenuo</strong>
+        <p>{error}</p>
+      </div>
+    );
+  }
+  if (!src) return <div className="lecture-video lecture-video--soon"><Spinner text="Pokrećem snimak…" /></div>;
+  return <div className="lecture-video"><iframe src={src} title={lecture.title} allow="encrypted-media; fullscreen" allowFullScreen /></div>;
+}
+
 function LectureVideo({ lecture }) {
+  if (lecture.drm_protected) return <ProtectedVideo lecture={lecture} />;
   if (lecture.youtube_id) {
     return (
       <div className="lecture-video">

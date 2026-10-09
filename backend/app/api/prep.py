@@ -7,13 +7,16 @@ import logging
 import time
 from collections import defaultdict, deque
 from typing import Deque, Dict, List, Literal, Optional
+from urllib.parse import urlencode
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from app.core.config import settings
-from app.services import chat_service
+from app.core.deps import get_optional_student
+from app.models.student import Student
+from app.services import chat_service, video_drm
 from app.services.prep_catalog import PrepLecture, find_lecture, get_exam
 
 logger = logging.getLogger("brainstorm.prep")
@@ -25,6 +28,9 @@ MAX_CHAT_MESSAGES = 40
 MAX_USER_MESSAGE_CHARS = 2000
 MAX_ASSISTANT_MESSAGE_CHARS = 12000
 MAX_CONVERSATION_CHARS = 60000
+# Propusnice za zaštićene snimke: jedna po otvaranju stranice. Granica po IP adresi štiti VdoCipher API od zloupotrebe.
+PLAYBACK_RATE_LIMIT = 120
+PLAYBACK_RATE_WINDOW_SECONDS = 600
 
 
 # ---- Odgovori ----
@@ -79,6 +85,8 @@ class LectureDetail(BaseModel):
     summary: str
     youtube_id: Optional[str] = None
     video_url: Optional[str] = None
+    # Snimak ide kroz DRM plejer: pregledač traži propusnicu na .../playback (ID snimka se ne objavljuje).
+    drm_protected: bool = False
     duration_minutes: Optional[int] = None
     tasks: List[str]
     chat_available: bool
@@ -93,6 +101,11 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
+
+
+class PlaybackOut(BaseModel):
+    # Adresa DRM plejera sa jednokratnom propusnicom; otvara se u iframe-u.
+    src: str
 
 
 # ---- Ograničenje broja poruka po IP adresi ----
@@ -124,6 +137,7 @@ class SlidingWindowLimiter:
 
 
 chat_limiter = SlidingWindowLimiter()
+playback_limiter = SlidingWindowLimiter()
 
 
 # ---- Pomoćne funkcije ----
@@ -213,12 +227,46 @@ def get_prep_lecture(exam_slug: str, subject_slug: str, lecture_slug: str):
         summary=lecture.summary,
         youtube_id=lecture.youtube_id,
         video_url=lecture.video_url,
+        drm_protected=bool(lecture.vdocipher_id),
         duration_minutes=lecture.duration_minutes,
         tasks=[task.text for task in lecture.tasks],
         chat_available=chat_service.is_configured(),
         previous=LectureLink(slug=previous.slug, title=previous.title) if previous else None,
         next=LectureLink(slug=following.slug, title=following.title) if following else None,
     )
+
+
+@router.post("/{exam_slug}/{subject_slug}/{lecture_slug}/playback", response_model=PlaybackOut)
+async def start_protected_playback(
+    exam_slug: str,
+    subject_slug: str,
+    lecture_slug: str,
+    request: Request,
+    student: Optional[Student] = Depends(get_optional_student),
+):
+    """
+    Propusnica za zaštićen snimak. Server svojim tajnim ključem traži jednokratni OTP od VdoCipher-a
+    i vraća adresu DRM plejera; vodeni žig nosi ime i email prijavljenog učenika, odnosno IP adresu gosta.
+    """
+    ctx = _lecture_or_404(exam_slug, subject_slug, lecture_slug)
+    if not ctx.lecture.vdocipher_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ovaj snimak nema zaštićen video.")
+    if not video_drm.is_configured():
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Snimak trenutno nije dostupan. Pokušaj kasnije.")
+
+    client_ip = request.client.host if request.client else "unknown"
+    if not playback_limiter.allow(client_ip, PLAYBACK_RATE_LIMIT, PLAYBACK_RATE_WINDOW_SECONDS):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Previše pokušaja za kratko vreme. Sačekaj nekoliko minuta pa pokušaj ponovo.",
+        )
+
+    viewer = f"{student.full_name} · {student.email}" if student else f"Gost · {client_ip}"
+    try:
+        ticket = await video_drm.issue_playback(ctx.lecture.vdocipher_id, viewer)
+    except video_drm.PlaybackError:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Ne možemo da pokrenemo snimak. Pokušaj ponovo za minut.")
+    return PlaybackOut(src=f"{video_drm.PLAYER_URL}?{urlencode(ticket)}")
 
 
 @router.post("/{exam_slug}/{subject_slug}/{lecture_slug}/chat")
