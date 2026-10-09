@@ -369,6 +369,41 @@ docker compose exec backend python -m app.db.seed
 
 ---
 
+## Deploy (Vercel)
+
+Grane:
+
+- `main`: ono što se testira lokalno (Docker Compose).
+- `deploy`: ono što je na sajtu. Vercel pravi produkciju samo iz ove grane (`git.deploymentEnabled` u `vercel.json`); ostale grane se ne deploy-uju.
+
+Novi deploy:
+
+```bash
+git checkout deploy
+git pull
+git merge main
+git push
+```
+
+Jedan Vercel projekat (Services) služi oba dela sa iste adrese: `frontend/` kao statični sajt i `backend/` kao FastAPI funkcija ispod `/api` (`backend/vercel_app.py`). Pre puštanja nove verzije `backend/vercel_build.sh` primeni migracije i seed (seed preskače postojeće naloge).
+
+Podešavanje u Vercel projektu:
+
+- Settings → Environments → Production → Branch Tracking: `deploy`.
+- Storage → Neon (besplatan Postgres): sam dodaje `DATABASE_URL` i `DATABASE_URL_UNPOOLED`.
+- Environment Variables:
+  - `SECRET_KEY`: nasumičan tekst, 32+ znaka (`openssl rand -hex 32`).
+  - `SEED_PASSWORD`: lozinka svih seed naloga na serveru (admin, profesori, test učenici); test lozinke iz repoa su javne.
+  - Opciono: `ANTHROPIC_API_KEY` (asistent uz snimke), `MAIL_*` sa `MAIL_ENABLED=true` (pravi emailovi; bez toga se emailovi ne šalju).
+
+Ograničenja besplatnog (Hobby) plana:
+
+- Hobby je samo za nekomercijalnu upotrebu; za pravi sajt centra potreban je Pro plan.
+- Zahtev ka API-ju može imati najviše 4,5 MB, pa veći prilozi i CV ne prolaze.
+- Prilozi i CV se čuvaju u `/tmp` funkcije i mogu da nestanu; za pravu upotrebu treba ih prebaciti u Vercel Blob.
+
+---
+
 ## Environment varijable
 
 | Varijabla | Default | Opis |

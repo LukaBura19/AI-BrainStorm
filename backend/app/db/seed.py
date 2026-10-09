@@ -146,6 +146,11 @@ SEED_STUDENTS = [
 ]
 
 
+def seed_password(data: dict) -> str:
+    """Lozinka seed naloga: SEED_PASSWORD na javnom serveru, inače test lozinka iz ovog fajla."""
+    return settings.SEED_PASSWORD or data["password"]
+
+
 def seed_students(db: Session) -> None:
     """Kreira test učenike i upisuje im plaćen pristup pripremama (ponovljivo)."""
     for s_data in SEED_STUDENTS:
@@ -156,7 +161,7 @@ def seed_students(db: Session) -> None:
             student = Student(
                 full_name=s_data["full_name"],
                 email=s_data["email"],
-                password_hash=hash_password(s_data["password"]),
+                password_hash=hash_password(seed_password(s_data)),
                 category=s_data["category"],
                 is_active=True,
             )
@@ -197,7 +202,7 @@ def seed_admins(db: Session) -> None:
         admin = Admin(
             full_name=a_data["full_name"],
             email=a_data["email"],
-            password_hash=hash_password(a_data["password"]),
+            password_hash=hash_password(seed_password(a_data)),
             is_active=True,
         )
         db.add(admin)
@@ -250,7 +255,7 @@ def seed_teachers(db: Session) -> None:
             teacher = Teacher(
                 full_name=t_data["full_name"],
                 email=t_data["email"],
-                password_hash=hash_password(t_data["password"]),
+                password_hash=hash_password(seed_password(t_data)),
                 is_active=True,
                 is_approved=True,
             )
